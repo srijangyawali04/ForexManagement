@@ -1,16 +1,3 @@
-// {
-//   "compilerOptions": {
-//       "module": "NodeNext",
-//       "target": "ES6",
-//       "baseUrl": "src",
-//       "outDir": "dist",
-//       "sourceMap": true,
-//       "noImplicitAny": true,
-//       "emitDecoratorMetadata": true,
-//       "experimentalDecorators": true
-//   },
-//   "include": ["src"]
-// }
 {
   "compilerOptions": {
     "module": "commonjs",        // Use commonjs for compatibility

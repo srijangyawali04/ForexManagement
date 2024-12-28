@@ -1,31 +1,42 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, PrimaryColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
+import { Transactions } from './Transaction';
 
-@Entity("voucher")
+@Entity('voucher')
 export class Voucher {
   @PrimaryGeneratedColumn()
   voucher_number: number;
-  
+
   @CreateDateColumn()
   voucher_date: Date;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   customer_name: string;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   passport_number: string;
-  
-  @Column({ type: "varchar", length: 10, unique: true })
+
+  @Column({ type: 'varchar', length: 10, unique: true })
   mobile_number: string;
-  
-  @Column({ type: "varchar", length: 255 })
-  customer_address: string;  
-  
-  @Column({ type: "int"})
+
+  @Column({ type: 'varchar', length: 255 })
+  customer_address: string;
+
+  @Column({ type: 'int' })
   itrs_code: number;
 
-  @Column({type:"varchar", length:100})
-  travel_order_ref_number: number;
+  @Column({ type: 'varchar', length: 100 })
+  travel_order_ref_number: string;
 
-  @Column({type:"enum",enum:["Yes","No"]})
-  voucher_cancellation:string;
+  @Column({ type: 'enum', enum: ['Yes', 'No'] })
+  voucher_cancellation: string;
+
+  // Define the OneToMany relationship to Transactions
+  @OneToMany(() => Transactions, (transaction) => transaction.voucher)
+  transactions: Transactions[];
 }

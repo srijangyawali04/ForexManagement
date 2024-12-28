@@ -6,7 +6,7 @@ import "reflect-metadata"
 import { AppDataSource } from './initializers/data-source'
 import UserRouter from './routes/userRoutes'
 import VoucherRouter from './routes/voucherRoutes';
-
+import TransactionRouter from './routes/transactionRoutes'
 // Configure CORS
 // const corsOptions = {
 //     origin: "http://52.72.129.0:5173", // Allow requests from this origin
@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api/user',UserRouter)
 app.use('/api/voucher', VoucherRouter);
+app.use('/api/transaction', TransactionRouter)
 
 // initiatlizing db & starting server
 AppDataSource.initialize()

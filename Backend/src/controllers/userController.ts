@@ -5,6 +5,36 @@ import { AppDataSource } from "../initializers/data-source";
 
 const userRepo = AppDataSource.getRepository(User);
 
+//Add User Information
+export const createUser = async (req: Request, res: Response) => {
+  const { staff_code, password, staff_name, designation,role,email,mobile_number,user_status,remarks } = req.body;
+
+  try {
+    const voucher = userRepo.create({
+      staff_code,
+      password,
+      staff_name, 
+      designation,
+      role,
+      email,
+      mobile_number,
+      user_status,
+      remarks
+    });
+
+    await userRepo.save(voucher);
+
+    return res.status(200).json({
+      message: "user created successfully.",
+      data: voucher,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
+
 
 // Get a user by staff_code
 export const getSingleUser = async (req: Request, res: Response) => {
