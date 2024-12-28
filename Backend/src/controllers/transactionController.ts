@@ -22,7 +22,6 @@ export const createTransaction = async (req: Request, res: Response) => {
   } = req.body;
 
   try {
-    // Validate that the voucher exists
     const voucher = await voucherRepo.findOne({ where: { voucher_number } });
 
     if (!voucher) {
@@ -31,7 +30,7 @@ export const createTransaction = async (req: Request, res: Response) => {
 
     // Create the transaction
     const transaction = transactionRepo.create({
-      voucher, // Link the voucher object, not just voucher_number
+      voucher, 
       currency_name,
       currency_iso_code,
       currency_code,
@@ -43,7 +42,6 @@ export const createTransaction = async (req: Request, res: Response) => {
       verified_by,
     });
 
-    // Save the transaction
     await transactionRepo.save(transaction);
 
     return res.status(200).json({
@@ -53,7 +51,6 @@ export const createTransaction = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
 
-    // Detailed error response
     return res.status(500).json({
       message: "Server error",
       error: err.message || "An unexpected error occurred.",

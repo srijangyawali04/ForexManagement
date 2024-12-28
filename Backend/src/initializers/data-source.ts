@@ -1,9 +1,9 @@
 import { DataSource, Transaction } from "typeorm"
-
 import dotenv from "dotenv"
 import { User } from "../models/User";
 import { Voucher } from "../models/Voucher";
 import { Transactions } from "../models/Transaction";
+import { ExchangeRate } from "../models/ExchangeRate";
 
 dotenv.config();
 
@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     logging: false,
     entities: [
-        User,Voucher,Transactions
+        User,Voucher,Transactions,ExchangeRate
     ],
     subscribers: [],
     migrations: [],

@@ -3,10 +3,12 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import compression from 'compression'
 import "reflect-metadata"
+import './schedule_task/scheduleTask';
 import { AppDataSource } from './initializers/data-source'
 import UserRouter from './routes/userRoutes'
 import VoucherRouter from './routes/voucherRoutes';
 import TransactionRouter from './routes/transactionRoutes'
+
 // Configure CORS
 // const corsOptions = {
 //     origin: "http://52.72.129.0:5173", // Allow requests from this origin
