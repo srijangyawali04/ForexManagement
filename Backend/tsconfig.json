@@ -1,0 +1,30 @@
+// {
+//   "compilerOptions": {
+//       "module": "NodeNext",
+//       "target": "ES6",
+//       "baseUrl": "src",
+//       "outDir": "dist",
+//       "sourceMap": true,
+//       "noImplicitAny": true,
+//       "emitDecoratorMetadata": true,
+//       "experimentalDecorators": true
+//   },
+//   "include": ["src"]
+// }
+{
+  "compilerOptions": {
+    "module": "commonjs",        // Use commonjs for compatibility
+    "target": "ES6",             // ES6 is a good target for most environments
+    "baseUrl": "./src",          // Relative path to the `src` folder
+    "outDir": "./dist",          // Output compiled files to the `dist` folder
+    "sourceMap": true,           // Generate source maps for debugging
+    "noImplicitAny": true,       // Enforce type checking (no `any` type allowed)
+    "skipLibCheck": true,        // Skip type checking for declaration files
+    "esModuleInterop": true,     // Allow compatibility between CommonJS and ES Modules
+    "emitDecoratorMetadata": true, // Required for TypeORM and other decorators
+    "experimentalDecorators": true, // Enable decorators
+    "resolveJsonModule": true    // Allow importing JSON files
+  },
+  "include": ["src"],            // Include all files in the `src` folder
+  "exclude": ["node_modules"]    // Exclude `node_modules` from compilation
+}

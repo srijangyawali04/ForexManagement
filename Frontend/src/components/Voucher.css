@@ -1,0 +1,131 @@
+/* Voucher.css */
+@page {
+  size: A4; /* Defines the size of the page for printing */
+  margin: 20mm; /* Adds margins around the page */
+}
+.container {
+  width: 100%;
+  max-width: 210mm;  /* A4 width */
+  max-height: 297mm; /* A4 height */
+  margin: 0 auto;
+  padding: 10mm;  /* Optional: Padding for spacing */
+  box-sizing: border-box;
+}
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 18px;
+    text-transform: uppercase;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  
+  .details, .table-section {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  
+  .details td {
+    padding: 5px;
+    font-size: 14px;
+  }
+  
+  /* General table styles for both headers and data cells */
+.table-section th, .table-section td {
+  border: 1px solid black; /* Border around cells */
+  text-align: center; /* Center text in cells */
+  padding: 5px; /* Padding inside cells */
+  font-size: 14px; /* Font size */
+}
+
+/* Header specific styles */
+.table-section th {
+  background-color: #f0f0f0; /* Background color for headers */
+  font-weight: normal; /* Bold font for headers */
+  text-align: left; /* Align header text to the left */
+}
+
+/* Adjust column widths for the entire table */
+.table-section th:nth-child(1), .table-section td:nth-child(1) {
+  width: 50%;  /* Set width of the first column (S.N) */
+}
+
+.table-section th:nth-child(2), .table-section td:nth-child(2) {
+  width: 30%;  /* Set width of the second column (Account Heads) */
+}
+
+/* Optional: Make sure the table doesn't stretch beyond the page */
+.table-section {
+  width: 100%;
+  table-layout: fixed; /* Fix the column widths */
+}
+
+  
+  .amount {
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .signature {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    font-size: 14px;
+  }
+  
+  .signature div {
+    border-top: 1px solid black;
+    text-align: center;
+    padding-top: 5px;
+    width: 30%;
+  }
+  
+  .notes {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+  
+  .header-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px; /* Adjust based on your layout */
+  }
+  
+  .logo {
+    width: 100px; /* Adjust logo size */
+    height: 100px;
+    margin-right: 10px; /* Space between logo and text */
+  }
+  
+
+  .title {
+    margin: 0;
+    line-height: 1.2;
+    font-family: 'Roboto', sans-serif;
+    text-align: left;
+  }
+  
+  .size1 {
+    font-size: 24px; 
+    font-weight: bold; 
+  }
+  
+  .size2 {
+    font-size: 18px; 
+    font-weight: 100;
+    text-align: left;
+  }
+  
+  .size3 {
+    font-size: 16px; 
+    font-weight: 100;
+  }
+  
