@@ -6,8 +6,8 @@ const scheduleTask = () => {
   const nowNepalTime = moment.tz("Asia/Kathmandu").format("YYYY-MM-DD HH:mm:ss");
   console.log(`Current Nepal Time: ${nowNepalTime}`);
 
-  // Schedule to run at {time} Nepal Time daily
-  cron.schedule("30 18 * * *", async () => {
+  // Schedule to run at 18:30 Nepal Time daily
+  cron.schedule("47 8 * * *", async () => {
     console.log(`Fetching forex rates at: ${nowNepalTime}`);
     await fetchForexRates();
   });

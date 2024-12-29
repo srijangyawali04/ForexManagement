@@ -14,7 +14,7 @@ export class User {
   @Column({ type: "enum", enum: ["Deputy Director", "Assistant Director","Head Assistant", "Assistant", "Deputy Assistant"] })
   designation: string;
   
-  @Column({ type: "enum", enum: ["Creator","Verifier"] })
+  @Column({ type: "enum", enum: ["Creator","Verifier","Admin"] })
   role: string;
 
   @Column({ type: "varchar", length: 100, unique: true })

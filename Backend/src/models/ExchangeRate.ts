@@ -6,7 +6,7 @@ export class ExchangeRate {
   id: number;
 
   @Column({ type: 'varchar', length: 10 })
-  from_currency: string;
+  currency_iso: string;
 
   @Column({ type: 'varchar', length: 255 })
   currency_name: string;
