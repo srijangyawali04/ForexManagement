@@ -1,0 +1,135 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const LoginPage = () => {
+  const [staffCode, setStaffCodeInput] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
+  // Handle errors
+  const handleErrors = (field, message) => {
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: message,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    let isValid = true;
+    if (!staffCode) {
+      handleErrors("staffCode", "Staff Code is required.");
+      isValid = false;
+    }
+
+    if (!password) {
+      handleErrors("password", "Password is required.");
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staff_code: staffCode, password }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store the token in localStorage
+        localStorage.setItem("authToken", data.token);
+        navigate("/voucher"); // Redirect to another page after login
+      } else {
+        alert(data.message || "Invalid credentials.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("An error occurred during login. Please try again.");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+        <div className="px-8 py-10 bg-white">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 mb-2">
+              Forex-Management
+            </h1>
+            <p className="text-gray-500 text-sm">Login to access your account</p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              {/* Staff Code Input */}
+              <div>
+                <div
+                  className={`flex items-center border rounded-lg p-3 transition-all duration-300 
+                  ${errors.staffCode ? "border-red-400" : "border-gray-300 hover:border-indigo-500"}`}
+                >
+                  <input
+                    type="text"
+                    value={staffCode}
+                    onChange={(e) => {
+                      setErrors({});
+                      setStaffCodeInput(e.target.value);
+                    }}
+                    placeholder="Staff Code"
+                    className="w-full bg-transparent outline-none text-gray-700"
+                  />
+                </div>
+                {errors.staffCode && (
+                  <div className="flex items-center text-red-500 text-xs mt-2">
+                    {errors.staffCode}
+                  </div>
+                )}
+              </div>
+
+              {/* Password Input */}
+              <div>
+                <div
+                  className={`flex items-center border rounded-lg p-3 transition-all duration-300 
+                  ${errors.password ? "border-red-400" : "border-gray-300 hover:border-indigo-500"}`}
+                >
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => {
+                      setErrors({});
+                      setPassword(e.target.value);
+                    }}
+                    placeholder="Password"
+                    className="w-full bg-transparent outline-none text-gray-700"
+                  />
+                </div>
+                {errors.password && (
+                  <div className="flex items-center text-red-500 text-xs mt-2">
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 
+              text-white font-bold rounded-lg hover:opacity-90 transition-all 
+              focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            >
+              Log In
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
