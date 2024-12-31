@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext"; // Import useAuth hook
 
 const LoginPage = () => {
   const [staffCode, setStaffCodeInput] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const { login } = useAuth();  // Get login function from context
   const navigate = useNavigate();
+
+  // Access the API URL from environment variables (using Vite-specific approach)
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   // Handle errors
   const handleErrors = (field, message) => {
@@ -34,17 +39,25 @@ const LoginPage = () => {
     if (!isValid) return;
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
+      // Make the API request to login
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_code: staffCode, password }),
       });
+
       const data = await response.json();
 
       if (response.ok) {
-        // Store the token in localStorage
-        localStorage.setItem("authToken", data.token);
-        navigate("/voucher"); // Redirect to another page after login
+        // Use the login function from context to store the token and role
+        login(data.token, data.role);
+
+        // Redirect based on role
+        if (data.role === "Admin") {
+          navigate("/user-list"); // Admin dashboard
+        } else {
+          navigate("/user/dashboard"); // User dashboard
+        }
       } else {
         alert(data.message || "Invalid credentials.");
       }

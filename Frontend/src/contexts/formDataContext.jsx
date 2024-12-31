@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import Voucher from "../components/Voucher";
+import Voucher from "../pages/Voucher";
 
 // Create a Context
 const FormDataContext = createContext();

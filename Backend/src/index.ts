@@ -10,30 +10,34 @@ import VoucherRouter from './routes/voucherRoutes';
 import TransactionRouter from './routes/transactionRoutes'
 import exchangeRoutes from './routes/exchangeRoutes';
 import authRoutes from './routes/authRoutes';
+import dotenv from "dotenv";
+
+// Initialize dotenv to load environment variables
+dotenv.config();
 
 // Configure CORS
-// const corsOptions = {
-//     origin: "http://52.72.129.0:5173", // Allow requests from this origin
-//     methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-//     credentials: true, // Allow cookies or other credentials to be sent
-// };
+const corsOptions = {
+    origin: "http://localhost:5173", 
+    methods: ["GET", "POST", "PUT", "DELETE"], 
+    credentials: true, 
+};
 
-// setting up server
 const port: number = 5000
 const app = express()
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(compression())
 app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/api/user',UserRouter)
+// Set up routes
+app.use('/api/user', UserRouter)
 app.use('/api/voucher', VoucherRouter);
 app.use('/api/transaction', TransactionRouter)
 app.use("/api/exchange-rates", exchangeRoutes);
 app.use('/api/auth', authRoutes);
 
-// initiatlizing db & starting server
+// Initialize database & start the server
 AppDataSource.initialize()
     .then(() => {
         app.listen(port, () => { console.log(`Server is running on port:${port}`); });

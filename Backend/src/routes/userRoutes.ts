@@ -1,12 +1,17 @@
 import express from "express";
-import { createUser, getSingleUser} from "../controllers/userController";
+import { createUser, getSingleUser , getAllUsers} from "../controllers/userController";
 import { authenticateToken } from "../middleware/authToken"; 
 import { verifyRole } from "../middleware/verifyRole";
 
 const router = express.Router();
 
-router.get("/:userid", getSingleUser);
+// Route to get all users
+router.get("/allusers", getAllUsers);
+
+// Route to get a single user by user ID
+router.get("/users/:userid", getSingleUser);
+
 // Create user route - Only accessible by Admins
-router.post("/", authenticateToken, verifyRole("Admin"), createUser);
+router.post("/add-user", authenticateToken, verifyRole("Admin"), createUser);
 
 export default router;

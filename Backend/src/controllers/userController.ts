@@ -51,3 +51,15 @@ export const getSingleUser = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Server error" });
     }
 };
+
+// Get all users
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    // Use the repository's find method to get all users
+    const users = await userRepo.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch users', error });
+  }
+};
