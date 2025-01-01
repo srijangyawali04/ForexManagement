@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Create a Context for Authentication
 const AuthContext = createContext();
@@ -9,6 +9,21 @@ export const AuthProvider = ({ children }) => {
     token: localStorage.getItem('authToken'),
     role: localStorage.getItem('role'),
   });
+
+  // Check if the token is expired (Example: assuming token is a JWT)
+  const isTokenExpired = (token) => {
+    if (!token) return true;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expirationTime = payload.exp * 1000;
+    return Date.now() >= expirationTime;
+  };
+
+  useEffect(() => {
+    // Automatically logout user if token is expired
+    if (authState.token && isTokenExpired(authState.token)) {
+      logout();
+    }
+  }, [authState.token]);
 
   // Login function to update the auth state
   const login = (token, role) => {

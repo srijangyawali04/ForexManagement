@@ -68,14 +68,14 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-200 flex items-center justify-center p-6">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg overflow-hidden">
         <div className="px-8 py-10 bg-white">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600 mb-2">
-              Forex-Management
+            <h1 className="text-3xl font-semibold text-gray-800 mb-2">
+              Forex Management System
             </h1>
-            <p className="text-gray-500 text-sm">Login to access your account</p>
+            <p className="text-gray-500 text-sm">Please login to your account</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -84,7 +84,7 @@ const LoginPage = () => {
               <div>
                 <div
                   className={`flex items-center border rounded-lg p-3 transition-all duration-300 
-                  ${errors.staffCode ? "border-red-400" : "border-gray-300 hover:border-indigo-500"}`}
+                  ${errors.staffCode ? "border-red-400" : "border-gray-300 hover:border-blue-500"}`}
                 >
                   <input
                     type="text"
@@ -108,7 +108,7 @@ const LoginPage = () => {
               <div>
                 <div
                   className={`flex items-center border rounded-lg p-3 transition-all duration-300 
-                  ${errors.password ? "border-red-400" : "border-gray-300 hover:border-indigo-500"}`}
+                  ${errors.password ? "border-red-400" : "border-gray-300 hover:border-blue-500"}`}
                 >
                   <input
                     type="password"
@@ -132,9 +132,7 @@ const LoginPage = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full mt-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 
-              text-white font-bold rounded-lg hover:opacity-90 transition-all 
-              focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full mt-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg hover:opacity-90 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               Log In
             </button>

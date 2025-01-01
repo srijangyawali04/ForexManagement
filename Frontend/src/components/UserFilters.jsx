@@ -1,11 +1,13 @@
 import React from 'react';
 import { UserPlus, Filter } from 'lucide-react';
 
-export default function UserFilters({ statusFilter, onStatusFilterChange, onAddUser }) {
+export default function UserFilters({ statusFilter, roleFilter, onStatusFilterChange, onRoleFilterChange, onAddUser }) {
   return (
     <div className="bg-white p-4 rounded-sm shadow mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
       <div className="flex items-center space-x-3">
         <Filter className="h-5 w-5 text-gray-400" />
+        
+        {/* Status Filter */}
         <select
           value={statusFilter}
           onChange={(e) => onStatusFilterChange(e.target.value)}
@@ -14,6 +16,18 @@ export default function UserFilters({ statusFilter, onStatusFilterChange, onAddU
           <option value="all">All Status</option>
           <option value="Enabled">Enabled</option>
           <option value="Disabled">Disabled</option>
+        </select>
+        
+        {/* Role Filter */}
+        <select
+          value={roleFilter}
+          onChange={(e) => onRoleFilterChange(e.target.value)}
+          className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        >
+          <option value="all">All Roles</option>
+          <option value="Admin">Admin</option>
+          <option value="Creator">Creator</option>
+          <option value="Verifier">Verifier</option>
         </select>
       </div>
       

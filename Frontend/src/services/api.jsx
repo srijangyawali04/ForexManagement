@@ -15,13 +15,13 @@ export const fetchUsers = async () => {
   }
 };
 
-// You can also create other API methods here (e.g., for updating user status)
+// Api for user status
 export const updateUserStatus = async (staffCode, newStatus) => {
   try {
     const response = await fetch(`${apiUrl}/api/user/update-status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staffCode, status: newStatus })
+      body: JSON.stringify({ staff_code: staffCode, user_status: newStatus }) // Updated keys to match backend
     });
 
     if (!response.ok) {
@@ -34,3 +34,41 @@ export const updateUserStatus = async (staffCode, newStatus) => {
     throw error; // Rethrow error
   }
 };
+
+
+// Api for add user 
+
+export const addUser = async (userData) => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+  const role = localStorage.getItem('role'); // Retrieve the role from localStorage
+
+  if (!role) {
+    throw new Error('Role is missing. Please log in again.');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/api/user/add-user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+        'Role': role, // Include the role in headers
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API error response:', errorData);
+      throw new Error('Error: ' + errorData.message); // Display the message to the user
+    }
+
+    return await response.json(); // Return the created user's data
+  } catch (error) {
+    console.error('Error adding user:', error);
+    throw new Error('Failed to add user. Please try again later.');
+  }
+};
+
+
+

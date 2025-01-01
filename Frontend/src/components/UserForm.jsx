@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { addUser } from '../services/api'; // Import the addUser function from api.js
 
-const apiUrl = import.meta.env.VITE_API_URL;
 const DESIGNATIONS = ["Deputy Director", "Assistant Director", "Head Assistant", "Assistant", "Deputy Assistant"];
 const ROLES = ["Creator", "Verifier"];
 const USER_STATUSES = ["Enabled", "Disabled"];
@@ -18,25 +18,12 @@ export default function UserForm({ onUserAdd, onClose }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`${apiUrl}/api/user/add-user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert('User added successfully!');
-        onUserAdd(result.data); // Update parent component with new user
-        onClose(); // Close the modal
-      } else {
-        const error = await response.json();
-        alert('Error: ' + error.message);
-      }
+      const result = await addUser(formData); // Call the addUser function from api.js
+      alert('User added successfully!');
+      onUserAdd(result.data); // Pass the newly added user back to the parent component
+      onClose(); // Close the form
     } catch (error) {
-      alert('Failed to add user. Please try again later.');
+      alert(error.message);
       console.error('Error:', error);
     } finally {
       setIsSubmitting(false);
@@ -98,7 +85,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               </div>
             </div>
 
-            {/* Other Fields */}
+            {/* Staff Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Staff Name</label>
               <input
@@ -110,6 +97,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               />
             </div>
 
+            {/* Designation */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Designation</label>
               <select
@@ -127,6 +115,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               </select>
             </div>
 
+            {/* Role */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Role</label>
               <select
@@ -144,6 +133,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               </select>
             </div>
 
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Email</label>
               <input
@@ -155,6 +145,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               />
             </div>
 
+            {/* Mobile Number */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Mobile Number</label>
               <input
@@ -166,6 +157,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               />
             </div>
 
+            {/* Status */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <select
