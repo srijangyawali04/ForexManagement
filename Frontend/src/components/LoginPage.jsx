@@ -6,7 +6,7 @@ const LoginPage = () => {
   const [staffCode, setStaffCodeInput] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const { login } = useAuth();  // Get login function from context
+  const { login } = useAuth(); // Get login function from context
   const navigate = useNavigate();
 
   // Access the API URL from environment variables (using Vite-specific approach)
@@ -37,7 +37,7 @@ const LoginPage = () => {
     }
 
     if (!isValid) return;
-
+    console.log('Staff Code during login submission:', staffCode);  // Debugging line
     try {
       // Make the API request to login
       const response = await fetch(`${apiUrl}/api/auth/login`, {
@@ -47,14 +47,17 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
+      console.log('API Response:', data);  // Debugging line
 
       if (response.ok) {
         // Use the login function from context to store the token and role
-        login(data.token, data.role);
+        login(data.token, data.role , data.staffCode);
 
         // Redirect based on role
         if (data.role === "Admin") {
           navigate("/user-list"); // Admin dashboard
+        } else if (data.role === "Creator") {
+          navigate("/creator-dashboard"); // Header page for "create" role
         } else {
           navigate("/user/dashboard"); // User dashboard
         }

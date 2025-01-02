@@ -5,7 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import Voucher from "./pages/Voucher";
 import PrintTemplate from "./pages/PrintTemplate";
 import LoginPage from "./components/LoginPage";
-import UserList from './components/UserList';
+import UserList from './components/AdminDashboard/UserList';
+import Header from "./components/Header";
 import { AuthProvider } from "./contexts/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
 import { fetchUsers, updateUserStatus } from './services/api'; // Import API functions
@@ -45,21 +46,41 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
+        {/* Public Route for login */}
         <Route path="/" element={<LoginPage />} />
-        <Route element={<PrivateRoute />}>
-          <Route path="/user-list" element={
-            <UserList 
-              users={users} 
-              loading={loading} 
-              onUpdateStatus={onUpdateStatus}
-            />
-          } />
+        
+        {/* Admin Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['Admin']} />}>
+          <Route
+            path="/user-list"
+            element={
+              <UserList 
+                users={users} 
+                loading={loading} 
+                onUpdateStatus={onUpdateStatus}
+              />
+            }
+          />
         </Route>
+        
+        {/* Creator Protected Routes */}
+        <Route element={<PrivateRoute allowedRoles={['Creator']} />}>
+          <Route path="/creator-dashboard" element={<Header />} />
+        </Route>
+        
+        {/* Verifier Protected Routes */}
+        {/* <Route element={<PrivateRoute allowedRoles={['Verifier']} />}>
+          <Route path="/verifier-dashboard" element={<VerifierDashboard />} />
+        </Route> */}
+        
+        {/* Additional Routes */}
         <Route path="/voucher" element={<Voucher />} />
         <Route path="/print-template" element={<PrintTemplate />} />
       </Routes>
     </AuthProvider>
+
   );
 }
 
 export default App;
+

@@ -41,20 +41,31 @@ export const createUser = async (req: Request, res: Response) => {
 
 
 // Get a user by staff_code
-export const getSingleUser = async (req: Request, res: Response) => {
-    const userId = req.params.user_id as string;
-    try {
-      const user = await userRepo.findOne({ where: { staff_code: userId } })
-  
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      res.status(200).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Server error" });
+export const getUserByStaffCode = async (req: Request, res: Response): Promise<Response> => {
+  const { staffCode } = req.params; // Extracting staffCode from the URL parameters
+
+  try {
+    // Initialize the user repository
+    const userRepo = AppDataSource.getRepository(User);
+
+    // Find the user by staff_code
+    const user = await userRepo.findOne({
+      where: { staff_code: staffCode },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
     }
+
+    // If the user is found, send back the user data (excluding the password)
+    const { password, ...userData } = user; // Exclude the password from the response
+    return res.status(200).json(userData);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
 };
+
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { addUser } from '../services/api'; // Import the addUser function from api.js
+import { addUser } from '../../services/api'; // Import the addUser function from api.js
 
 const DESIGNATIONS = ["Deputy Director", "Assistant Director", "Head Assistant", "Assistant", "Deputy Assistant"];
 const ROLES = ["Creator", "Verifier"];

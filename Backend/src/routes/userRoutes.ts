@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getSingleUser , getAllUsers , updateUserStatus} from "../controllers/userController";
+import { createUser, getUserByStaffCode , getAllUsers , updateUserStatus} from "../controllers/userController";
 import { verifyRole } from "../middleware/verifyRole";
 
 const router = express.Router();
@@ -8,7 +8,8 @@ const router = express.Router();
 router.get("/allusers", getAllUsers);
 
 // Route to get a single user by user ID
-router.get("/users/:userid", getSingleUser);
+router.get("/:staffCode", getUserByStaffCode);  
+
 
 // Create user route - Only accessible by Admins
 router.post("/add-user", verifyRole("Admin"), createUser);

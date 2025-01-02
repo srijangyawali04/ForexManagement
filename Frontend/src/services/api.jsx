@@ -72,3 +72,51 @@ export const addUser = async (userData) => {
 
 
 
+// Fetch the logged-in user's information
+export const fetchLoggedInUser = async () => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+  const staffCode = localStorage.getItem('staff_code'); // Retrieve the logged-in user's staff_code from localStorage
+
+  // Log the staffCode to check its value
+    console.log('Staff Code:', staffCode);
+
+
+  if (!token || !staffCode) {
+    throw new Error('No authentication token or staff code found.');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/api/user/${staffCode}`, {  // Using staffCode here
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Send the token in the request header
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch user information');
+    }
+
+    const userData = await response.json();
+    return userData; // Return the logged-in user's data
+  } catch (error) {
+    console.error('Error fetching logged-in user:', error);
+    throw error;
+  }
+};
+
+// fetch exchange-rates
+export const fetchExchangeRates = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/api/exchange-rates`); // Use backticks for string interpolation
+    if (!response.ok) {
+      throw new Error(`Failed to fetch exchange rates: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data; // Assuming the data is an array or object with exchange rates
+  } catch (error) {
+    console.error('Error fetching exchange rates:', error);
+    throw error;
+  }
+};

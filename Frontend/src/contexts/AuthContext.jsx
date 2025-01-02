@@ -8,8 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     token: localStorage.getItem('authToken'),
     role: localStorage.getItem('role'),
+    staffCode: localStorage.getItem('staff_code'),
+    staffName: localStorage.getItem('staff_name'), // Add staffName if needed
   });
-
+  
   // Check if the token is expired (Example: assuming token is a JWT)
   const isTokenExpired = (token) => {
     if (!token) return true;
@@ -26,17 +28,19 @@ export const AuthProvider = ({ children }) => {
   }, [authState.token]);
 
   // Login function to update the auth state
-  const login = (token, role) => {
-    setAuthState({ token, role });
+  const login = (token, role, staffCode) => {
+    console.log('Login called with staffCode:', staffCode);
+    setAuthState({ token, role, staffCode }); // Store staffCode in authState
     localStorage.setItem('authToken', token);
     localStorage.setItem('role', role);
+    localStorage.setItem('staff_code', staffCode);  // Corrected to use the correct variable name
   };
-
-  // Logout function to clear auth state
+  
   const logout = () => {
-    setAuthState({ token: null, role: null });
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('role');
+    setAuthState({ token: null, role: null, staffCode: null });
+    localStorage.removeItem('authToken'); // Remove the authentication token
+    localStorage.removeItem('role'); // Remove the role
+    localStorage.removeItem('staff_code'); // Remove the staff code
   };
 
   return (

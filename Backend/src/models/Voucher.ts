@@ -1,15 +1,15 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   OneToMany,
+  PrimaryColumn,
 } from 'typeorm';
 import { Transactions } from './Transaction';
 
 @Entity('voucher')
 export class Voucher {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   voucher_number: number;
 
   @CreateDateColumn()
