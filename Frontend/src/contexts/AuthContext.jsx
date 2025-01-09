@@ -9,9 +9,10 @@ export const AuthProvider = ({ children }) => {
     token: localStorage.getItem('authToken'),
     role: localStorage.getItem('role'),
     staffCode: localStorage.getItem('staff_code'),
-    staffName: localStorage.getItem('staff_name'), // Add staffName if needed
+    staffName: localStorage.getItem('staff_name'),
+    designation: localStorage.getItem('designation'),
   });
-  
+
   // Check if the token is expired (Example: assuming token is a JWT)
   const isTokenExpired = (token) => {
     if (!token) return true;
@@ -28,19 +29,24 @@ export const AuthProvider = ({ children }) => {
   }, [authState.token]);
 
   // Login function to update the auth state
-  const login = (token, role, staffCode) => {
-    console.log('Login called with staffCode:', staffCode);
-    setAuthState({ token, role, staffCode }); // Store staffCode in authState
+  const login = (token, role, staffCode, staffName , designation) => {
+    console.log('Login called with staffCode:', staffCode, 'and staffName:', staffName, 'with designation', designation);
+    setAuthState({ token, role, staffCode, staffName }); // Store staffName along with other details
     localStorage.setItem('authToken', token);
     localStorage.setItem('role', role);
-    localStorage.setItem('staff_code', staffCode);  // Corrected to use the correct variable name
+    localStorage.setItem('staff_code', staffCode);
+    localStorage.setItem('staff_name', staffName);
+    localStorage.setItem('designation', designation);
   };
-  
+
+  // Logout function to clear authentication state
   const logout = () => {
-    setAuthState({ token: null, role: null, staffCode: null });
-    localStorage.removeItem('authToken'); // Remove the authentication token
-    localStorage.removeItem('role'); // Remove the role
-    localStorage.removeItem('staff_code'); // Remove the staff code
+    setAuthState({ token: null, role: null, staffCode: null, staffName: null });
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('role');
+    localStorage.removeItem('staff_code');
+    localStorage.removeItem('staff_name');
+    localStorage.removeItem('designation');
   };
 
   return (

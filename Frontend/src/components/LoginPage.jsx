@@ -37,6 +37,7 @@ const LoginPage = () => {
     }
 
     if (!isValid) return;
+
     console.log('Staff Code during login submission:', staffCode);  // Debugging line
     try {
       // Make the API request to login
@@ -50,8 +51,17 @@ const LoginPage = () => {
       console.log('API Response:', data);  // Debugging line
 
       if (response.ok) {
+        // Debugging: Log the status returned by the API
+        console.log("User status:", data.status);
+
+        // Check if the user is enabled
+        if (data.status !== "Enabled") {
+          alert("Your account is not enabled. Please contact the admin.");
+          return; // Prevent login if status is not enabled
+        }
+
         // Use the login function from context to store the token and role
-        login(data.token, data.role , data.staffCode);
+        login(data.token, data.role, data.staffCode, data.staffName, data.designation); // Ensure staffName is passed
 
         // Redirect based on role
         if (data.role === "Admin") {

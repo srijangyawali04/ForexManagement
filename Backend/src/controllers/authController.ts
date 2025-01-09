@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs'; // bcryptjs for password hashing and comparison
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'; // JWT for token generation
 import { AppDataSource } from '../initializers/data-source'; // AppDataSource initialization
 import { User } from '../models/User'; // Importing the User model
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'; // dotenv for environment variables
 
 dotenv.config(); // Load environment variables from .env
 
@@ -43,9 +43,15 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    // Generate JWT token with user data
+    // Generate JWT token with user data, including staff_name
     const token = jwt.sign(
-      { id: user.staff_code, staff_code: user.staff_code, role: user.role }, // We use staff_code here, assuming it's unique
+      { 
+        staff_code: user.staff_code, 
+        role: user.role, 
+        staffName: user.staff_name,
+        designation: user.designation,
+        status: user.user_status,
+      },
       SECRET_KEY,
       { expiresIn: '1h' } // Token expires in 1 hour
     );
@@ -56,6 +62,9 @@ export const login = async (req: Request, res: Response): Promise<Response> => {
       token,
       role: user.role,  // Sending role back with token
       staffCode: user.staff_code,
+      staffName: user.staff_name,  // Send staffName back in the response
+      designation: user.designation,
+      status : user.user_status,
     });
   } catch (error) {
     console.error('Error during login:', error);

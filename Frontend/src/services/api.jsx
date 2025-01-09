@@ -120,3 +120,31 @@ export const fetchExchangeRates = async () => {
     throw error;
   }
 };
+
+
+//API to create voucher 
+export const createVoucher = async (voucherData) => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token
+  
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+      body: JSON.stringify(voucherData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API error response:', errorData);
+      throw new Error('Error: ' + errorData.message);
+    }
+
+    return await response.json(); // Return the created voucher's data
+  } catch (error) {
+    console.error('Error creating voucher:', error);
+    throw new Error('Failed to create voucher. Please try again later.');
+  }
+};

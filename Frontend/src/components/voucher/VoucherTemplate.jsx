@@ -1,9 +1,17 @@
 import React from 'react';
-// import { Voucher, CurrencyTransaction } from '../../types';
 import { formatAmount } from '../../utils/voucherUtils';
 
 export const VoucherTemplate = ({ voucher }) => {
   const totalCommission = voucher.transactions.reduce((sum, t) => sum + (t.commission || 0), 0);
+
+  // Retrieve the stored staffName and designation
+  const staffName = localStorage.getItem('staff_name'); // Ensure the key matches what is stored
+  const designation = localStorage.getItem('designation'); // Retrieve designation
+
+  // Check if staffName is missing, log a warning for debugging
+  if (!staffName) {
+    console.warn('Staff Name is not available in localStorage.');
+  }
 
   return (
     <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black">
@@ -58,7 +66,7 @@ export const VoucherTemplate = ({ voucher }) => {
             </th>
             <th className="border border-gray-400 p-2">FCY Amount</th>
             <th className="border border-gray-400 p-2">Amount NPR</th>
-            {voucher.type === 'remit-out' && (
+            {voucher.type === 'remit-in' && (
               <th className="border border-gray-400 p-2">Commission (0.5%)</th>
             )}
           </tr>
@@ -77,7 +85,7 @@ export const VoucherTemplate = ({ voucher }) => {
               <td className="border border-gray-400 p-2 text-right">
                 {formatAmount(transaction.nprAmount)}
               </td>
-              {voucher.type === 'remit-out' && (
+              {voucher.type === 'remit-in' && (
                 <td className="border border-gray-400 p-2 text-right">
                   {formatAmount(transaction.commission || 0)}
                 </td>
@@ -91,13 +99,13 @@ export const VoucherTemplate = ({ voucher }) => {
             <td className="border border-gray-400 p-2 text-right">
               {formatAmount(voucher.totalAmount)}
             </td>
-            {voucher.type === 'remit-out' && (
+            {voucher.type === 'remit-in' && (
               <td className="border border-gray-400 p-2 text-right">
                 {formatAmount(totalCommission)}
               </td>
             )}
           </tr>
-          {voucher.type === 'remit-out' && (
+          {voucher.type === 'remit-in' && (
             <tr className="border border-gray-400 font-bold">
               <td colSpan={4} className="border border-gray-400 p-2 text-right">
                 Net Total
@@ -127,8 +135,8 @@ export const VoucherTemplate = ({ voucher }) => {
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Prepared by</p>
-            <p>{voucher.createdBy}</p>
-            <p>Designation</p>
+            <p>{staffName || '_________________'}</p> {/* Display staffName with a fallback */}
+            <p>{designation || '_________________'}</p> {/* Display designation with a fallback */}
           </div>
         </div>
         <div className="text-center">
@@ -142,4 +150,5 @@ export const VoucherTemplate = ({ voucher }) => {
     </div>
   );
 };
+
 export default VoucherTemplate;

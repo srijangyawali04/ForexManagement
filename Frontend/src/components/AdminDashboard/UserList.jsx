@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext'; // Import the useAuth hook
 import { useNavigate } from 'react-router-dom';
 import Pagination from './Pagination';
 import UserStatusBadge from './UserStatusBadge';
 import UserFilters from './UserFilters';
 import UserForm from './UserForm';
+import { fetchLoggedInUser } from '../../services/api';
 
 const ITEMS_PER_PAGE = 10;
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -14,6 +16,7 @@ export default function UserList({ loading, onUpdateStatus }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
   const [showAddUser, setShowAddUser] = useState(false);
+  const { authState, setLoggedInUser } = useAuth(); // Use authState instead of loggedInUser
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +36,21 @@ export default function UserList({ loading, onUpdateStatus }) {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        if (!authState.staffName) {  // Use authState instead of loggedInUser
+          const userInfo = await fetchLoggedInUser();
+          setLoggedInUser(userInfo);
+        }
+      } catch (error) {
+        console.error('Failed to fetch logged-in user:', error);
+      }
+    };
+
+    getUserInfo();
+  }, [authState, setLoggedInUser]);
+
   const filteredUsers = users.filter((user) => {
     return (
       (statusFilter === 'all' || user.user_status === statusFilter) &&
@@ -50,15 +68,15 @@ export default function UserList({ loading, onUpdateStatus }) {
       alert('The status of an Admin cannot be changed.');
       return; // Exit the function early
     }
-  
+
     const newStatus = user.user_status === 'Enabled' ? 'Disabled' : 'Enabled';
-  
+
     // Update status on the backend
     try {
       await onUpdateStatus(user.staff_code, newStatus); // Assuming this updates the backend
-  
+
       // Update status in the local state directly without re-fetching users
-      setUsers((prevUsers) => 
+      setUsers((prevUsers) =>
         prevUsers.map((u) =>
           u.staff_code === user.staff_code ? { ...u, user_status: newStatus } : u
         )
@@ -67,8 +85,6 @@ export default function UserList({ loading, onUpdateStatus }) {
       console.error('Error updating user status:', error);
     }
   };
-  
-  
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -105,15 +121,35 @@ export default function UserList({ loading, onUpdateStatus }) {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="absolute top-4 right-[20%]">
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Logout
-          </button>
-        </div>
-        <br />
+        {/* Header Section */}
+        <header className="bg-indigo-600 text-white p-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-xl font-bold">Forex Management System</h1>
+              {authState.staffName && (  // Check if staffName exists in authState
+                <div className="text-sm">
+                  <span className="opacity-75">Welcome,</span>{' '}
+                  <span className="font-semibold">{authState.staffName}</span>{' '}
+                  <span className="bg-indigo-500 px-2 py-1 rounded-full text-xs">
+                    {authState.role}
+                  </span>
+                </div>
+              )}
+            </div>
+            {/* Logout Button */}
+            {authState.staffName && ( // Check if staffName exists in authState
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+              >
+                Logout
+              </button>
+            )}
+          </div>
+        </header>
+        <br></br>
+
+        {/* Rest of the user list and table */}
         <div>
           {showAddUser && (
             <UserForm onUserAdd={handleUserAdd} onClose={handleCloseUserForm} />
