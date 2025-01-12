@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { fetchExchangeRates } from '../../services/api'; // Import the API function
+import { useAuth } from '../../contexts/AuthContext';
 
 export function TransactionForm({ transactions, onChange, voucherType }) {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { authState } = useAuth(); // Access the authState from context
 
   // Fetch exchange rates when component mounts
   useEffect(() => {
@@ -24,58 +26,84 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   // Helper function to get the correct exchange rate based on voucherType
   const getExchangeRate = (currency) => {
     const rate = exchangeRates.find((r) => r.currency_iso === currency);
-
     if (!rate) return 0;
 
     // Calculate exchange rate based on voucher type
     const exchangeRateForUnit = voucherType === 'remit-out'
-      ? rate.sell_rate / rate.unit  // For 'remit-out', use the sell rate divided by the unit
-      : rate.buy_rate / rate.unit;  // For 'remit-in', use the buy rate divided by the unit
+      ? rate.sell_rate / rate.unit // For 'remit-out', use the sell rate divided by the unit
+      : rate.buy_rate / rate.unit; // For 'remit-in', use the buy rate divided by the unit
 
     return exchangeRateForUnit;
   };
 
   const addTransaction = () => {
-    onChange([
-      ...transactions,
-      {
-        currency: '', // Initially set to empty, prompting the user to select a currency
-        exchangeRate: 0, // Initially set to 0, will be updated when the user selects a currency
-        fcyAmount: 0,
-        nprAmount: 0,
-        commission: voucherType === 'remit-out' ? 0 : undefined,
-      },
-    ]);
+    const newTransaction = {
+      currency_name: '',              // Initially empty
+      currency_iso_code: '',          // Initially empty
+      exchange_rate: 0,               // Default exchange rate
+      fc_amount: 0,                   // Default FCY amount
+      commission: voucherType === 'remit-in' ? 0 : undefined,  // Commission for 'remit-in'
+      total_NPR: 0,                   // Default Total NPR (sync with backend)
+      created_by: authState.staffName, // Current user
+      verified_by: 'Pending',         // Default verification status
+      transaction_type: voucherType,  // 'remit-in' or 'remit-out'
+    };
+
+    onChange([...transactions, newTransaction]);
   };
 
-  // Function to remove a transaction
   const removeTransaction = (index) => {
     const updatedTransactions = transactions.filter((_, i) => i !== index);
     onChange(updatedTransactions);
   };
 
   const updateTransaction = (index, field, value) => {
-    const updatedTransactions = transactions.map((t, i) => {
-      if (i !== index) return t;
+  const updatedTransactions = transactions.map((t, i) => {
+    if (i !== index) return t;
 
-      const updated = { ...t, [field]: value };
+    const updated = { ...t, [field]: value };
 
-      // Recalculate NPR amount when exchange rate or FCY amount changes
-      if (field === 'exchangeRate' || field === 'fcyAmount' || field === 'currency') {
-        updated.exchangeRate = getExchangeRate(updated.currency); // Recalculate exchange rate based on the currency
-        updated.nprAmount = updated.exchangeRate * updated.fcyAmount; // Recalculate NPR amount
+    // Handle updates for currency selection
+    if (field === 'currency_iso_code') {
+      const selectedRate = exchangeRates.find((rate) => rate.currency_iso === value);
+      updated.currency_name = selectedRate?.currency_name || '';
+      updated.currency_iso_code = selectedRate?.currency_iso || '';
+      updated.exchange_rate = getExchangeRate(value); // Calculate exchange rate
+      updated.fc_amount = updated.exchange_rate * (updated.fc_amount || 0); // Update FCY amount
+    }
+
+    // Recalculate the nprAmount based on fc_amount and exchange_rate
+    if (field === 'fc_amount' || field === 'exchange_rate') {
+      updated.nprAmount = updated.fc_amount * updated.exchange_rate || 0;
+    }
+
+    // Commission logic for 'remit-in' or 'remit-out'
+    if (voucherType === 'remit-in' && (field === 'fc_amount' || field === 'nprAmount')) {
+      if (updated.fc_amount > 0) {
+        updated.commission = updated.fc_amount * 0.005 || 0;
+      } else {
+        updated.commission = 0; // Prevent NaN if fc_amount is 0 or invalid
       }
+    } else if (voucherType === 'remit-out') {
+      updated.commission = null; // Set commission to null for 'remit-out'
+    }
 
-      // Calculate commission for remit-in (0.5%)
-      if (voucherType === 'remit-in' && (field === 'nprAmount' || field === 'fcyAmount')) {
-        updated.commission = updated.nprAmount * 0.005;
-      }
+    // Calculate total_NPR as nprAmount - commission for 'remit-in'
+    if (voucherType === 'remit-in') {
+      updated.total_NPR = updated.nprAmount - updated.commission;
+      console.log("fc_amount: ", updated.fc_amount);
+      console.log("commission: ", updated.commission);
+      console.log("total_NPR: ", updated.total_NPR);
+    }
 
-      return updated;
-    });
+    return updated;
+  });
 
-    onChange(updatedTransactions);
-  };
+  onChange(updatedTransactions);
+};
+
+  
+  
 
   return (
     <div className="space-y-4">
@@ -96,8 +124,8 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
             <div>
               <label className="block text-sm font-medium text-gray-700">Currency</label>
               <select
-                value={transaction.currency}
-                onChange={(e) => updateTransaction(index, 'currency', e.target.value)}
+                value={transaction.currency_iso_code} // Use currency_iso_code
+                onChange={(e) => updateTransaction(index, 'currency_iso_code', e.target.value)} // Update currency_iso_code
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
                 <option value="">Select Currency</option> {/* Default option */}
@@ -116,20 +144,17 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               <label className="block text-sm font-medium text-gray-700">Exchange Rate</label>
               <input
                 type="number"
-                value={transaction.exchangeRate || ''}
-                onChange={(e) => updateTransaction(index, 'exchangeRate', parseFloat(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                step="0.01"
-                required
+                value={transaction.exchange_rate || ''} // Default value for exchange_rate
                 readOnly
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">FCY Amount</label>
               <input
                 type="number"
-                value={transaction.fcyAmount || ''}
-                onChange={(e) => updateTransaction(index, 'fcyAmount', parseFloat(e.target.value))}
+                value={transaction.fc_amount || ''} // Default value for fc_amount
+                onChange={(e) => updateTransaction(index, 'fc_amount', parseFloat(e.target.value))} // Ensure correct float parsing
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 step="0.01"
                 required
@@ -139,7 +164,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               <label className="block text-sm font-medium text-gray-700">NPR Amount</label>
               <input
                 type="number"
-                value={transaction.nprAmount || ''}
+                value={transaction.total_NPR || ''} // Default value for fc_amount
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
               />
@@ -149,7 +174,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 <label className="block text-sm font-medium text-gray-700">Commission (0.5%)</label>
                 <input
                   type="number"
-                  value={transaction.commission || ''}
+                  value={transaction.commission || ''} // Default value for commission
                   readOnly
                   className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
                 />

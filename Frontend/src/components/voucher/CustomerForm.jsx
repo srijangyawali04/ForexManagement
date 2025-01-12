@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export function CustomerForm({ value, onChange, isStaffVoucher }) {
   const [errors, setErrors] = useState({});
+  const [initialValues, setInitialValues] = useState({
+    name: '',
+    passportNo: '',
+    address: '',
+    mobileNo: '',
+    itrsCode: ''
+  });
+
+  // Initialize form values if provided via props
+  useEffect(() => {
+    if (value) {
+      setInitialValues({
+        name: value.name || '',
+        passportNo: value.passportNo || '',
+        address: value.address || '',
+        mobileNo: value.mobileNo || '',
+        itrsCode: value.itrsCode || ''
+      });
+    }
+  }, [value]);
 
   const handleChange = (field, fieldValue) => {
-    // Update the field value
+    // Update the field value in the parent component
     onChange({
-      ...(value || {
-        name: '',
-        passportNo: '',
-        address: '',
-        mobileNo: '',
-        itrsCode: '',
-      }),
+      ...initialValues,
       [field]: fieldValue,
     });
 
@@ -39,7 +53,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           </label>
           <input
             type="text"
-            value={value?.name || ''}
+            value={initialValues.name}
             onChange={(e) => handleChange('name', e.target.value)}
             onBlur={(e) => handleBlur('name', e.target.value)}
             className={`mt-1 block w-full rounded-md border ${
@@ -55,7 +69,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           </label>
           <input
             type="text"
-            value={value?.passportNo || ''}
+            value={initialValues.passportNo}
             onChange={(e) => handleChange('passportNo', e.target.value)}
             onBlur={(e) => handleBlur('passportNo', e.target.value)}
             className={`mt-1 block w-full rounded-md border ${
@@ -69,7 +83,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           <label className="block text-sm font-medium text-gray-700">Address</label>
           <input
             type="text"
-            value={value?.address || ''}
+            value={initialValues.address}
             onChange={(e) => handleChange('address', e.target.value)}
             onBlur={(e) => handleBlur('address', e.target.value)}
             className={`mt-1 block w-full rounded-md border ${
@@ -83,7 +97,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           <label className="block text-sm font-medium text-gray-700">Mobile No</label>
           <input
             type="text"
-            value={value?.mobileNo || ''}
+            value={initialValues.mobileNo}
             onChange={(e) => handleChange('mobileNo', e.target.value)}
             onBlur={(e) => handleBlur('mobileNo', e.target.value)}
             className={`mt-1 block w-full rounded-md border ${
@@ -98,7 +112,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
             <label className="block text-sm font-medium text-gray-700">ITRS Code</label>
             <input
               type="text"
-              value={value?.itrsCode || ''}
+              value={initialValues.itrsCode}
               onChange={(e) => handleChange('itrsCode', e.target.value)}
               onBlur={(e) => handleBlur('itrsCode', e.target.value)}
               className={`mt-1 block w-full rounded-md border ${

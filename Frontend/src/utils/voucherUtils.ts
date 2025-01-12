@@ -1,4 +1,4 @@
-let voucherCounter = 120000;
+let voucherCounter = 120010;
 
 export function generateVoucherNumber(): string {
   voucherCounter++;

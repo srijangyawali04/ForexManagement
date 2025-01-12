@@ -17,24 +17,25 @@ export class Transactions {
   @Column({ type: 'varchar', length: 3 })
   currency_iso_code: string;
 
-  @Column({ type: 'varchar', length: 10 })
-  currency_code: string;
-
   @Column({ type: 'decimal', precision: 10, scale: 4 })
   exchange_rate: number;
 
   @Column({ type: 'decimal', precision: 15, scale: 2 })
   fc_amount: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2,  nullable: true })
   commission: number;
 
   @Column({ type: 'decimal', precision: 15, scale: 2 })
   total_NPR: number;
 
-  @ManyToOne(() => User, (user) => user.staff_code, { nullable: false })
-  created_by: User;
+  @Column({ type: 'varchar', length: 50 })  // Set default to 'Pending'
+  created_by: string;
 
-  @ManyToOne(() => User, (user) => user.staff_code, { nullable: false })
-  verified_by: User;
+  @Column({ type: 'varchar', length: 50, default: 'Pending' })  // Set default to 'Pending'
+  verified_by: string;
+  
+  @Column({ type: 'varchar', length: 10, enum: ['remit-in', 'remit-out'] })
+  transaction_type: string;
+
 }
