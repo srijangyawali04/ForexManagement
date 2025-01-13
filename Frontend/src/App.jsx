@@ -6,7 +6,8 @@ import { Routes, Route } from "react-router-dom";
 // import PrintTemplate from "./pages/PrintTemplate";
 import LoginPage from "./components/LoginPage";
 import UserList from './components/AdminDashboard/UserList';
-import Header from "./components/Header";
+import CreatorDashboard from "./components/CreatorDashboard/CreatorDashboard";
+import VerifierDashboard from "./components/VerifierDashboard/VerifierDashboard";
 import { AuthProvider } from "./contexts/AuthContext";
 import PrivateRoute from "./routes/PrivateRoute";
 import { fetchUsers, updateUserStatus } from './services/api'; // Import API functions
@@ -65,13 +66,13 @@ function App() {
         
         {/* Creator Protected Routes */}
         <Route element={<PrivateRoute allowedRoles={['Creator']} />}>
-          <Route path="/creator-dashboard" element={<Header />} />
+          <Route path="/creator-dashboard" element={<CreatorDashboard />} />
         </Route>
         
         {/* Verifier Protected Routes */}
-        {/* <Route element={<PrivateRoute allowedRoles={['Verifier']} />}>
+        <Route element={<PrivateRoute allowedRoles={['Verifier']} />}>
           <Route path="/verifier-dashboard" element={<VerifierDashboard />} />
-        </Route> */}
+        </Route>
       </Routes>
     </AuthProvider>
 

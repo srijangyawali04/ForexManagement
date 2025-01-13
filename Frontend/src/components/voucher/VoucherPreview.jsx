@@ -93,14 +93,14 @@ export function VoucherPreview({
           <VoucherTemplate voucher={{ ...voucher, createdBy: authState?.staffName }} />
         </div>
 
-        <div className="flex justify-end p-4">
+        {/* <div className="flex justify-end p-4">
           <button
             onClick={() => handleUpdateVoucher(voucher)}
             className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-500"
           >
             Update Voucher
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

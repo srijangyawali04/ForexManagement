@@ -148,3 +148,55 @@ export const createVoucher = async (voucherData) => {
     throw new Error('Failed to create voucher. Please try again later.');
   }
 };
+
+
+// Api for voucher status
+export const updateVoucherStatus = async (voucherNumber, newStatus, loggedInUser) => {
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher/${voucherNumber}/update-status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        voucher_number: voucherNumber,
+        voucher_status: newStatus,
+        verifiedBy: loggedInUser.staff_name, // Use loggedInUser.staff_name here
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update voucher status');
+    }
+
+    return await response.json(); // Return the updated voucher data
+  } catch (error) {
+    console.error('Error updating voucher status:', error);
+    throw error; // Rethrow error
+  }
+};
+
+
+
+// Fetch voucher data
+export const fetchVouchers = async () => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token
+
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch vouchers');
+    }
+
+    const data = await response.json();
+    return data; // Return the list of vouchers
+  } catch (error) {
+    console.error('Error fetching vouchers:', error);
+    throw error; // Rethrow error to be handled in the component
+  }
+};

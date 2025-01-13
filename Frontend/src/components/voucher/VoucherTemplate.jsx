@@ -4,7 +4,7 @@ import { formatAmount } from '../../utils/voucherUtils';
 
 export const VoucherTemplate = ({ voucher }) => {
   console.log('FOR validation', voucher);
-  console.log('type', voucher.transaction?.transaction_type);
+  console.log('type', voucher.transactions?.[0]?.transaction_type);
 
   // Retrieve the stored staffName and designation
   const staffName = localStorage.getItem('staff_name'); // Ensure the key matches what is stored
@@ -15,36 +15,46 @@ export const VoucherTemplate = ({ voucher }) => {
     console.warn('Staff Name is not available in localStorage.');
   }
 
-  // Safely access customer details, considering that `voucher.customer` might be undefined or null.
-  const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A'; 
-  const voucherDate = voucher.date || voucher.voucher_date || ''; 
+  // Safely access customer and voucher details
+  const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A';
+  const voucherDate = voucher.date || voucher.voucher_date || '';
   const customerName = voucher.customer?.name || voucher.customer_name || 'N/A';
   const passportNo = voucher.customer?.passportNo || voucher.passport_number || 'N/A';
   const address = voucher.customer?.address || voucher.customer_address || 'N/A';
   const mobileNo = voucher.customer?.mobileNo || voucher.mobile_number || 'N/A';
   const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
   const travelOrderRef = voucher.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
-  const voucherType = voucher.type || voucher.transactions[0]?.transaction_type || 'N/A';
-  const totalCommission = voucher.transactions.reduce((sum, t) => sum + (t.commission || 0), 0);
-  const totalNRP = voucher.transactions.reduce((sum, t) => {
+  const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
+
+  // Calculate Total Commission
+  const totalCommission = (voucher.transactions || []).reduce((sum, t) => {
+    const fcAmount = Number(t.fc_amount) || 0;
+    const calculatedCommission = isNaN(Number(t.commission)) || t.commission === undefined
+      ? fcAmount * 0.005 // Assuming 0.5% commission rate
+      : Number(t.commission);
+    return sum + calculatedCommission;
+  }, 0);
+  
+  console.log('Total Commission',totalCommission);
+  // Calculate Total NPR
+  const totalNRP = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = t.fc_amount || 0;
     const exchangeRate = t.exchange_rate || 0;
     const nprAmount = fcAmount * exchangeRate;
     return sum + nprAmount;
   }, 0) || voucher.totalAmount || 0;
-  
 
+  // Calculate net NRP
+  // const netNRP = voucher.netTotal || voucher.totalAmount || voucher.transactions?.[0]?.total_NRP || 0;
+  const netNRP = totalNRP - (totalCommission || 0);
+  console.log('net',netNRP);
 
   return (
     <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <img
-            src={logo}
-            alt="Nepal Rastra Bank"
-            className="w-16 h-16"
-          />
+          <img src={logo} alt="Nepal Rastra Bank" className="w-16 h-16" />
           <div>
             <h1 className="text-lg font-bold">Nepal Rastra Bank</h1>
             <p className="text-sm">Banking Department</p>
@@ -61,7 +71,7 @@ export const VoucherTemplate = ({ voucher }) => {
         <div></div>
         <div className="text-right">
           <p>Voucher No.: {voucherNo}</p>
-          <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p> {/* Guard for empty date */}
+          <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p>
         </div>
       </div>
 
@@ -94,14 +104,12 @@ export const VoucherTemplate = ({ voucher }) => {
           </tr>
         </thead>
         <tbody>
-          {voucher.transactions.map((transaction, index) => {
-            // Ensure valid fc_amount and commission before calculations
+          {(voucher.transactions || []).map((transaction, index) => {
             const fcAmount = transaction.fc_amount || 0;
             const exchangeRate = transaction.exchange_rate || 0;
             const commission = isNaN(transaction.commission) || transaction.commission === undefined
-              ? fcAmount * 0.005 // Assuming 0.5% commission rate
+              ? fcAmount * 0.005
               : transaction.commission;
-
             const nprAmount = fcAmount * exchangeRate;
 
             return (
@@ -113,12 +121,11 @@ export const VoucherTemplate = ({ voucher }) => {
                     ? Number(exchangeRate).toFixed(2)
                     : '0.00'}
                 </td>
-
                 <td className="border border-gray-400 p-2 text-right">
                   {formatAmount(fcAmount)}
                 </td>
                 <td className="border border-gray-400 p-2 text-right">
-                  {formatAmount(nprAmount)} {/* Use calculated nprAmount */}
+                  {formatAmount(nprAmount)}
                 </td>
                 {voucherType === 'remit-in' && (
                   <td className="border border-gray-400 p-2 text-right">
@@ -137,7 +144,7 @@ export const VoucherTemplate = ({ voucher }) => {
             </td>
             {voucherType === 'remit-in' && (
               <td className="border border-gray-400 p-2 text-right">
-                {formatAmount(totalCommission || 0)}
+                {formatAmount(totalCommission)}
               </td>
             )}
           </tr>
@@ -147,7 +154,7 @@ export const VoucherTemplate = ({ voucher }) => {
                 Net Total
               </td>
               <td colSpan={2} className="border border-gray-400 p-2 text-right">
-                {formatAmount(voucher.netTotal || voucher.totalAmount || 0)}
+                {formatAmount(netNRP)}
               </td>
             </tr>
           )}
@@ -171,14 +178,14 @@ export const VoucherTemplate = ({ voucher }) => {
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Prepared by</p>
-            <p>{staffName || '_________________'}</p> {/* Display staffName with a fallback */}
-            <p>{designation || '_________________'}</p> {/* Display designation with a fallback */}
+            <p>{voucher.transactions?.[0]?.created_by || '_________________'}</p>
+            <p>{designation || '_________________'}</p>
           </div>
         </div>
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Verified by</p>
-            <p>{voucher.verifiedBy || '_________________'}</p>
+            <p>{voucher.transactions?.[0]?.verified_by || '_________________'}</p>
             <p>Designation</p>
           </div>
         </div>

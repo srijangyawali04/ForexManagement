@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import VoucherForm from './voucher/VoucherForm';
-import VoucherList from './VoucherList';
-import VoucherTemplate from './voucher/VoucherTemplate';
-import { VoucherPreview } from './voucher/VoucherPreview';
-import { fetchLoggedInUser } from '../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import VoucherForm from '../voucher/VoucherForm';
+import VoucherList from '../voucher/VoucherList';
+import { VoucherPreview } from '../voucher/VoucherPreview';
+import { fetchLoggedInUser, updateVoucherStatus , fetchVouchers } from '../../services/api'; // Import necessary functions
 
-const Header = () => {
+const VerifierDashboard = () => {
   const { authState, logout } = useAuth();
   const [view, setView] = useState('list');
   const [vouchers, setVouchers] = useState([]);
@@ -19,6 +18,7 @@ const Header = () => {
     const getUserInfo = async () => {
       try {
         const userInfo = await fetchLoggedInUser();
+        console.log('Logged-in user:', userInfo);
         setLoggedInUser(userInfo);
       } catch (error) {
         console.error('Failed to fetch logged-in user:', error);
@@ -28,24 +28,61 @@ const Header = () => {
     if (!loggedInUser) {
       getUserInfo();
     }
+
+    // Fetch vouchers when the component loads
+    fetchVouchersData();
   }, [loggedInUser]);
 
-  const handleCreateVoucher = (voucher) => {
-    setVouchers((prevVouchers) => [...prevVouchers, { id: Date.now().toString(), ...voucher }]);
-    setView('list');
+  // Fetch the vouchers from the backend
+  const fetchVouchersData = async () => {
+    try {
+      const fetchedVouchers = await fetchVouchers();
+      setVouchers(fetchedVouchers); // Update state with fetched vouchers
+    } catch (error) {
+      console.error('Error fetching vouchers:', error);
+    }
   };
 
-  const handleVerifyVoucher = (voucherId) => {
-    setVouchers((prevVouchers) =>
-      prevVouchers.map((v) => (v.id === voucherId ? { ...v, status: 'verified' } : v))
-    );
+  // Handle verifying a voucher
+  const handleVerifyVoucher = async (voucherNumber) => {
+    if (!loggedInUser) {
+      console.error('Logged-in user not found');
+      return; // Return early if logged-in user is not available
+    }
+
+    try {
+      // Ensure loggedInUser has the necessary staff_name field
+      if (!loggedInUser.staff_name) {
+        throw new Error('Logged-in user does not have staff_name');
+      }
+
+      const updatedVoucher = await updateVoucherStatus(voucherNumber, 'Verified', loggedInUser);
+      console.log('Voucher updated:', updatedVoucher);
+    } catch (error) {
+      console.error('Failed to verify voucher:', error);
+    }
   };
 
+  // Handle changing voucher status
+  const handleChangeVoucherStatus = async (voucherNumber, newStatus) => {
+    try {
+      const updatedVoucher = await updateVoucherStatus(voucherNumber, newStatus); // Update status in the backend
+      console.log('Voucher updated:', updatedVoucher);
+
+      // Fetch the updated list of vouchers after updating the status
+      fetchVouchers();
+    } catch (error) {
+      console.error('Failed to change voucher status:', error);
+    }
+  };
+
+  // Handle previewing a voucher
   const handlePreviewVoucher = (voucher) => {
     setSelectedVoucher(voucher);
     setShowPreview(true);
   };
 
+  // Handle closing the preview modal
   const handleClosePreview = () => {
     setShowPreview(false);
     setSelectedVoucher(null);
@@ -88,12 +125,6 @@ const Header = () => {
         >
           View Vouchers
         </button>
-        <button
-          className={`px-4 py-2 rounded ${view === 'form' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
-          onClick={() => setView('form')}
-        >
-          Create Voucher
-        </button>
       </div>
 
       {/* Content */}
@@ -101,8 +132,8 @@ const Header = () => {
         {view === 'list' && (
           <VoucherList
             vouchers={vouchers}
-            onVerify={handleVerifyVoucher}
-            onPreview={handlePreviewVoucher} // Pass the preview function here
+            onVerify={handleVerifyVoucher} // Pass the verify handler to VoucherList
+            onPreview={handlePreviewVoucher} // Pass the preview handler
           />
         )}
         {view === 'form' && <VoucherForm onSubmit={handleCreateVoucher} />}
@@ -120,4 +151,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default VerifierDashboard;

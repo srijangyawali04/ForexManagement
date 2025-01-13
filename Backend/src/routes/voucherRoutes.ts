@@ -9,6 +9,6 @@ router.post("/", createVoucher);
 router.get("/", getVoucherList);
 
 // Route to verify a voucher by voucher_number
-router.put("/:voucher_number/verify", verifyVoucher);
+router.patch("/:voucher_number/update-status", verifyVoucher);
 
 export default router;

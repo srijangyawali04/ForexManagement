@@ -21,7 +21,7 @@ const PrivateRoute = ({ allowedRoles }) => {
     // Redirect based on the user's role if they are authenticated but unauthorized
     if (authState.role === 'Admin') return <Navigate to="/user-list" />;
     if (authState.role === 'Creator') return <Navigate to="/creator-dashboard" />;
-    if (authState.role === 'Verifier') return <Navigate to="/verifier" />;
+    if (authState.role === 'Verifier') return <Navigate to="/verifier-dashboard" />;
 
     // Default fallback for unexpected roles
     return <Navigate to="/" />;

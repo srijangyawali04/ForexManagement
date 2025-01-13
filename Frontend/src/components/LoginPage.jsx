@@ -68,8 +68,8 @@ const LoginPage = () => {
           navigate("/user-list"); // Admin dashboard
         } else if (data.role === "Creator") {
           navigate("/creator-dashboard"); // Header page for "create" role
-        } else {
-          navigate("/user/dashboard"); // User dashboard
+        } else if (data.role === "Verifier"){
+          navigate("/verifier-dashboard"); // User dashboard
         }
       } else {
         alert(data.message || "Invalid credentials.");

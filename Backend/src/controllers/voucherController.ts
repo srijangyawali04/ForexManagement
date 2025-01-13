@@ -6,6 +6,8 @@ import { AppDataSource } from "../initializers/data-source";
 const voucherRepo = AppDataSource.getRepository(Voucher);
 const transactionRepo = AppDataSource.getRepository(Transactions);
 
+
+
 // Utility function to validate required fields
 const validateRequiredFields = (fields: Record<string, any>): string | null => {
   for (const [key, value] of Object.entries(fields)) {
@@ -167,18 +169,32 @@ export const verifyVoucher = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid voucher number.' });
     }
 
-    // Fetch voucher by voucher_number
+    // Fetch voucher by voucher_number, including transactions
     const voucher = await voucherRepo.findOne({
       where: { voucher_number },
+      relations: ['transactions'],  // Ensure transactions are fetched with the voucher
     });
 
     if (!voucher) {
       return res.status(404).json({ message: 'Voucher not found' });
     }
 
+    // Update the voucher status and verifiedBy
+    const verifiedBy = req.body.verifiedBy || 'Admin';
     voucher.voucher_status = 'Verified';
-    voucher.verifiedBy = req.body.verifiedBy || 'Admin'; // Assuming admin or other logic
-    await voucherRepo.save(voucher);
+    voucher.verifiedBy = verifiedBy;
+
+    // Update the verified_by for each transaction within the voucher
+    if (voucher.transactions && voucher.transactions.length > 0) {
+      voucher.transactions.forEach(transaction => {
+        transaction.verified_by = verifiedBy;  // Update the transaction's verified_by field
+      });
+    }
+
+    // Save the updated voucher and its transactions
+    await voucherRepo.save(voucher);  // Save the voucher and related transactions
+    await voucherRepo.findOne({ where: { voucher_number: voucher.voucher_number }, relations: ['transactions'] });  // Reload the updated voucher
+    console.log('Voucher after reload:', voucher);
 
     return res.status(200).json({ message: 'Voucher verified', voucher });
   } catch (error) {
@@ -186,3 +202,6 @@ export const verifyVoucher = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Error verifying voucher' });
   }
 };
+
+
+
