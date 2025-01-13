@@ -42,7 +42,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
       currency_iso_code: '',          // Initially empty
       exchange_rate: 0,               // Default exchange rate
       fc_amount: 0,                   // Default FCY amount
-      commission: voucherType === 'remit-in' ? 0 : undefined,  // Commission for 'remit-in'
+      commission: voucherType === 'remit-in' ? 0 : null,  // Commission for 'remit-in'
       total_NPR: 0,                   // Default Total NPR (sync with backend)
       created_by: authState.staffName, // Current user
       verified_by: 'Pending',         // Default verification status
@@ -58,51 +58,52 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   };
 
   const updateTransaction = (index, field, value) => {
-  const updatedTransactions = transactions.map((t, i) => {
-    if (i !== index) return t;
-
-    const updated = { ...t, [field]: value };
-
-    // Handle updates for currency selection
-    if (field === 'currency_iso_code') {
-      const selectedRate = exchangeRates.find((rate) => rate.currency_iso === value);
-      updated.currency_name = selectedRate?.currency_name || '';
-      updated.currency_iso_code = selectedRate?.currency_iso || '';
-      updated.exchange_rate = getExchangeRate(value); // Calculate exchange rate
-      updated.fc_amount = updated.exchange_rate * (updated.fc_amount || 0); // Update FCY amount
-    }
-
-    // Recalculate the nprAmount based on fc_amount and exchange_rate
-    if (field === 'fc_amount' || field === 'exchange_rate') {
-      updated.nprAmount = updated.fc_amount * updated.exchange_rate || 0;
-    }
-
-    // Commission logic for 'remit-in' or 'remit-out'
-    if (voucherType === 'remit-in' && (field === 'fc_amount' || field === 'nprAmount')) {
-      if (updated.fc_amount > 0) {
-        updated.commission = updated.fc_amount * 0.005 || 0;
-      } else {
-        updated.commission = 0; // Prevent NaN if fc_amount is 0 or invalid
-      }
-    } else if (voucherType === 'remit-out') {
-      updated.commission = null; // Set commission to null for 'remit-out'
-    }
-
-    // Calculate total_NPR as nprAmount - commission for 'remit-in'
-    if (voucherType === 'remit-in') {
-      updated.total_NPR = updated.nprAmount - updated.commission;
-      console.log("fc_amount: ", updated.fc_amount);
-      console.log("commission: ", updated.commission);
-      console.log("total_NPR: ", updated.total_NPR);
-    }
-
-    return updated;
-  });
-
-  onChange(updatedTransactions);
-};
-
+    const updatedTransactions = transactions.map((t, i) => {
+      if (i !== index) return t;
   
+      const updated = { ...t, [field]: value };
+  
+      // Handle updates for currency selection
+      if (field === 'currency_iso_code') {
+        const selectedRate = exchangeRates.find((rate) => rate.currency_iso === value);
+        updated.currency_name = selectedRate?.currency_name || '';
+        updated.currency_iso_code = selectedRate?.currency_iso || '';
+        updated.exchange_rate = getExchangeRate(value); // Calculate exchange rate
+        updated.fc_amount = updated.exchange_rate * (updated.fc_amount || 0); // Update FCY amount
+      }
+  
+      // Recalculate the nprAmount based on fc_amount and exchange_rate
+      if (field === 'fc_amount' || field === 'exchange_rate') {
+        updated.nprAmount = updated.fc_amount * updated.exchange_rate || 0;
+      }
+  
+      // Commission logic for 'remit-in' or 'remit-out'
+      if (voucherType === 'remit-in' && (field === 'fc_amount' || field === 'nprAmount')) {
+        if (updated.fc_amount > 0) {
+          updated.commission = updated.fc_amount * 0.005 || 0;
+        } else {
+          updated.commission = 0; // Prevent NaN if fc_amount is 0 or invalid
+        }
+      } else if (voucherType === 'remit-out') {
+        updated.commission = null; // Set commission to null for 'remit-out'
+      }
+  
+      // Calculate total_NPR based on voucher type
+      if (voucherType === 'remit-in') {
+        updated.total_NPR = updated.nprAmount - updated.commission;
+        console.log("fc_amount: ", updated.fc_amount);
+        console.log("commission: ", updated.commission);
+        console.log("total_NPR (remit-in): ", updated.total_NPR);
+      } else if (voucherType === 'remit-out') {
+        updated.total_NPR = updated.nprAmount; // For 'remit-out', total_NPR is equal to nprAmount
+        console.log("total_NPR (remit-out): ", updated.total_NPR);
+      }
+  
+      return updated;
+    });
+  
+    onChange(updatedTransactions);
+  }; 
   
 
   return (
@@ -164,7 +165,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               <label className="block text-sm font-medium text-gray-700">NPR Amount</label>
               <input
                 type="number"
-                value={transaction.total_NPR || ''} // Default value for fc_amount
+                value={transaction.nprAmount || ''} // Default value for fc_amount
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
               />

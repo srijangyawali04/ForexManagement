@@ -1,4 +1,4 @@
-let voucherCounter = 120010;
+let voucherCounter = 120110;
 
 export function generateVoucherNumber(): string {
   voucherCounter++;
@@ -6,6 +6,9 @@ export function generateVoucherNumber(): string {
 }
 
 export function formatAmount(amount: number): string {
+  if (amount == null || isNaN(amount)) {
+    return '0.00'; // Return a default value if amount is null or NaN
+  }
   return amount.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

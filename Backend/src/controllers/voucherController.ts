@@ -23,11 +23,11 @@ export const createVoucher = async (req: Request, res: Response) => {
       customer_name,
       customer_address,
       mobile_number,
+      passport_number,
       itrs_code,
       travel_order_ref_number = null, // Default to null if not provided
       voucher_cancellation = null, // Default to null if not provided
       voucher_status = "Pending", // Default to "Pending"
-      passport_number,
       createdBy, // Ensure to get createdBy from the request body
       voucher_number, // Ensure voucher_number is sent
       transactions, // Array of transactions to be associated with the voucher
@@ -69,17 +69,17 @@ export const createVoucher = async (req: Request, res: Response) => {
 
     // Create a new voucher object
     const voucher = voucherRepo.create({
+      voucher_number,
       customer_name,
       customer_address,
       mobile_number,
+      passport_number,
       itrs_code,
       travel_order_ref_number,
       voucher_cancellation,
-      passport_number,
       voucher_status,
       createdBy, // Store the createdBy value from the request
       verifiedBy: "Pending", // Default value for verifiedBy
-      voucher_number, // Include voucher_number
     });
 
     // Save the voucher first to ensure it exists in the database
@@ -127,5 +127,62 @@ export const createVoucher = async (req: Request, res: Response) => {
         error: err.message || "An unexpected error occurred.",
       });
     }
+  }
+};
+
+// Get all vouchers for the list in the front-end
+export const getVoucherList = async (req: Request, res: Response) => {
+  try {
+    const vouchers = await voucherRepo.find({
+      relations: ["transactions"], // To fetch related transactions as well
+      order: { voucher_date: "DESC" }, // Optional: order vouchers by creation date
+    });
+
+    if (!vouchers) {
+      return res.status(404).json({ message: "No vouchers found" });
+    }
+
+    return res.status(200).json({
+      message: "Vouchers fetched successfully.",
+      data: vouchers,
+    });
+  } catch (err) {
+    console.error("Error fetching voucher list:", err);
+    return res.status(500).json({
+      message: "Server error.",
+      error: err.message || "An unexpected error occurred.",
+    });
+  }
+};
+
+
+// Verify a voucher status
+export const verifyVoucher = async (req: Request, res: Response) => {
+  try {
+    // Convert voucher_number to a number
+    const voucher_number = Number(req.params.voucher_number);
+
+    // Check if voucher_number is a valid number
+    if (isNaN(voucher_number)) {
+      return res.status(400).json({ message: 'Invalid voucher number.' });
+    }
+
+    // Fetch voucher by voucher_number
+    const voucher = await voucherRepo.findOne({
+      where: { voucher_number },
+    });
+
+    if (!voucher) {
+      return res.status(404).json({ message: 'Voucher not found' });
+    }
+
+    voucher.voucher_status = 'Verified';
+    voucher.verifiedBy = req.body.verifiedBy || 'Admin'; // Assuming admin or other logic
+    await voucherRepo.save(voucher);
+
+    return res.status(200).json({ message: 'Voucher verified', voucher });
+  } catch (error) {
+    console.error('Error verifying voucher:', error);
+    return res.status(500).json({ message: 'Error verifying voucher' });
   }
 };

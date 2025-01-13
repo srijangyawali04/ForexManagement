@@ -7,7 +7,7 @@ import './schedule_task/scheduleTask';
 import { AppDataSource } from './initializers/data-source'
 import UserRouter from './routes/userRoutes'
 import VoucherRouter from './routes/voucherRoutes';
-import TransactionRouter from './routes/transactionRoutes'
+// import TransactionRouter from './routes/transactionRoutes'
 import exchangeRoutes from './routes/exchangeRoutes';
 import authRoutes from './routes/authRoutes';
 import dotenv from "dotenv";
@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }))
 // Set up routes
 app.use('/api/user', UserRouter)
 app.use('/api/voucher', VoucherRouter);
-app.use('/api/transaction', TransactionRouter)
+// app.use('/api/transaction', TransactionRouter)
 app.use("/api/exchange-rates", exchangeRoutes);
 app.use('/api/auth', authRoutes);
 

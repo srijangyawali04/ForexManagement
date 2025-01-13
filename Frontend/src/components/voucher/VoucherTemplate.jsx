@@ -3,7 +3,8 @@ import logo from '../../assets/logo.png';
 import { formatAmount } from '../../utils/voucherUtils';
 
 export const VoucherTemplate = ({ voucher }) => {
-  const totalCommission = voucher.transactions.reduce((sum, t) => sum + (t.commission || 0), 0);
+  console.log('FOR validation', voucher);
+  console.log('type', voucher.transaction?.transaction_type);
 
   // Retrieve the stored staffName and designation
   const staffName = localStorage.getItem('staff_name'); // Ensure the key matches what is stored
@@ -14,14 +15,34 @@ export const VoucherTemplate = ({ voucher }) => {
     console.warn('Staff Name is not available in localStorage.');
   }
 
+  // Safely access customer details, considering that `voucher.customer` might be undefined or null.
+  const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A'; 
+  const voucherDate = voucher.date || voucher.voucher_date || ''; 
+  const customerName = voucher.customer?.name || voucher.customer_name || 'N/A';
+  const passportNo = voucher.customer?.passportNo || voucher.passport_number || 'N/A';
+  const address = voucher.customer?.address || voucher.customer_address || 'N/A';
+  const mobileNo = voucher.customer?.mobileNo || voucher.mobile_number || 'N/A';
+  const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
+  const travelOrderRef = voucher.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
+  const voucherType = voucher.type || voucher.transactions[0]?.transaction_type || 'N/A';
+  const totalCommission = voucher.transactions.reduce((sum, t) => sum + (t.commission || 0), 0);
+  const totalNRP = voucher.transactions.reduce((sum, t) => {
+    const fcAmount = t.fc_amount || 0;
+    const exchangeRate = t.exchange_rate || 0;
+    const nprAmount = fcAmount * exchangeRate;
+    return sum + nprAmount;
+  }, 0) || voucher.totalAmount || 0;
+  
+
+
   return (
     <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <img 
+          <img
             src={logo}
-            alt="Nepal Rastra Bank" 
+            alt="Nepal Rastra Bank"
             className="w-16 h-16"
           />
           <div>
@@ -39,20 +60,20 @@ export const VoucherTemplate = ({ voucher }) => {
       <div className="flex justify-between mb-4">
         <div></div>
         <div className="text-right">
-          <p>Voucher No.: {voucher.voucherNo}</p>
-          <p>Date: {new Date(voucher.date).toLocaleDateString('en-US')}</p>
+          <p>Voucher No.: {voucherNo}</p>
+          <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p> {/* Guard for empty date */}
         </div>
       </div>
 
       {/* Customer Info */}
       <div className="mb-4 space-y-1">
-        <p>Customer Name: {voucher.customer.name}</p>
-        <p>Passport No.: {voucher.customer.passportNo}</p>
-        <p>Address: {voucher.customer.address}</p>
+        <p>Customer Name: {customerName}</p>
+        <p>Passport No.: {passportNo}</p>
+        <p>Address: {address}</p>
         <div className="flex justify-between">
-          <p>Mobile No.: {voucher.customer.mobileNo}</p>
-          {voucher.customer.itrsCode && <p>ITRS Code: {voucher.customer.itrsCode}</p>}
-          {voucher.travelOrderRef && <p>Travel Order Ref. No.: {voucher.travelOrderRef}</p>}
+          <p>Mobile No.: {mobileNo}</p>
+          {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
+          {travelOrderRef !== 'N/A' && <p>Travel Order Ref. No.: {travelOrderRef}</p>}
         </div>
       </div>
 
@@ -63,39 +84,43 @@ export const VoucherTemplate = ({ voucher }) => {
             <th className="border border-gray-400 p-2">S.N.</th>
             <th className="border border-gray-400 p-2">Currency</th>
             <th className="border border-gray-400 p-2">
-              {voucher.type === 'remit-out' ? 'Buying' : 'Selling'} Exchange Rate
+              {voucherType === 'remit-out' ? 'Buying' : 'Selling'} Exchange Rate
             </th>
             <th className="border border-gray-400 p-2">FCY Amount</th>
             <th className="border border-gray-400 p-2">Amount NPR</th>
-            {voucher.type === 'remit-in' && (
+            {voucherType === 'remit-in' && (
               <th className="border border-gray-400 p-2">Commission (0.5%)</th>
             )}
           </tr>
         </thead>
         <tbody>
           {voucher.transactions.map((transaction, index) => {
-            // Calculate the commission if it's not present or is NaN
+            // Ensure valid fc_amount and commission before calculations
+            const fcAmount = transaction.fc_amount || 0;
+            const exchangeRate = transaction.exchange_rate || 0;
             const commission = isNaN(transaction.commission) || transaction.commission === undefined
-              ? (transaction.fc_amount * 0.005) // Assuming 0.5% commission rate
+              ? fcAmount * 0.005 // Assuming 0.5% commission rate
               : transaction.commission;
 
-            // Calculate nprAmount based on the exchange rate and fc_amount
-            const nprAmount = (transaction.fc_amount * transaction.exchange_rate) || 0; // Calculate NPR
+            const nprAmount = fcAmount * exchangeRate;
 
             return (
               <tr key={index} className="border border-gray-400">
                 <td className="border border-gray-400 p-2 text-center">{index + 1}</td>
                 <td className="border border-gray-400 p-2">{transaction.currency_iso_code}</td>
                 <td className="border border-gray-400 p-2 text-right">
-                  {transaction.exchange_rate ? transaction.exchange_rate.toFixed(2) : '0.00'}
+                  {exchangeRate && !isNaN(Number(exchangeRate))
+                    ? Number(exchangeRate).toFixed(2)
+                    : '0.00'}
+                </td>
+
+                <td className="border border-gray-400 p-2 text-right">
+                  {formatAmount(fcAmount)}
                 </td>
                 <td className="border border-gray-400 p-2 text-right">
-                  {formatAmount(transaction.fc_amount || 0)}
+                  {formatAmount(nprAmount)} {/* Use calculated nprAmount */}
                 </td>
-                <td className="border border-gray-400 p-2 text-right">
-                  {formatAmount(nprAmount || 0)} {/* Use calculated nprAmount */}
-                </td>
-                {voucher.type === 'remit-in' && (
+                {voucherType === 'remit-in' && (
                   <td className="border border-gray-400 p-2 text-right">
                     {formatAmount(commission)}
                   </td>
@@ -108,15 +133,15 @@ export const VoucherTemplate = ({ voucher }) => {
               Total
             </td>
             <td className="border border-gray-400 p-2 text-right">
-              {formatAmount(voucher.totalAmount || 0)}
+              {formatAmount(totalNRP)}
             </td>
-            {voucher.type === 'remit-in' && (
+            {voucherType === 'remit-in' && (
               <td className="border border-gray-400 p-2 text-right">
                 {formatAmount(totalCommission || 0)}
               </td>
             )}
           </tr>
-          {voucher.type === 'remit-in' && (
+          {voucherType === 'remit-in' && (
             <tr className="border border-gray-400 font-bold">
               <td colSpan={4} className="border border-gray-400 p-2 text-right">
                 Net Total

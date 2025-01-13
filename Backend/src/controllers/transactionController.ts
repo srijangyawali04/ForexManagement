@@ -6,52 +6,30 @@ import { AppDataSource } from "../initializers/data-source";
 const transactionRepo = AppDataSource.getRepository(Transactions);
 const voucherRepo = AppDataSource.getRepository(Voucher);
 
-// Add Transaction Information
-export const createTransaction = async (req: Request, res: Response) => {
-  const {
-    voucher_number,
-    currency_name,
-    currency_iso_code,
-    exchange_rate,
-    fc_amount,
-    commission,
-    total_NPR,
-    created_by,
-    verified_by,
-  } = req.body;
+
+// Get all transactions for a specific voucher number
+export const getTransactionsByVoucherNumber = async (req: Request, res: Response) => {
+  const voucher_number = parseInt(req.params.voucher_number);  // Convert to number
+
+  if (isNaN(voucher_number)) {
+    return res.status(400).json({ message: "Invalid voucher number." });
+  }
 
   try {
-    const voucher = await voucherRepo.findOne({ where: { voucher_number } });
+    // Find the voucher and its related transactions
+    const voucher = await voucherRepo.findOne({
+      where: { voucher_number }, // Now voucher_number is a number
+      relations: ["transactions"], // Include related transactions
+    });
 
     if (!voucher) {
       return res.status(404).json({ message: "Voucher not found." });
     }
 
-    // Create the transaction
-    const transaction = transactionRepo.create({
-      voucher, 
-      currency_name,
-      currency_iso_code,
-      exchange_rate,
-      fc_amount,
-      commission,
-      total_NPR,
-      created_by,
-      verified_by,
-    });
-
-    await transactionRepo.save(transaction);
-
-    return res.status(200).json({
-      message: "Transaction created successfully.",
-      data: transaction,
-    });
-  } catch (err) {
-    console.error(err);
-
-    return res.status(500).json({
-      message: "Server error",
-      error: err.message || "An unexpected error occurred.",
-    });
+    return res.status(200).json({ data: voucher.transactions });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error fetching transactions." });
   }
 };
+

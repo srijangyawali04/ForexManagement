@@ -10,57 +10,48 @@ export function VoucherPreview({
   onGenerate,
   showGenerateButton = false
 }) {
-  const { authState } = useAuth(); // Access the authState from context
+  const { authState } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  // Log authState to check if it's correctly populated
-  useEffect(() => {
-    console.log('AuthState:', authState); // Check if the logged-in user data is available
-  }, [authState]);
 
   const handleGenerateVoucher = async () => {
     try {
-      // Log voucher data before generation for debugging
-      console.log('Voucher data before generation:', voucher); // Log voucher data before generating
-  
+      console.log('Voucher data before generation:', voucher);
+
       if (!authState || !authState.staffName) {
         throw new Error('User not authenticated or required user details are missing.');
       }
-  
-      // Ensure voucher and customer details are populated and correct
+
       if (!voucher || !voucher.customer || !voucher.customer.name) {
         throw new Error('Voucher data is missing customer details.');
       }
-  
-      // Ensure `itrs_code` is a number
+
       const itrsCode = voucher?.customer?.itrsCode ? Number(voucher.customer.itrsCode) : null;
-  
-      // Logging the voucher data being sent to the backend for debugging
+
       const voucherData = {
-        customer_name: voucher?.customer?.name || '', // Corrected field path
-        customer_address: voucher?.customer?.address || '', // Corrected field path
-        mobile_number: voucher?.customer?.mobileNo || '', // Corrected field path
-        passport_number: voucher?.customer?.passportNo || '', // Corrected field path
-        itrs_code: itrsCode || '', // Corrected field path to ensure it's a number
-        voucher_status: "Pending", // Ensure this is set as per the required value
-        voucher_number: voucher?.voucherNo || null, // Match with the column name `voucher_number`
+        customer_name: voucher?.customer?.name || '',
+        customer_address: voucher?.customer?.address || '',
+        mobile_number: voucher?.customer?.mobileNo || '',
+        passport_number: voucher?.customer?.passportNo || '',
+        itrs_code: itrsCode || '',
+        voucher_status: "Pending",
+        voucher_number: voucher?.voucherNo || null,
         travel_order_ref_number: voucher?.travel_order_ref_number || null,
         voucher_cancellation: voucher?.voucher_cancellation || null,
         createdBy: authState.staffName,
         verifiedBy: "Pending",
-        transactions: voucher?.transactions || [] // Add transactions here
+        transactions: voucher?.transactions || []
       };
-  
-      console.log('Sending voucher and transactions data to backend:', voucherData); // Log data before sending
-  
+
+      console.log('Sending voucher and transactions data to backend:', voucherData);
+
       const response = await axios.post(`${apiUrl}/api/voucher`, voucherData);
-  
+
       console.log('Voucher and transactions generated successfully:', response.data);
-  
+
       if (onGenerate) {
         onGenerate();
       }
-  
+
       alert('Voucher and transactions generated and saved successfully!');
     } catch (error) {
       console.error('Failed to generate voucher:', error);
@@ -98,10 +89,10 @@ export function VoucherPreview({
           </div>
         </div>
         <div className="p-6">
+          {/* Ensure the full voucher data including customer and voucherType are passed */}
           <VoucherTemplate voucher={{ ...voucher, createdBy: authState?.staffName }} />
         </div>
 
-        {/* Button to update voucher */}
         <div className="flex justify-end p-4">
           <button
             onClick={() => handleUpdateVoucher(voucher)}
