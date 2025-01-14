@@ -52,7 +52,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                 onClick={() => onPageChange(page)}
                 className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
                   currentPage === page
-                    ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                    ? ' bg-blue-50 border-blue-500 text-blue-600'
                     : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
                 } border`}
                 aria-label={`Page ${page}`}

@@ -7,7 +7,7 @@ const scheduleTask = () => {
   console.log(`Current Nepal Time: ${nowNepalTime}`);
 
   // Schedule to run at 18:30 Nepal Time daily
-  cron.schedule("44 11 * * *", async () => {
+  cron.schedule("04 20 * * *", async () => {
     console.log(`Fetching forex rates at: ${nowNepalTime}`);
     await fetchForexRates();
   });

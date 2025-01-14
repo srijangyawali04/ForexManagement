@@ -6,8 +6,6 @@ import { AppDataSource } from "../initializers/data-source";
 const voucherRepo = AppDataSource.getRepository(Voucher);
 const transactionRepo = AppDataSource.getRepository(Transactions);
 
-
-
 // Utility function to validate required fields
 const validateRequiredFields = (fields: Record<string, any>): string | null => {
   for (const [key, value] of Object.entries(fields)) {
@@ -157,7 +155,6 @@ export const getVoucherList = async (req: Request, res: Response) => {
   }
 };
 
-
 // Verify a voucher status
 export const verifyVoucher = async (req: Request, res: Response) => {
   try {
@@ -186,22 +183,22 @@ export const verifyVoucher = async (req: Request, res: Response) => {
 
     // Update the verified_by for each transaction within the voucher
     if (voucher.transactions && voucher.transactions.length > 0) {
-      voucher.transactions.forEach(transaction => {
+      for (const transaction of voucher.transactions) {
         transaction.verified_by = verifiedBy;  // Update the transaction's verified_by field
-      });
+        await transactionRepo.save(transaction); // Save each transaction
+      }
     }
 
-    // Save the updated voucher and its transactions
-    await voucherRepo.save(voucher);  // Save the voucher and related transactions
-    await voucherRepo.findOne({ where: { voucher_number: voucher.voucher_number }, relations: ['transactions'] });  // Reload the updated voucher
-    console.log('Voucher after reload:', voucher);
+    // Save the updated voucher
+    await voucherRepo.save(voucher); 
 
-    return res.status(200).json({ message: 'Voucher verified', voucher });
+    return res.status(200).json({
+      message: 'Voucher verified',
+      voucher,
+      transactions: voucher.transactions,  // Return updated transactions along with the voucher
+    });
   } catch (error) {
     console.error('Error verifying voucher:', error);
     return res.status(500).json({ message: 'Error verifying voucher' });
   }
 };
-
-
-

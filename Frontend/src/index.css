@@ -30,52 +30,68 @@
   }
 }
 
-/* A4 paper setup for printing */
+/* General Styles */
+.voucher-container {
+  padding: 16px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 800px; /* Adjust width to fit A4 */
+  font-size: 12px;
+  line-height: 1.4;
+  border: 1px solid #ddd;
+  page-break-inside: avoid;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.logo {
+  width: 50px;
+  height: 50px;
+}
+.copy-label {
+  border: 1px solid;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+.copy-label.office {
+  background-color: yellow;
+}
+.copy-label.customer {
+  background-color: lightgreen;
+}
+.voucher-info p {
+  margin: 4px 0;
+}
+
+/* Print-Specific Styles */
 @media print {
-  /* Scale the content to fit on the page */
-  body {
-    transform: scale(0.8); /* Scale content to 80% */
-    transform-origin: top left;
-    width: 210mm; /* A4 width */
-    height: 297mm; /* A4 height */
-    margin: 0; /* Remove margins */
+  body * {
+    visibility: hidden;
   }
-
-  /* Container adjustments for printing */
-  .container {
-    width: 100%;
-    height: 100%;
-    padding: 0; /* Remove padding to fit */
+  .print-container,
+  .print-container * {
+    visibility: visible;
   }
-
-  /* Hide elements during printing */
-  .print\:hidden {
-    display: none;
-  }
-
-  /* Office and customer copy breaks */
-  .office-copy,
-  .customer-copy {
-    page-break-before: always;
-  }
-
-  /* Hide the print and back buttons */
-  button {
-    display: none;
-  }
-
-  /* Adjust table layout for printing */
-  table {
-    width: 100%;
-    table-layout: fixed; /* Ensure the table fits the width */
-  }
-
-  /* Page setup for A4 paper */
-  @page {
-    size: A4;
+  .print-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 21cm; /* A4 Width */
+    height: 29.7cm; /* A4 Height */
+    padding: 10mm; /* Adjust padding to fit content */
     margin: 0;
   }
+  .print-button {
+    display: none; /* Hide the print button */
+  }
+  .separator {
+    display: none; /* Hide separator for print */
+  }
 }
+
 
 /* Style links */
 a {

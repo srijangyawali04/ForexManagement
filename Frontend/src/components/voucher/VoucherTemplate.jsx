@@ -6,16 +6,9 @@ export const VoucherTemplate = ({ voucher }) => {
   console.log('FOR validation', voucher);
   console.log('type', voucher.transactions?.[0]?.transaction_type);
 
-  // Retrieve the stored staffName and designation
-  const staffName = localStorage.getItem('staff_name'); // Ensure the key matches what is stored
-  const designation = localStorage.getItem('designation'); // Retrieve designation
+  const staffName = localStorage.getItem('staff_name'); 
+  const designation = localStorage.getItem('designation'); 
 
-  // Check if staffName is missing, log a warning for debugging
-  if (!staffName) {
-    console.warn('Staff Name is not available in localStorage.');
-  }
-
-  // Safely access customer and voucher details
   const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A';
   const voucherDate = voucher.date || voucher.voucher_date || '';
   const customerName = voucher.customer?.name || voucher.customer_name || 'N/A';
@@ -26,17 +19,14 @@ export const VoucherTemplate = ({ voucher }) => {
   const travelOrderRef = voucher.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
 
-  // Calculate Total Commission
   const totalCommission = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = Number(t.fc_amount) || 0;
     const calculatedCommission = isNaN(Number(t.commission)) || t.commission === undefined
-      ? fcAmount * 0.005 // Assuming 0.5% commission rate
+      ? fcAmount * 0.005 
       : Number(t.commission);
     return sum + calculatedCommission;
   }, 0);
-  
-  console.log('Total Commission',totalCommission);
-  // Calculate Total NPR
+
   const totalNRP = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = t.fc_amount || 0;
     const exchangeRate = t.exchange_rate || 0;
@@ -44,14 +34,14 @@ export const VoucherTemplate = ({ voucher }) => {
     return sum + nprAmount;
   }, 0) || voucher.totalAmount || 0;
 
-  // Calculate net NRP
-  // const netNRP = voucher.netTotal || voucher.totalAmount || voucher.transactions?.[0]?.total_NRP || 0;
   const netNRP = totalNRP - (totalCommission || 0);
-  console.log('net',netNRP);
 
-  return (
-    <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black">
-      {/* Header */}
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const renderCopy = (isOfficeCopy) => (
+    <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black mb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <img src={logo} alt="Nepal Rastra Bank" className="w-16 h-16" />
@@ -62,11 +52,12 @@ export const VoucherTemplate = ({ voucher }) => {
           </div>
         </div>
         <div className="text-right">
-          <div className="inline-block border border-yellow-400 bg-yellow-50 px-2">Office Copy</div>
+          <div className={`inline-block border px-2 ${isOfficeCopy ? 'border-yellow-400 bg-yellow-50' : 'border-green-400 bg-green-50'}`}>
+            {isOfficeCopy ? 'Office Copy' : 'Customer Copy'}
+          </div>
         </div>
       </div>
 
-      {/* Voucher Info */}
       <div className="flex justify-between mb-4">
         <div></div>
         <div className="text-right">
@@ -75,7 +66,6 @@ export const VoucherTemplate = ({ voucher }) => {
         </div>
       </div>
 
-      {/* Customer Info */}
       <div className="mb-4 space-y-1">
         <p>Customer Name: {customerName}</p>
         <p>Passport No.: {passportNo}</p>
@@ -87,7 +77,6 @@ export const VoucherTemplate = ({ voucher }) => {
         </div>
       </div>
 
-      {/* Transactions Table */}
       <table className="w-full mb-4 border-collapse">
         <thead>
           <tr className="border border-gray-400">
@@ -160,21 +149,8 @@ export const VoucherTemplate = ({ voucher }) => {
           )}
         </tbody>
       </table>
-
-      {/* Footer Notes */}
-      <div className="text-sm mb-8">
-        <p>Note:</p>
-        <ul className="list-disc list-inside pl-4">
-          <li>Validity of this voucher is for same date only.</li>
-          <li>
-            This is only foreign currency exchange voucher and can't be presented as Invoice and
-            doesn't carry any legal obligations.
-          </li>
-        </ul>
-      </div>
-
-      {/* Signatures */}
-      <div className="flex justify-between mt-16">
+       {/* Signatures */}
+       <div className="flex justify-between mt-16">
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Prepared by</p>
@@ -186,9 +162,39 @@ export const VoucherTemplate = ({ voucher }) => {
           <div className="border-t border-gray-400 pt-1">
             <p>Verified by</p>
             <p>{voucher.transactions?.[0]?.verified_by || '_________________'}</p>
-            <p>Designation</p>
+            <p>designation</p>
           </div>
         </div>
+      </div>
+      <br></br>
+
+      {!isOfficeCopy && (
+        <div className="text-sm mb-8">
+          <p>Note:</p>
+          <ul className="list-disc list-inside pl-4">
+            <li>Validity of this voucher is for same date only.</li>
+            <li>
+              This is only foreign currency exchange voucher and can't be presented as Invoice and
+              doesn't carry any legal obligations.
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div>
+      {/* <button
+        className="print-button bg-blue-500 text-white py-2 px-4 rounded mb-4"
+        onClick={handlePrint}
+      >
+        Print
+      </button> */}
+      <div className="print-container">
+        {renderCopy(true)}
+        <div className="border-dashed border-t border-gray-500 my-4"></div>
+        {renderCopy(false)}
       </div>
     </div>
   );

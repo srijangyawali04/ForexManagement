@@ -73,7 +73,7 @@ export default function VoucherForm({ onSubmit }) {
           >
             <option value="remit-out">Remit Out</option>
             <option value="remit-in">Remit In</option>
-            <option value="staff">Staff</option>
+            {/* <option value="staff">Staff</option> */}
           </select>
         </div>
 

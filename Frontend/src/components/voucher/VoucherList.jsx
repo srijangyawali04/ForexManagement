@@ -57,6 +57,8 @@ const VoucherList = ({ onVerify }) => {
     
     // Trigger the onVerify function passed as a prop from the parent
     onVerify(voucherNumber, loggedInUser.staff_name, verificationDate); // Passing the logged-in user name and date
+    //reload windows 
+    window.location.reload();
   };
 
   // Check if the logged-in user is a verifier
