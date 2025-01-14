@@ -5,39 +5,57 @@ import { AppDataSource } from "../initializers/data-source";
 
 const userRepo = AppDataSource.getRepository(User);
 
-//Add User Information
+// Add User Information
 export const createUser = async (req: Request, res: Response) => {
   const { staff_code, password, staff_name, designation, role, email, mobile_number, user_status, remarks } = req.body;
 
   try {
+    // Check if a user with the same staff_code already exists
+    const existingUser = await userRepo.findOne({ where: { staff_code } });
+
+    if (existingUser) {
+      // Log an alert in the server console
+      // console.log(`ALERT: User with staff code ${staff_code} already exists.`);
+      
+      return res.status(400).json({
+        message: `User with staff code ${staff_code} already exists.`,
+      });
+    }
+
     // Hash the password before saving it to the database
     const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds for bcrypt
 
     // Create a new user object with the hashed password
-    const voucher = userRepo.create({
+    const user = userRepo.create({
       staff_code,
       password: hashedPassword, // Use hashed password here
-      staff_name, 
+      staff_name,
       designation,
       role,
       email,
       mobile_number,
       user_status,
-      remarks
+      remarks,
     });
 
     // Save the user to the database
-    await userRepo.save(voucher);
+    await userRepo.save(user);
+
+    // Log success to the console
+    console.log(`SUCCESS: User with staff code ${staff_code} created successfully.`);
 
     return res.status(200).json({
       message: "User created successfully.",
-      data: voucher,
+      data: user,
     });
   } catch (err) {
-    console.error(err);
+    // Log error in the server console
+    console.error("ERROR: Server error occurred during user creation.", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 // Get a user by staff_code

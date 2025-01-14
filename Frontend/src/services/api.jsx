@@ -1,6 +1,6 @@
-// src/services/api.js
 const apiUrl = import.meta.env.VITE_API_URL;
 
+// Fetch all user info
 export const fetchUsers = async () => {
   try {
     const response = await fetch(`${apiUrl}/api/user/allusers`);
@@ -14,6 +14,44 @@ export const fetchUsers = async () => {
     throw error; // Rethrow error to be handled in the component
   }
 };
+
+
+//Fetch user from staffcode
+// API for fetching a user by staff code
+export const getUserByStaffCode = async (staffCode) => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+
+  if (!staffCode) {
+    throw new Error('Staff code is required.');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/api/user/${staffCode}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+    });
+
+    // Check if the response is not OK
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API error response:', errorData);
+      alert(`Error: ${errorData.message}`); // Show alert for any errors
+      return null;
+    }
+
+    // Parse the successful response and return the user data
+    const data = await response.json();
+    return data; // Return the user data for further use
+  } catch (error) {
+    console.error('Error fetching user by staff code:', error);
+    alert('Failed to fetch user data. Please try again later.');
+    return null; // Return null if an error occurred
+  }
+};
+
 
 // Api for user status
 export const updateUserStatus = async (staffCode, newStatus) => {
@@ -36,8 +74,7 @@ export const updateUserStatus = async (staffCode, newStatus) => {
 };
 
 
-// Api for add user 
-
+// API for adding a user
 export const addUser = async (userData) => {
   const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
   const role = localStorage.getItem('role'); // Retrieve the role from localStorage
@@ -57,18 +94,28 @@ export const addUser = async (userData) => {
       body: JSON.stringify(userData),
     });
 
+    // Check if the response is not OK
     if (!response.ok) {
       const errorData = await response.json();
       console.error('API error response:', errorData);
-      throw new Error('Error: ' + errorData.message); // Display the message to the user
+
+      // Handle specific error responses from the backend
+      if (errorData.message.includes('already exists')) {
+        alert(`Error: ${errorData.message}`); // Alert for duplicate user
+      }
+      throw new Error(errorData.message); // Throw the error for further handling
     }
 
-    return await response.json(); // Return the created user's data
+    const data = await response.json(); // Parse the successful response
+    // alert('User added successfully.'); // Notify the user of success
+    return data; // Return the created user's data
   } catch (error) {
     console.error('Error adding user:', error);
-    throw new Error('Failed to add user. Please try again later.');
+    alert('Failed to add user. Please try again later.'); // Notify the user of a failure
+    throw error; // Re-throw the error for further handling
   }
 };
+
 
 
 
@@ -159,7 +206,7 @@ export const updateVoucherStatus = async (voucherNumber, newStatus, loggedInUser
       body: JSON.stringify({
         voucher_number: voucherNumber,
         voucher_status: newStatus,
-        verifiedBy: loggedInUser.staff_name, // Use loggedInUser.staff_name here
+        verifiedBy: loggedInUser.staff_code, // Use loggedInUser.staff_name here
       }),
     });
 
@@ -198,5 +245,41 @@ export const fetchVouchers = async () => {
   } catch (error) {
     console.error('Error fetching vouchers:', error);
     throw error; // Rethrow error to be handled in the component
+  }
+};
+
+
+// API for fetching a voucher by voucher number
+export const getVoucherByNumber = async (voucherNumber) => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+
+  if (!voucherNumber) {
+    throw new Error('Voucher number is required.');
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher/${voucherNumber}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+    });
+
+    // Check if the response is not OK
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API error response:', errorData);
+      alert(`Error: ${errorData.message}`); // Show alert for any errors
+      return null;
+    }
+
+    // Parse the successful response and return the voucher data
+    const data = await response.json();
+    return data; // Return the voucher data
+  } catch (error) {
+    console.error('Error fetching voucher by number:', error);
+    alert('Failed to fetch voucher data. Please try again later.');
+    return null; // Return null if an error occurred
   }
 };

@@ -37,7 +37,7 @@ export function VoucherPreview({
         voucher_number: voucher?.voucherNo || null,
         travel_order_ref_number: voucher?.travel_order_ref_number || null,
         voucher_cancellation: voucher?.voucher_cancellation || null,
-        createdBy: authState.staffName,
+        createdBy: authState.staffCode,
         verifiedBy: "Pending",
         transactions: voucher?.transactions || []
       };

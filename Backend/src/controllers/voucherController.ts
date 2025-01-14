@@ -202,3 +202,38 @@ export const verifyVoucher = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Error verifying voucher' });
   }
 };
+
+
+// Get a voucher by its voucher number
+export const getVoucherByNumber = async (req: Request, res: Response) => {
+  try {
+    // Extract the voucher number from the request parameters
+    const voucher_number = Number(req.params.voucher_number);
+
+    // Check if voucher_number is a valid number
+    if (isNaN(voucher_number)) {
+      return res.status(400).json({ message: 'Invalid voucher number.' });
+    }
+
+    // Fetch the voucher by voucher_number, including related transactions
+    const voucher = await voucherRepo.findOne({
+      where: { voucher_number },
+      relations: ['transactions'],  // To fetch related transactions
+    });
+
+    if (!voucher) {
+      return res.status(404).json({ message: 'Voucher not found' });
+    }
+
+    return res.status(200).json({
+      message: 'Voucher fetched successfully',
+      data: voucher,  // Return the voucher and its transactions
+    });
+  } catch (err) {
+    console.error('Error fetching voucher by number:', err);
+    return res.status(500).json({
+      message: 'Server error.',
+      error: err.message || 'An unexpected error occurred.',
+    });
+  }
+};

@@ -36,7 +36,7 @@ export default function VoucherForm({ onSubmit }) {
       transactions,
       totalAmount,
       netTotal: voucherType === 'remit-in' ? totalAmount - commission : totalAmount,
-      createdBy: authState?.staffName || 'Unknown',
+      createdBy: authState?.staffCode || 'Unknown',
       travelOrderRef: voucherType === 'staff' ? `HRMD...${Math.random().toString(36).slice(2, 8)}` : undefined,
       status: 'pending',
       createdAt: new Date(),

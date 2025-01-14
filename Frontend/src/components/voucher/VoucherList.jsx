@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, Clock } from 'lucide-react';
-import { fetchLoggedInUser } from '../../services/api'; // Import the function to fetch logged-in user
-import { VoucherPreview } from './VoucherPreview'; // Import VoucherPreview
-import { fetchVouchers } from '../../services/api';
+import { fetchLoggedInUser, fetchVouchers } from '../../services/api';
+import { VoucherPreview } from './VoucherPreview';
+import VoucherFilter from './VoucherFilter';
+import Pagination from '../AdminDashboard/Pagination';
 
 const VoucherList = ({ onVerify }) => {
   const [vouchers, setVouchers] = useState([]);
+  const [filteredVouchers, setFilteredVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [vouchersPerPage] = useState(10); // Set the number of vouchers per page
+  const [searchQuery, setSearchQuery] = useState('');
+  const [voucherStatus, setVoucherStatus] = useState('');
 
   // Fetch logged-in user info
   useEffect(() => {
@@ -38,6 +44,26 @@ const VoucherList = ({ onVerify }) => {
     fetchVoucherData();
   }, []);
 
+  // Combine search query and status filter
+  useEffect(() => {
+    let filtered = vouchers;
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (voucher) =>
+          voucher.voucher_number.toString().includes(searchQuery.toString()) ||
+          voucher.customer_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (voucherStatus) {
+      filtered = filtered.filter((voucher) => voucher.voucher_status === voucherStatus);
+    }
+
+    setFilteredVouchers(filtered);
+    setCurrentPage(1); // Reset to page 1 when filter or search changes
+  }, [searchQuery, voucherStatus, vouchers]);
+
   // Handle voucher click for preview
   const handleVoucherClick = (voucher) => {
     setSelectedVoucher(voucher); // Set the selected voucher
@@ -52,28 +78,67 @@ const VoucherList = ({ onVerify }) => {
 
   // Handle verify button click
   const handleVerify = (voucherNumber) => {
-    // Get the current date and time for verification
     const verificationDate = new Date().toLocaleString();
-    
-    // Trigger the onVerify function passed as a prop from the parent
-    onVerify(voucherNumber, loggedInUser.staff_name, verificationDate); // Passing the logged-in user name and date
-    //reload windows 
+    onVerify(voucherNumber, loggedInUser.staff_name, verificationDate);
     window.location.reload();
   };
 
   // Check if the logged-in user is a verifier
   const isVerifier = loggedInUser?.role === 'Verifier';
 
+  // Get the vouchers to display on the current page
+  const indexOfLastVoucher = currentPage * vouchersPerPage;
+  const indexOfFirstVoucher = indexOfLastVoucher - vouchersPerPage;
+  const currentVouchers = filteredVouchers.slice(indexOfFirstVoucher, indexOfLastVoucher);
+
+  // Handle page change and scroll to top
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo(0, 0); // Scroll to top after page change
+  };
+
+  // Handle search query change
+  const handleSearch = (query) => {
+    const searchNumber = query ? parseInt(query, 10) : ''; // Parse query to a number
+    
+    if (searchNumber) {
+      const filtered = vouchers.filter((voucher) => voucher.voucher_number === searchNumber);
+      setFilteredVouchers(filtered);
+    } else {
+      setFilteredVouchers(vouchers); // Reset to all vouchers when search is cleared
+    }
+  };
+  
+
+  // Handle filter by status change
+  // Handle filter by status
+const handleFilter = (status) => {
+  if (status) {
+    const filtered = vouchers.filter((voucher) => voucher.voucher_status === status);
+    setFilteredVouchers(filtered); // Update filtered vouchers based on status
+  } else {
+    setFilteredVouchers(vouchers); // Reset to all vouchers if no filter is selected
+  }
+};
+
+
   // Render each voucher with preview and verify functionality
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Voucher List</h2>
+
+      {/* Search and Filter Component */}
+      <VoucherFilter
+        onSearch={handleSearch}
+        onFilter={handleFilter} // Pass the handleFilter function to VoucherFilter
+        vouchers={vouchers}   
+        filteredVouchers={filteredVouchers} 
+      />
+
+
       <div className="grid gap-4">
-        {vouchers.map((voucher) => (
-          <div
-            key={voucher.voucher_number}
-            className="bg-white p-4 rounded-lg shadow border border-gray-200"
-          >
+        {currentVouchers.map((voucher) => (
+          <div key={voucher.voucher_number} className="bg-white p-4 rounded-lg shadow border border-gray-200">
             <div className="flex justify-between items-start">
               <div>
                 <div className="flex items-center space-x-2">
@@ -127,12 +192,19 @@ const VoucherList = ({ onVerify }) => {
         ))}
       </div>
 
+      {/* Pagination Component */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(filteredVouchers.length / vouchersPerPage)}
+        onPageChange={handlePageChange}
+      />
+
       {/* Voucher Preview Modal */}
       {isPreviewOpen && selectedVoucher && (
         <VoucherPreview
           voucher={selectedVoucher}
-          onClose={handleClosePreview} // Close the modal
-          onPrint={() => window.print()} // Print functionality
+          onClose={handleClosePreview}
+          onPrint={() => window.print()}
           onGenerate={() => console.log('Generate logic here')}
           showGenerateButton={false}
         />

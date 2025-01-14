@@ -44,7 +44,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
       fc_amount: 0,                   // Default FCY amount
       commission: voucherType === 'remit-in' ? 0 : null,  // Commission for 'remit-in'
       total_NPR: 0,                   // Default Total NPR (sync with backend)
-      created_by: authState.staffName, // Current user
+      created_by: authState.staffCode, // Current user
       verified_by: 'Pending',         // Default verification status
       transaction_type: voucherType,  // 'remit-in' or 'remit-out'
     };

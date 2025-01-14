@@ -1,12 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from '../../assets/logo.png';
 import { formatAmount } from '../../utils/voucherUtils';
+import { getUserByStaffCode } from '../../services/api';
 
 export const VoucherTemplate = ({ voucher }) => {
   console.log('FOR validation', voucher);
   console.log('type', voucher.transactions?.[0]?.transaction_type);
 
-  const staffName = localStorage.getItem('staff_name'); 
+
+  const [createdByInfo, setCreatedByInfo] = useState(null);
+  const [verifiedByInfo, setVerifiedByInfo] = useState(null);
+
+  useEffect(() => {
+    // Fetch the created by user info
+    const fetchCreatedByInfo = async () => {
+      const createdByStaffCode = voucher.transactions?.[0]?.created_by;
+      if (createdByStaffCode) {
+        try {
+          const user = await getUserByStaffCode(createdByStaffCode);
+          setCreatedByInfo(user);
+        } catch (error) {
+          console.error('Error fetching created by user info:', error);
+        }
+      }
+    };
+
+    // Fetch the verified by user info
+    const fetchVerifiedByInfo = async () => {
+      const verifiedByStaffCode = voucher.transactions?.[0]?.verified_by;
+
+      if (verifiedByStaffCode && verifiedByStaffCode !== 'Pending') {
+        try {
+          const user = await getUserByStaffCode(verifiedByStaffCode);
+          setVerifiedByInfo(user);
+        } catch (error) {
+          console.error('Error fetching verified by user info:', error);
+        }
+      } else {
+        // Handle the case where verification is pending or not available
+        setVerifiedByInfo({ name: 'Pending', designation: 'N/A' });
+      }
+    };
+
+    fetchCreatedByInfo();
+    fetchVerifiedByInfo();
+  }, [voucher.transactions]);
+
+  // const staffName = localStorage.getItem('staff_name'); 
   const designation = localStorage.getItem('designation'); 
 
   const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A';
@@ -35,10 +75,6 @@ export const VoucherTemplate = ({ voucher }) => {
   }, 0) || voucher.totalAmount || 0;
 
   const netNRP = totalNRP - (totalCommission || 0);
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   const renderCopy = (isOfficeCopy) => (
     <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black mb-8">
@@ -154,15 +190,15 @@ export const VoucherTemplate = ({ voucher }) => {
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Prepared by</p>
-            <p>{voucher.transactions?.[0]?.created_by || '_________________'}</p>
-            <p>{designation || '_________________'}</p>
+            <p>{createdByInfo?.staff_name || '_________________'}</p>
+            <p>{createdByInfo?.designation || '_________________'}</p>
           </div>
         </div>
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Verified by</p>
-            <p>{voucher.transactions?.[0]?.verified_by || '_________________'}</p>
-            <p>designation</p>
+            <p>{verifiedByInfo?.staff_name || 'Pending'}</p>
+            <p>{verifiedByInfo?.designation }</p>
           </div>
         </div>
       </div>
@@ -185,12 +221,6 @@ export const VoucherTemplate = ({ voucher }) => {
 
   return (
     <div>
-      {/* <button
-        className="print-button bg-blue-500 text-white py-2 px-4 rounded mb-4"
-        onClick={handlePrint}
-      >
-        Print
-      </button> */}
       <div className="print-container">
         {renderCopy(true)}
         <div className="border-dashed border-t border-gray-500 my-4"></div>
