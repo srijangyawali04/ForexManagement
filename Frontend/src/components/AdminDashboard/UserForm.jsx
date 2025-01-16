@@ -7,6 +7,12 @@ const DESIGNATIONS = ["Deputy Director", "Assistant Director", "Head Assistant",
 const ROLES = ["Creator", "Verifier", "Admin"];
 const USER_STATUSES = ["Enabled", "Disabled"];
 
+// Password validation function
+const isPasswordStrong = (password) => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return regex.test(password);
+};
+
 export default function UserForm({ onUserAdd, onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -14,6 +20,7 @@ export default function UserForm({ onUserAdd, onClose }) {
     role: "", // Ensure role is part of the form data state
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
 
   const { authState } = useAuth();
   const currentUserRole = authState?.role; // Use optional chaining in case authState is undefined initially
@@ -62,6 +69,16 @@ export default function UserForm({ onUserAdd, onClose }) {
       console.log('Updated Form Data:', updatedData); // Log form data to verify role is updated
       return updatedData;
     });
+
+    if (e.target.name === 'password') {
+      // Validate password strength when it changes
+      const password = e.target.value;
+      if (!isPasswordStrong(password)) {
+        setPasswordError('Password must be at least 8 characters, include an uppercase letter, a number, and a special character.');
+      } else {
+        setPasswordError('');
+      }
+    }
   };
 
   return (
@@ -110,6 +127,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                   {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
                 </button>
               </div>
+              {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
             </div>
 
             {/* Staff Name */}
