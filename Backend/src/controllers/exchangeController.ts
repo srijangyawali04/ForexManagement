@@ -56,7 +56,7 @@ export const getAllCurrencies = async (req: Request, res: Response) => {
 
     // Fetch all exchange rates
     const currencies = await forexRateRepo.find({
-      select: ['currency_iso', 'currency_name','unit' ,'buy_rate', 'sell_rate'],
+      select: ['currency_iso', 'currency_name','unit' ,'buy_rate', 'sell_rate','fetchedAt'],
     });
 
     if (currencies.length === 0) {

@@ -5,8 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 export function TransactionForm({ transactions, onChange, voucherType }) {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [exchangeDate, setExchangeDate] = useState(null); // State to store the exchange date
   const { authState } = useAuth(); // Access the authState from context
-
+  
   // Fetch exchange rates when component mounts
   useEffect(() => {
     const getExchangeRates = async () => {
@@ -14,6 +15,11 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         const rates = await fetchExchangeRates();
         setExchangeRates(rates);
         setLoading(false); // Set loading to false once data is fetched
+
+        // Assuming the fetched data has a field `exchange_date`
+        if (rates && rates.length > 0) {
+          setExchangeDate(rates[0].exchange_date); // Set the exchange date
+        }
       } catch (error) {
         console.error('Failed to fetch exchange rates:', error);
         setLoading(false); // Set loading to false even in case of error
@@ -22,6 +28,26 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
 
     getExchangeRates();
   }, []);
+
+  // Ensure exchangeRates and exchangeRates[0] exist before accessing fetchedAt
+  const exchangeDateOnly = exchangeRates.length > 0 && exchangeRates[0]?.fetchedAt
+  ? new Date(exchangeRates[0].fetchedAt).toISOString().split('T')[0]
+  : null; // Extract YYYY-MM-DD from exchangeDate
+
+  // Get the current date in YYYY-MM-DD format
+  const currentDate = new Date().toISOString().split('T')[0]; 
+
+  console.log('Exchange Date Only:', exchangeDateOnly);  // Debug log
+  console.log('Current Date:', currentDate);  // Debug log
+
+  const isExchangeDateValid = exchangeDateOnly === currentDate;
+  console.log('Is Exchange Date Valid:', isExchangeDateValid);  // Debug log
+
+  // Prevent adding transaction if the exchange date is not today's date
+  if (exchangeDateOnly && !isExchangeDateValid) {
+  alert('Exchange rates are not valid for today. Cannot add transaction.');
+  return;
+  }
 
   // Helper function to get the correct exchange rate based on voucherType
   const getExchangeRate = (currency) => {
@@ -37,6 +63,11 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   };
 
   const addTransaction = () => {
+    if (!isExchangeDateValid) {
+      alert('Exchange rates are not valid for today. Cannot add transaction.');
+      return;
+    }
+
     const newTransaction = {
       currency_name: '',              // Initially empty
       currency_iso_code: '',          // Initially empty
@@ -104,20 +135,26 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   
     onChange(updatedTransactions);
   }; 
-  
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Currency Transactions</h3>
+        <h3 className="text-lg font-medium">Currency Transactions</h3>        
         <button
           type="button"
           onClick={addTransaction}
-          className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200"
+          disabled={!isExchangeDateValid} // Disable the button if exchange date is invalid
+          className={`bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200 ${!isExchangeDateValid ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Add Currency
         </button>
       </div>
+      {/* Display the exchange date if it exists */}
+      {exchangeRates.length > 0 && exchangeRates[0].fetchedAt && (
+          <div className="text-sm text-gray-500 mt-2">
+            Latest Exchange Rate Fetched Date: {new Date(exchangeRates[0].fetchedAt).toLocaleString()}
+          </div>
+        )}
 
       <div className="space-y-4">
         {transactions.map((transaction, index) => (

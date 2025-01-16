@@ -168,6 +168,28 @@ export const fetchExchangeRates = async () => {
   }
 };
 
+// New function to manually trigger the forex rates fetch
+export const manualFetchForexRates = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/api/exchange-rates/trigger-fetch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch forex rates');
+    }
+
+    const data = await response.json();
+    alert(data.message); // Display success message
+  } catch (error) {
+    alert('Error fetching forex rates');
+    console.error('Error:', error);
+  }
+};
+
 
 //API to create voucher 
 export const createVoucher = async (voucherData) => {
