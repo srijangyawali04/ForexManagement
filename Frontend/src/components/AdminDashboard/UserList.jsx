@@ -54,7 +54,8 @@ export default function UserList({ loading, onUpdateStatus }) {
   const filteredUsers = users.filter((user) => {
     return (
       (statusFilter === 'all' || user.user_status === statusFilter) &&
-      (roleFilter === 'all' || user.role === roleFilter)
+      (roleFilter === 'all' || user.role === roleFilter) &&
+      user.role !== 'SuperAdmin'
     );
   });
 
@@ -63,18 +64,18 @@ export default function UserList({ loading, onUpdateStatus }) {
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handleStatusToggle = async (user) => {
-    // Prevent changing the status of Admin users
-    if (user.role === 'Admin') {
-      alert('The status of an Admin cannot be changed.');
+    // Allow SuperAdmin to change the status of Admin users
+    if (user.role === 'Admin' && authState.role !== 'SuperAdmin') {
+      alert('The status of an Admin cannot be changed unless you are a SuperAdmin.');
       return; // Exit the function early
     }
-
+  
     const newStatus = user.user_status === 'Enabled' ? 'Disabled' : 'Enabled';
-
+  
     // Update status on the backend
     try {
       await onUpdateStatus(user.staff_code, newStatus); // Assuming this updates the backend
-
+  
       // Update status in the local state directly without re-fetching users
       setUsers((prevUsers) =>
         prevUsers.map((u) =>
@@ -85,6 +86,7 @@ export default function UserList({ loading, onUpdateStatus }) {
       console.error('Error updating user status:', error);
     }
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');

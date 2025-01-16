@@ -1,21 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { addUser } from '../../services/api'; // Import the addUser function from api.js
+import { useAuth } from '../../contexts/AuthContext'; // Assuming you have an auth context
 
 const DESIGNATIONS = ["Deputy Director", "Assistant Director", "Head Assistant", "Assistant", "Deputy Assistant"];
-const ROLES = ["Creator", "Verifier"];
+const ROLES = ["Creator", "Verifier", "Admin"];
 const USER_STATUSES = ["Enabled", "Disabled"];
 
 export default function UserForm({ onUserAdd, onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     user_status: "Enabled",
+    role: "", // Ensure role is part of the form data state
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { authState } = useAuth();
+  const currentUserRole = authState?.role; // Use optional chaining in case authState is undefined initially
+  console.log('currentUserRole', currentUserRole);
+
+  useEffect(() => {
+    // If current user role is superadmin, allow them to select 'Admin' role.
+    if (currentUserRole === 'SuperAdmin' && !formData.role) {
+      setFormData((prev) => ({
+        ...prev,
+        role: 'Creator', // Default to 'Creator' initially if no role is set
+      }));
+    }
+  }, [currentUserRole, formData.role]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // Check if the logged-in user is a superadmin and trying to assign the Admin role
+    if (currentUserRole !== 'SuperAdmin' && formData.role === 'Admin') {
+      alert('You do not have permission to assign the Admin role');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const result = await addUser(formData); // Call the addUser function from api.js
@@ -31,10 +54,14 @@ export default function UserForm({ onUserAdd, onClose }) {
   };
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData((prev) => {
+      const updatedData = {
+        ...prev,
+        [e.target.name]: e.target.value,
+      };
+      console.log('Updated Form Data:', updatedData); // Log form data to verify role is updated
+      return updatedData;
+    });
   };
 
   return (
@@ -121,11 +148,12 @@ export default function UserForm({ onUserAdd, onClose }) {
               <select
                 name="role"
                 required
+                value={formData.role} // Ensure role value is controlled by formData
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               >
                 <option value="">Select Role</option>
-                {ROLES.map((role) => (
+                {ROLES.filter(role => !(currentUserRole === 'Admin' && role === 'Admin')).map((role) => (
                   <option key={role} value={role}>
                     {role}
                   </option>

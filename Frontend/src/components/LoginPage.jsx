@@ -64,7 +64,7 @@ const LoginPage = () => {
         login(data.token, data.role, data.staffCode, data.staffName, data.designation); // Ensure staffName is passed
 
         // Redirect based on role
-        if (data.role === "Admin") {
+        if (data.role === "Admin" || data.role === "SuperAdmin") {
           navigate("/user-list"); // Admin dashboard
         } else if (data.role === "Creator") {
           navigate("/creator-dashboard"); // Header page for "create" role

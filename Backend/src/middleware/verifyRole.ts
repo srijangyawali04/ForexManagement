@@ -11,7 +11,7 @@ export const verifyRole = (requiredRole: string) => {
     }
 
     // Check if the user's role matches the required role
-    if (role !== requiredRole) {
+    if (role !== requiredRole && role !== 'SuperAdmin') {
       return res.status(403).json({ message: "Forbidden" });
     }
 
