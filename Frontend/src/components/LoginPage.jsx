@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext"; // Import useAuth hook
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+
 
 const LoginPage = () => {
   const [staffCode, setStaffCodeInput] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [errors, setErrors] = useState({});
   const { login } = useAuth(); // Get login function from context
   const navigate = useNavigate();
@@ -38,9 +41,7 @@ const LoginPage = () => {
 
     if (!isValid) return;
 
-    console.log('Staff Code during login submission:', staffCode);  // Debugging line
     try {
-      // Make the API request to login
       const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,28 +49,22 @@ const LoginPage = () => {
       });
 
       const data = await response.json();
-      console.log('API Response:', data);  // Debugging line
 
       if (response.ok) {
-        // Debugging: Log the status returned by the API
-        console.log("User status:", data.status);
-
-        // Check if the user is enabled
         if (data.status !== "Enabled") {
           alert("Your account is not enabled. Please contact the admin.");
-          return; // Prevent login if status is not enabled
+          return;
         }
 
-        // Use the login function from context to store the token and role
-        login(data.token, data.role, data.staffCode, data.staffName, data.designation); // Ensure staffName is passed
+        login(data.token, data.role, data.staffCode, data.staffName, data.designation);
 
         // Redirect based on role
         if (data.role === "Admin" || data.role === "SuperAdmin") {
-          navigate("/user-list"); // Admin dashboard
+          navigate("/user-list");
         } else if (data.role === "Creator") {
-          navigate("/creator-dashboard"); // Header page for "create" role
-        } else if (data.role === "Verifier"){
-          navigate("/verifier-dashboard"); // User dashboard
+          navigate("/creator-dashboard");
+        } else if (data.role === "Verifier") {
+          navigate("/verifier-dashboard");
         }
       } else {
         alert(data.message || "Invalid credentials.");
@@ -124,7 +119,7 @@ const LoginPage = () => {
                   ${errors.password ? "border-red-400" : "border-gray-300 hover:border-blue-500"}`}
                 >
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"} // Toggle between text and password
                     value={password}
                     onChange={(e) => {
                       setErrors({});
@@ -133,6 +128,18 @@ const LoginPage = () => {
                     placeholder="Password"
                     className="w-full bg-transparent outline-none text-gray-700"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="ml-2"
+                    aria-label="Toggle Password Visibility"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5 text-gray-500" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5 text-gray-500" />
+                    )}
+                  </button>
                 </div>
                 {errors.password && (
                   <div className="flex items-center text-red-500 text-xs mt-2">
