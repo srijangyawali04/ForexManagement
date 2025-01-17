@@ -305,3 +305,31 @@ export const getVoucherByNumber = async (voucherNumber) => {
     return null; // Return null if an error occurred
   }
 };
+
+// Fetch total vouchers count from API
+export const fetchTotalVoucherCount = async () => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher/total`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error fetching total vouchers:', errorData);
+      throw new Error('Failed to fetch total vouchers');
+    }
+
+    const data = await response.json();
+    return data.totalVouchers; // Return the total vouchers count
+  } catch (error) {
+    console.error('Error fetching total vouchers:', error);
+    throw new Error('Failed to fetch total vouchers');
+  }
+};
+

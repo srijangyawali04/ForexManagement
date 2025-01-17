@@ -237,3 +237,31 @@ export const getVoucherByNumber = async (req: Request, res: Response) => {
     });
   }
 };
+
+//Get total number of vouchers 
+export const getTotalVouchers = async (req: Request, res: Response) => {
+  try {
+    // Ensure AppDataSource is properly initialized and connected
+    if (!AppDataSource.isInitialized) {
+      console.error('AppDataSource is not initialized');
+      return res.status(500).json({ message: 'Database connection not initialized' });
+    }
+
+    const voucherRepository = AppDataSource.getRepository(Voucher); // Get the repository via AppDataSource
+    const totalVouchers = await voucherRepository
+      .createQueryBuilder('voucher')
+      .select('COUNT(voucher_number)', 'count') // Assuming 'voucher_number' is the unique identifier of the Voucher
+      .getRawOne(); // Get the raw result of the query
+
+    if (!totalVouchers) {
+      console.error('No vouchers found');
+      return res.status(404).json({ message: 'No vouchers found' });
+    }
+
+    // Convert the count to a number and send it in the response
+    return res.json({ totalVouchers: Number(totalVouchers.count) }); // Explicitly convert to a number
+  } catch (error) {
+    console.error('Error fetching total vouchers:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};

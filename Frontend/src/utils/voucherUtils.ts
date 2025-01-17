@@ -1,9 +1,25 @@
-let voucherCounter = 120000;
+import { fetchTotalVoucherCount } from "../services/api";
 
-export function generateVoucherNumber(): string {
-  voucherCounter++;
-  return voucherCounter.toString();
-}
+let startingnumber = 12000; // Start with 0, will be updated after fetching from the API
+let voucherCounter=0;
+// Generate voucher number based on the total count from the API
+export const generateVoucherNumber = async (): Promise<string> => {
+  try {
+    // Fetch the total voucher count from the API
+    const totalVouchers = await fetchTotalVoucherCount(); // Expects a number
+
+    // Set voucherCounter to the fetched total count and increment
+    voucherCounter = startingnumber+totalVouchers;
+
+    // Increment to generate the next voucher number
+    voucherCounter++;
+
+    return voucherCounter.toString(); // Return as a string
+  } catch (error) {
+    console.error('Error generating voucher number:', error);
+    throw new Error('Error generating voucher number');
+  }
+};
 
 export function formatAmount(amount: number): string {
   if (amount == null || isNaN(amount)) {

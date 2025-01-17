@@ -13,24 +13,27 @@ export default function VoucherForm({ onSubmit }) {
   const [showPreview, setShowPreview] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log('Customer:', customer);
     console.log('Transactions:', transactions);
-
+  
     if (!authState || !customer || transactions.length === 0) {
       console.log('Form is incomplete');
       return;
     }
-
+  
+    // Generate the voucher number using the async function
+    const voucherNo = await generateVoucherNumber();
+  
     const totalAmount = transactions.reduce((sum, t) => sum + t.nprAmount, 0);
     const commission = voucherType === 'remit-in'
       ? transactions.reduce((sum, t) => sum + (t.commission || 0), 0)
       : 0;
-
+  
     const newVoucher = {
       id: Math.random().toString(36).substr(2, 9),
       type: voucherType,
-      voucherNo: generateVoucherNumber(),
+      voucherNo: voucherNo, // Use the async-generated voucher number here
       date: new Date(),
       customer,
       transactions,
@@ -41,11 +44,12 @@ export default function VoucherForm({ onSubmit }) {
       status: 'pending',
       createdAt: new Date(),
     };
-
+  
     console.log('Generated Voucher:', newVoucher);
     setPreviewVoucher(newVoucher);
     setShowPreview(true);
   };
+  
 
   const handleGenerate = () => {
     if (previewVoucher) {

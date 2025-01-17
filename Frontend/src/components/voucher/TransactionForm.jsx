@@ -7,6 +7,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   const [loading, setLoading] = useState(true);
   const [exchangeDate, setExchangeDate] = useState(null); // State to store the exchange date
   const { authState } = useAuth(); // Access the authState from context
+  const [exchangeDateValid, setExchangeDateValid] = useState(true); // State to track validity of exchange date
   
   // Fetch exchange rates when component mounts
   useEffect(() => {
@@ -44,10 +45,13 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   console.log('Is Exchange Date Valid:', isExchangeDateValid);  // Debug log
 
   // Prevent adding transaction if the exchange date is not today's date
-  if (exchangeDateOnly && !isExchangeDateValid) {
-  alert('Exchange rates are not valid for today. Cannot add transaction.');
-  return;
-  }
+  useEffect(() => {
+    if (exchangeDateOnly && !isExchangeDateValid) {
+      setExchangeDateValid(false); // Set validity to false when exchange date is not valid
+    } else {
+      setExchangeDateValid(true); // Reset validity when exchange date is valid
+    }
+  }, [exchangeDateOnly, isExchangeDateValid]);
 
   // Helper function to get the correct exchange rate based on voucherType
   const getExchangeRate = (currency) => {
@@ -143,18 +147,18 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         <button
           type="button"
           onClick={addTransaction}
-          disabled={!isExchangeDateValid} // Disable the button if exchange date is invalid
-          className={`bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200 ${!isExchangeDateValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={!exchangeDateValid} // Disable the button if exchange date is invalid
+          className={`bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200 ${!exchangeDateValid ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           Add Currency
         </button>
       </div>
       {/* Display the exchange date if it exists */}
       {exchangeRates.length > 0 && exchangeRates[0].fetchedAt && (
-          <div className="text-sm text-gray-500 mt-2">
-            Latest Exchange Rate Fetched Date: {new Date(exchangeRates[0].fetchedAt).toLocaleString()}
-          </div>
-        )}
+        <div className="text-sm text-gray-500 mt-2">
+          Latest Exchange Rate Fetched Date: {new Date(exchangeRates[0].fetchedAt).toLocaleString()}
+        </div>
+      )}
 
       <div className="space-y-4">
         {transactions.map((transaction, index) => (
