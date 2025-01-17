@@ -4,10 +4,6 @@ import { formatAmount } from '../../utils/voucherUtils';
 import { getUserByStaffCode } from '../../services/api';
 
 export const VoucherTemplate = ({ voucher }) => {
-  console.log('FOR validation', voucher);
-  console.log('type', voucher.transactions?.[0]?.transaction_type);
-
-
   const [createdByInfo, setCreatedByInfo] = useState(null);
   const [verifiedByInfo, setVerifiedByInfo] = useState(null);
 

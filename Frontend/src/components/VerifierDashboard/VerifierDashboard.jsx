@@ -18,7 +18,6 @@ const VerifierDashboard = () => {
     const getUserInfo = async () => {
       try {
         const userInfo = await fetchLoggedInUser();
-        console.log('Logged-in user:', userInfo);
         setLoggedInUser(userInfo);
       } catch (error) {
         console.error('Failed to fetch logged-in user:', error);
@@ -57,7 +56,6 @@ const VerifierDashboard = () => {
       }
 
       const updatedVoucher = await updateVoucherStatus(voucherNumber, 'Verified', loggedInUser);
-      console.log('Voucher updated:', updatedVoucher);
     } catch (error) {
       console.error('Failed to verify voucher:', error);
     }
@@ -67,8 +65,6 @@ const VerifierDashboard = () => {
   const handleChangeVoucherStatus = async (voucherNumber, newStatus) => {
     try {
       const updatedVoucher = await updateVoucherStatus(voucherNumber, newStatus); // Update status in the backend
-      console.log('Voucher updated:', updatedVoucher);
-
       // Fetch the updated list of vouchers after updating the status
       fetchVouchers();
     } catch (error) {

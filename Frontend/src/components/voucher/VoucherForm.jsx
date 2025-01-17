@@ -13,12 +13,8 @@ export default function VoucherForm({ onSubmit }) {
   const [showPreview, setShowPreview] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState(null);
 
-  const handleSubmit = async () => {
-    console.log('Customer:', customer);
-    console.log('Transactions:', transactions);
-  
+  const handleSubmit = async () => {  
     if (!authState || !customer || transactions.length === 0) {
-      console.log('Form is incomplete');
       return;
     }
   
@@ -45,7 +41,6 @@ export default function VoucherForm({ onSubmit }) {
       createdAt: new Date(),
     };
   
-    console.log('Generated Voucher:', newVoucher);
     setPreviewVoucher(newVoucher);
     setShowPreview(true);
   };
@@ -108,7 +103,6 @@ export default function VoucherForm({ onSubmit }) {
           type="button"
           disabled={!customer || transactions.length === 0}
           onClick={() => {
-            console.log('Preview Voucher Button Clicked');
             handleSubmit();
           }}
           className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"

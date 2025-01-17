@@ -12,7 +12,6 @@ const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
     
     if (query) {
       // Perform the search logic with numeric query
-      console.log("Search Query: ", query);  // Debugging: Check the query value
       onSearch(query);  // Pass the number to the parent component (VoucherList)
     } else {
       onSearch('');  // If query is empty, reset to all vouchers

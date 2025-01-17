@@ -30,7 +30,6 @@ export const AuthProvider = ({ children }) => {
 
   // Login function to update the auth state
   const login = (token, role, staffCode, staffName , designation) => {
-    console.log('Login called with staffCode:', staffCode, 'and staffName:', staffName, 'with designation', designation);
     setAuthState({ token, role, staffCode, staffName }); // Store staffName along with other details
     localStorage.setItem('authToken', token);
     localStorage.setItem('role', role);

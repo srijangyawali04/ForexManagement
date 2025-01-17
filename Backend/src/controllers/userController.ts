@@ -14,9 +14,6 @@ export const createUser = async (req: Request, res: Response) => {
     const existingUser = await userRepo.findOne({ where: { staff_code } });
 
     if (existingUser) {
-      // Log an alert in the server console
-      // console.log(`ALERT: User with staff code ${staff_code} already exists.`);
-      
       return res.status(400).json({
         message: `User with staff code ${staff_code} already exists.`,
       });
@@ -40,9 +37,6 @@ export const createUser = async (req: Request, res: Response) => {
 
     // Save the user to the database
     await userRepo.save(user);
-
-    // Log success to the console
-    console.log(`SUCCESS: User with staff code ${staff_code} created successfully.`);
 
     return res.status(200).json({
       message: "User created successfully.",

@@ -15,8 +15,6 @@ export function VoucherPreview({
 
   const handleGenerateVoucher = async () => {
     try {
-      console.log('Voucher data before generation:', voucher);
-
       if (!authState || !authState.staffName) {
         throw new Error('User not authenticated or required user details are missing.');
       }
@@ -42,12 +40,7 @@ export function VoucherPreview({
         transactions: voucher?.transactions || []
       };
 
-      console.log('Sending voucher and transactions data to backend:', voucherData);
-
       const response = await axios.post(`${apiUrl}/api/voucher`, voucherData);
-
-      console.log('Voucher and transactions generated successfully:', response.data);
-
       if (onGenerate) {
         onGenerate();
       }

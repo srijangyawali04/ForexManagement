@@ -124,10 +124,6 @@ export const fetchLoggedInUser = async () => {
   const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
   const staffCode = localStorage.getItem('staff_code'); // Retrieve the logged-in user's staff_code from localStorage
 
-  // Log the staffCode to check its value
-    console.log('Staff Code:', staffCode);
-
-
   if (!token || !staffCode) {
     throw new Error('No authentication token or staff code found.');
   }

@@ -25,7 +25,6 @@ export const fetchForexRates = async () => {
           existingRate.sell_rate = parseFloat(rate.sell);
           existingRate.fetchedAt = new Date();
           await forexRateRepo.save(existingRate);
-          console.log(`Updated rates for: ${rate.currency.name}`);
         } else {
           // Insert new rate
           const newRate = forexRateRepo.create({
@@ -37,11 +36,9 @@ export const fetchForexRates = async () => {
             fetchedAt: new Date(),
           });
           await forexRateRepo.save(newRate);
-          console.log(`Inserted new rates for: ${rate.currency.name}`);
         }
       }
 
-      console.log('Forex rates processed successfully');
     }
   } catch (error) {
     console.error('Error fetching or processing forex rates:', error.message);

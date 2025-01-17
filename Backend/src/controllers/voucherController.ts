@@ -33,8 +33,6 @@ export const createVoucher = async (req: Request, res: Response) => {
       transactions, // Array of transactions to be associated with the voucher
     } = req.body;
 
-    // Log incoming payload for debugging
-    console.log("Incoming voucher payload:", req.body);
 
     // Validate required fields
     const missingField = validateRequiredFields({

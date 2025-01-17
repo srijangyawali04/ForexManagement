@@ -37,12 +37,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
 
   // Get the current date in YYYY-MM-DD format
   const currentDate = new Date().toISOString().split('T')[0]; 
-
-  console.log('Exchange Date Only:', exchangeDateOnly);  // Debug log
-  console.log('Current Date:', currentDate);  // Debug log
-
   const isExchangeDateValid = exchangeDateOnly === currentDate;
-  console.log('Is Exchange Date Valid:', isExchangeDateValid);  // Debug log
 
   // Prevent adding transaction if the exchange date is not today's date
   useEffect(() => {
@@ -126,12 +121,8 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
       // Calculate total_NPR based on voucher type
       if (voucherType === 'remit-in') {
         updated.total_NPR = updated.nprAmount - updated.commission;
-        console.log("fc_amount: ", updated.fc_amount);
-        console.log("commission: ", updated.commission);
-        console.log("total_NPR (remit-in): ", updated.total_NPR);
       } else if (voucherType === 'remit-out') {
         updated.total_NPR = updated.nprAmount; // For 'remit-out', total_NPR is equal to nprAmount
-        console.log("total_NPR (remit-out): ", updated.total_NPR);
       }
   
       return updated;

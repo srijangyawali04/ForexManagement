@@ -24,8 +24,6 @@ export default function UserForm({ onUserAdd, onClose }) {
 
   const { authState } = useAuth();
   const currentUserRole = authState?.role; // Use optional chaining in case authState is undefined initially
-  console.log('currentUserRole', currentUserRole);
-
   useEffect(() => {
     // If current user role is superadmin, allow them to select 'Admin' role.
     if (currentUserRole === 'SuperAdmin' && !formData.role) {
@@ -66,7 +64,6 @@ export default function UserForm({ onUserAdd, onClose }) {
         ...prev,
         [e.target.name]: e.target.value,
       };
-      console.log('Updated Form Data:', updatedData); // Log form data to verify role is updated
       return updatedData;
     });
 

@@ -205,7 +205,6 @@ const handleFilter = (status) => {
           voucher={selectedVoucher}
           onClose={handleClosePreview}
           onPrint={() => window.print()}
-          onGenerate={() => console.log('Generate logic here')}
           showGenerateButton={false}
         />
       )}
