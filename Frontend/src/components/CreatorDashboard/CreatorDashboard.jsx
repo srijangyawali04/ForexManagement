@@ -5,7 +5,7 @@ import VoucherForm from '../voucher/VoucherForm';
 import VoucherList from '../voucher/VoucherList';
 import { VoucherPreview } from '../voucher/VoucherPreview';
 import { fetchLoggedInUser } from '../../services/api';
-
+import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
 const CreatorDashboard = () => {
   const { authState, logout } = useAuth();
   const [view, setView] = useState('list');
@@ -88,6 +88,12 @@ const CreatorDashboard = () => {
           View Vouchers
         </button>
         <button
+          className={`px-4 py-2 rounded ${view === 'exchangeRates' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setView('exchangeRates')}
+        >
+          Exchange Rates
+        </button>
+        <button
           className={`px-4 py-2 rounded ${view === 'form' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
           onClick={() => setView('form')}
         >
@@ -105,6 +111,7 @@ const CreatorDashboard = () => {
           />
         )}
         {view === 'form' && <VoucherForm onSubmit={handleCreateVoucher} />}
+        {view === 'exchangeRates' && <ExchangeRatesTable />}
       </div>
 
       {/* Voucher Preview */}

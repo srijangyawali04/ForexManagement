@@ -5,6 +5,8 @@ import VoucherForm from '../voucher/VoucherForm';
 import VoucherList from '../voucher/VoucherList';
 import { VoucherPreview } from '../voucher/VoucherPreview';
 import { fetchLoggedInUser, updateVoucherStatus , fetchVouchers } from '../../services/api'; // Import necessary functions
+import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
+
 
 const VerifierDashboard = () => {
   const { authState, logout } = useAuth();
@@ -125,9 +127,15 @@ const VerifierDashboard = () => {
         >
           View Vouchers
         </button>
+        <button
+          className={`px-4 py-2 rounded ${view === 'exchangeRates' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setView('exchangeRates')}
+        >
+          Exchange Rates
+        </button>
       </div>
 
-      {/* Content */}
+      {/* Content */} 
       <div className="container mx-auto mt-6">
         {view === 'list' && (
           <VoucherList
@@ -136,7 +144,8 @@ const VerifierDashboard = () => {
             onPreview={handlePreviewVoucher} // Pass the preview handler
           />
         )}
-        {view === 'form' && <VoucherForm onSubmit={handleCreateVoucher} />}
+        {view === 'exchangeRates' && <ExchangeRatesTable />}
+
       </div>
 
       {/* Voucher Preview */}

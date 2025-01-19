@@ -6,6 +6,7 @@ import UserStatusBadge from './UserStatusBadge';
 import UserFilters from './UserFilters';
 import UserForm from './UserForm';
 import { fetchLoggedInUser } from '../../services/api';
+import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
 
 const ITEMS_PER_PAGE = 10;
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -213,6 +214,7 @@ export default function UserList({ loading, onUpdateStatus }) {
           />
         </div>
       </div>
+      <ExchangeRatesTable/>
     </div>
   );
 }

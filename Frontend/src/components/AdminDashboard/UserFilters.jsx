@@ -49,7 +49,12 @@ export default function UserFilters({ statusFilter, roleFilter, onStatusFilterCh
 
         {/* Fetch Data Button */}
         <button
-          onClick={manualFetchForexRates}
+          onClick={() => {
+            manualFetchForexRates();
+            setTimeout(() => {
+              window.location.reload(); // Reload the window after 3 seconds
+            }, 2000); 
+          }}
           className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
         >
           <Filter className="h-5 w-5 mr-2" />
