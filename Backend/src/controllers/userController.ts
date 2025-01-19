@@ -108,9 +108,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 
-//Update user status
+// Update user status
 export const updateUserStatus = async (req: Request, res: Response) => {
-  const { staff_code, user_status } = req.body; 
+  const { staff_code, user_status, remark } = req.body; // Include remark in request body
 
   try {
     const user = await userRepo.findOne({ where: { staff_code } });
@@ -119,7 +119,9 @@ export const updateUserStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Update user status and remark (if provided)
     user.user_status = user_status;
+    user.remarks = remark; // Assuming 'remarks' is a field in your User entity
 
     await userRepo.save(user);
 

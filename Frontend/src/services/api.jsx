@@ -54,13 +54,16 @@ export const getUserByStaffCode = async (staffCode) => {
 
 
 // Api for user status
-export const updateUserStatus = async (staffCode, newStatus) => {
+export const updateUserStatus = async (staffCode, newStatus , remark) => {
   try {
     const response = await fetch(`${apiUrl}/api/user/update-status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staff_code: staffCode, user_status: newStatus }) // Updated keys to match backend
-    });
+      body: JSON.stringify({
+        staff_code: staffCode,
+        user_status: newStatus,
+        remark: remark, // Include the remark in the request body
+      }),    });
 
     if (!response.ok) {
       throw new Error('Failed to update user status');

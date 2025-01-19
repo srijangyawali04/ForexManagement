@@ -7,6 +7,7 @@ import UserFilters from './UserFilters';
 import UserForm from './UserForm';
 import { fetchLoggedInUser } from '../../services/api';
 import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
+import { updateUserStatus } from '../../services/api';
 
 const ITEMS_PER_PAGE = 10;
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -64,29 +65,54 @@ export default function UserList({ loading, onUpdateStatus }) {
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedUsers = filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleStatusToggle = async (user) => {
+  const handleStatusToggle = async (status, remark, user) => {
     // Allow SuperAdmin to change the status of Admin users
     if (user.role === 'Admin' && authState.role !== 'SuperAdmin') {
       alert('The status of an Admin cannot be changed unless you are a SuperAdmin.');
       return; // Exit the function early
     }
   
-    const newStatus = user.user_status === 'Enabled' ? 'Disabled' : 'Enabled';
+    // Toggle the status between 'Enabled' and 'Disabled'
+    const newStatus = status === 'Enabled' ? 'Disabled' : 'Enabled';
   
-    // Update status on the backend
+    // Ensure a remark is provided before proceeding
+    if (!remark) {
+      alert('Please provide a remark before changing the status.');
+      return; // Exit the function early
+    }
+  
+    // Send the update to the backend and handle the UI update
     try {
-      await onUpdateStatus(user.staff_code, newStatus); // Assuming this updates the backend
+      console.log('Sending update to backend...');
+      
+      // Call the updateUserStatus function to update the status and remark on the backend
+      const response = await updateUserStatus(user.staff_code, newStatus, remark);
   
-      // Update status in the local state directly without re-fetching users
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.staff_code === user.staff_code ? { ...u, user_status: newStatus } : u
-        )
-      );
+      console.log('Backend response:', response);
+  
+      // Check if the backend returned a success message
+      if (response && response.message === 'User status updated successfully') {
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.staff_code === user.staff_code
+              ? { ...u, user_status: newStatus, remarks: remark } // Update status and remarks
+              : u
+          )
+        );
+        console.log('User status updated successfully in local state');
+      } else {
+        console.error('Failed to update status on backend');
+      }
     } catch (error) {
       console.error('Error updating user status:', error);
     }
   };
+  
+  
+  
+  
+  
+  
   
 
   const handleLogout = () => {
@@ -186,23 +212,24 @@ export default function UserList({ loading, onUpdateStatus }) {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedUsers.map((user) => (
-                  <tr key={user.staff_code} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.staff_code}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.staff_name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.designation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.role}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.mobile_number}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <UserStatusBadge
-                        status={user.user_status}
-                        onClick={() => handleStatusToggle(user)}
-                      />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.remarks}</td>
-                  </tr>
-                ))}
+              {paginatedUsers.map((user) => (
+                <tr key={user.staff_code} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.staff_code}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.staff_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.designation}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.role}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.mobile_number}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <UserStatusBadge
+                      status={user.user_status}
+                      onClick={(status, remark) => handleStatusToggle(status, remark, user)} // Pass user along with status and remark
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.remarks}</td>
+                </tr>
+              ))}
+
               </tbody>
             </table>
           </div>
