@@ -5,7 +5,7 @@ import Pagination from './Pagination';
 import UserStatusBadge from './UserStatusBadge';
 import UserFilters from './UserFilters';
 import UserForm from './UserForm';
-import { fetchLoggedInUser } from '../../services/api';
+import { fetchLoggedInUser, resetUserPassword } from '../../services/api'; // Import resetUserPassword
 import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
 import { updateUserStatus } from '../../services/api';
 
@@ -108,9 +108,27 @@ export default function UserList({ loading, onUpdateStatus }) {
     }
   };
   
-  
-  
-  
+  const handleResetPassword = async (user) => {
+    const newPassword = prompt("Enter new password for user " + user.staff_name);
+    if (newPassword) {
+        try {
+            const response = await resetUserPassword(user.staff_code, newPassword);
+
+            // Single alert for success or failure
+            if (response.success && response.message === "Password reset successfully.") {
+                alert("Password reset successfully for " + user.staff_name);
+                // Optionally, update the UI here for success
+            } else {
+                alert("Failed to reset password for " + user.staff_name + ": " + response.message);
+                // Optionally, update the UI here for failure
+            }
+        } catch {
+            alert("An unexpected error occurred while resetting the password.");
+        }
+    }
+};
+
+
   
   
   
@@ -199,38 +217,47 @@ export default function UserList({ loading, onUpdateStatus }) {
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Code</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Staff Name</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Designation</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
               {paginatedUsers.map((user) => (
                 <tr key={user.staff_code} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.staff_code}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.staff_name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.designation}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.role}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.mobile_number}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 text-center text-sm font-medium text-gray-900">{user.staff_code}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.staff_name}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.designation}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.role}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.email}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.mobile_number}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">
+                    <button
+                      onClick={() => handleResetPassword(user)}
+                      className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
+                    >
+                      Reset
+                    </button>
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">
                     <UserStatusBadge
                       status={user.user_status}
-                      onClick={(status, remark) => handleStatusToggle(status, remark, user)} // Pass user along with status and remark
+                      onClick={(status, remark) => handleStatusToggle(status, remark, user)}
                     />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.remarks}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-500">{user.remarks}</td>
                 </tr>
               ))}
+            </tbody>
 
-              </tbody>
             </table>
           </div>
 
@@ -241,7 +268,7 @@ export default function UserList({ loading, onUpdateStatus }) {
           />
         </div>
       </div>
-      <ExchangeRatesTable/>
+      <ExchangeRatesTable />
     </div>
   );
 }

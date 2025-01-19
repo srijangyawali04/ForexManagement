@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, getUserByStaffCode , getAllUsers , updateUserStatus} from "../controllers/userController";
+import { createUser, getUserByStaffCode , getAllUsers , updateUserStatus, passwordReset} from "../controllers/userController";
 import { verifyRole } from "../middleware/verifyRole";
 
 const router = express.Router();
@@ -16,5 +16,8 @@ router.post("/add-user", verifyRole("Admin"), createUser);
 
 // Change status of user Enabled/Disabled
 router.patch('/update-status', updateUserStatus);
+
+//Change user-password
+router.post('/reset-password', passwordReset)
 
 export default router;

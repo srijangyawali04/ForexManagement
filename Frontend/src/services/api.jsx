@@ -58,7 +58,7 @@ export const updateUserStatus = async (staffCode, newStatus , remark) => {
   try {
     const response = await fetch(`${apiUrl}/api/user/update-status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({
         staff_code: staffCode,
         user_status: newStatus,
@@ -118,6 +118,33 @@ export const addUser = async (userData) => {
     throw error; // Re-throw the error for further handling
   }
 };
+
+
+
+export const resetUserPassword = async (staffCode, newPassword) => {
+  try {
+      const response = await fetch(`${apiUrl}/api/user/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              staff_code: staffCode,
+              password: newPassword,
+          }),
+      });
+
+      if (!response.ok) {
+          const errorData = await response.text(); // Handle non-JSON error response
+          return { success: false, message: errorData };
+      }
+
+      const data = await response.json();
+      return { success: true, message: data.message, data }; // Return success status and data
+  } catch (error) {
+      return { success: false, message: error.message }; // Return error message
+  }
+};
+
+
 
 
 

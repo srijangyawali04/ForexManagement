@@ -21,7 +21,7 @@ export default function UserStatusBadge({ status, onClick }) {
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex flex-col items-center space-y-2">
       <button
         onClick={() => setIsRemarking(true)}
         className={`inline-flex items-center justify-center px-2 text-xs leading-5 font-semibold rounded-full cursor-pointer min-w-[70px] text-center ${
@@ -34,7 +34,7 @@ export default function UserStatusBadge({ status, onClick }) {
       </button>
 
       {isRemarking && (
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col space-y-2 items-center">
           <textarea
             value={remark}
             onChange={handleRemarkChange}

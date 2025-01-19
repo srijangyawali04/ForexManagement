@@ -134,3 +134,43 @@ export const updateUserStatus = async (req: Request, res: Response) => {
     return res.status(500).json({ message: 'Failed to update user status', error: error.message });
   }
 };
+
+
+// Reset Password 
+export const passwordReset = async (req: Request, res: Response) => {
+  const { staff_code, password } = req.body;
+
+  try {
+    // Find the user by staff_code
+    const user = await userRepo.findOne({ where: { staff_code } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Validate the new password strength
+    if (!isPasswordStrong(password)) {
+      return res.status(400).json({
+        message:
+          'Password must be at least 8 characters long, include an uppercase letter, a number, and a special character.',
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+
+    // Save the updated user record to the database
+    await userRepo.save(user);
+
+    return res.status(200).json({
+      message: 'Password reset successfully.',
+      data: user,
+    });
+  } catch (err) {
+    console.error("ERROR: Server error occurred during password reset.", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
