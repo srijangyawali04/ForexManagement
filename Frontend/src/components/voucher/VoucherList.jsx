@@ -108,21 +108,18 @@ const VoucherList = ({ onVerify }) => {
       setFilteredVouchers(vouchers); // Reset to all vouchers when search is cleared
     }
   };
-  
 
   // Handle filter by status change
-  // Handle filter by status
-const handleFilter = (status) => {
-  if (status) {
-    const filtered = vouchers.filter((voucher) => voucher.voucher_status === status);
-    setFilteredVouchers(filtered); // Update filtered vouchers based on status
-  } else {
-    setFilteredVouchers(vouchers); // Reset to all vouchers if no filter is selected
-  }
-};
+  const handleFilter = (status) => {
+    if (status) {
+      const filtered = vouchers.filter((voucher) => voucher.voucher_status === status);
+      setFilteredVouchers(filtered); // Update filtered vouchers based on status
+    } else {
+      setFilteredVouchers(vouchers); // Reset to all vouchers if no filter is selected
+    }
+  };
 
-
-  // Render each voucher with preview and verify functionality
+  // Render the voucher list in a table format
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Voucher List</h2>
@@ -135,62 +132,77 @@ const handleFilter = (status) => {
         filteredVouchers={filteredVouchers} 
       />
 
-
-      <div className="grid gap-4">
-        {currentVouchers.map((voucher) => (
-          <div key={voucher.voucher_number} className="bg-white p-4 rounded-lg shadow border border-gray-200">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium">#{voucher.voucher_number}</span>
-                  <span className="text-sm text-gray-500">({voucher.voucher_status})</span>
-                </div>
-                <div className="text-lg font-semibold">Customer Name: {voucher.customer_name}</div>
-                <div className="text-sm text-gray-500">
-                  Created by {voucher.createdBy} on {new Date(voucher.voucher_date).toLocaleString()}
-                </div>
-              </div>
-              <div
-                className={`flex items-center space-x-1 px-2 py-1 rounded-full text-sm ${
-                  voucher.voucher_status === 'Verified'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}
-              >
-                {voucher.voucher_status === 'Verified' ? <CheckCircle size={16} /> : <Clock size={16} />}
-                <span className="capitalize">{voucher.voucher_status}</span>
-              </div>
-            </div>
-
-            {/* Display Verified By and Date if Verified */}
-            {voucher.voucher_status === 'Verified' && (
-              <div className="mt-2 text-sm text-gray-600">
-                <span className="font-semibold">Verified By: </span>{voucher.verifiedBy} on {voucher.verifiedAt}
-              </div>
-            )}
-
-            <div className="flex space-x-4 mt-2">
-              {/* Preview Button */}
-              <button
-                onClick={() => handleVoucherClick(voucher)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Preview
-              </button>
-
-              {/* Verify Button (Only visible to Verifier role) */}
-              {isVerifier && voucher.voucher_status !== 'Verified' && (
-                <button
-                  onClick={() => handleVerify(voucher.voucher_number)} // Trigger the verify action
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      {/* Table to display vouchers */}
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 text-center">Voucher Number</th>
+            <th className="px-4 py-2 text-center">Customer Name</th>
+            <th className="px-4 py-2 text-center">Created By</th>
+            <th className="px-4 py-2 text-center">Created On</th>
+            <th className="px-4 py-2 text-center">Voucher Status</th>
+            <th className="px-4 py-2 text-center">Verified By</th>
+            <th className="px-4 py-2 text-center">Verified On</th>
+            <th className="px-4 py-2 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentVouchers.map((voucher) => (
+            <tr key={voucher.voucher_number} className="border-t border-gray-200">
+              <td className="px-4 py-2 text-center">{voucher.voucher_number}</td>
+              <td className="px-4 py-2 text-center">{voucher.customer_name}</td>
+              <td className="px-4 py-2 text-center">{voucher.createdBy}</td>
+              <td className="px-4 py-2 text-center">{new Date(voucher.voucher_date).toLocaleString()}</td>
+              <td className="px-4 py-2 text-center">
+                {/* Conditional rendering for Voucher Status */}
+                <span
+                  className={`px-2 py-1 rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
+                    voucher.voucher_status === 'Verified'
+                      ? 'bg-green-100 text-green-800'
+                      : voucher.voucher_status === 'Pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
                 >
-                  Verify
+                  {voucher.voucher_status === 'Verified' ? (
+                    <CheckCircle size={16} className="mr-1" />
+                  ) : voucher.voucher_status === 'Pending' ? (
+                    <Clock size={16} className="mr-1" />
+                  ) : (
+                    '-'
+                  )}
+                  {voucher.voucher_status}
+                </span>
+              </td>
+              <td className="px-4 py-2 text-center">
+                {voucher.voucher_status === 'Verified' ? voucher.verifiedBy : '-'}
+              </td>
+              <td className="px-4 py-2 text-center">
+                {voucher.voucher_status === 'Verified' ? new Date(voucher.verifiedAt).toLocaleString() : '-'}
+              </td>
+              <td className="px-4 py-2 text-center space-x-2">
+                <button
+                  onClick={() => handleVoucherClick(voucher)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Preview
                 </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+
+                {/* Verify Button (Only visible to Verifier role) */}
+                {isVerifier && voucher.voucher_status !== 'Verified' && (
+                  <button
+                    onClick={() => handleVerify(voucher.voucher_number)} // Trigger the verify action
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  >
+                    Verify
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
 
       {/* Pagination Component */}
       <Pagination
