@@ -5,6 +5,8 @@ import VoucherForm from '../voucher/VoucherForm';
 import VoucherList from '../voucher/VoucherList';
 import { VoucherPreview } from '../voucher/VoucherPreview';
 import { fetchLoggedInUser, updateVoucherStatus , fetchVouchers } from '../../services/api'; // Import necessary functions
+import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
+
 
 const VerifierDashboard = () => {
   const { authState, logout } = useAuth();
@@ -61,16 +63,6 @@ const VerifierDashboard = () => {
     }
   };
 
-  // Handle changing voucher status
-  const handleChangeVoucherStatus = async (voucherNumber, newStatus) => {
-    try {
-      const updatedVoucher = await updateVoucherStatus(voucherNumber, newStatus); // Update status in the backend
-      // Fetch the updated list of vouchers after updating the status
-      fetchVouchers();
-    } catch (error) {
-      console.error('Failed to change voucher status:', error);
-    }
-  };
 
   // Handle previewing a voucher
   const handlePreviewVoucher = (voucher) => {
@@ -104,7 +96,7 @@ const VerifierDashboard = () => {
           {authState.token && (
             <button
               onClick={logout}
-              className="flex items-center space-x-2 bg-indigo-500 hover:bg-indigo-400 px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors"
             >
               <LogOut size={18} />
               <span>Logout</span>
@@ -121,9 +113,15 @@ const VerifierDashboard = () => {
         >
           View Vouchers
         </button>
+        <button
+          className={`px-4 py-2 rounded ${view === 'exchangeRates' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setView('exchangeRates')}
+        >
+          Exchange Rates
+        </button>
       </div>
 
-      {/* Content */}
+      {/* Content */} 
       <div className="container mx-auto mt-6">
         {view === 'list' && (
           <VoucherList
@@ -132,7 +130,8 @@ const VerifierDashboard = () => {
             onPreview={handlePreviewVoucher} // Pass the preview handler
           />
         )}
-        {view === 'form' && <VoucherForm onSubmit={handleCreateVoucher} />}
+        {view === 'exchangeRates' && <ExchangeRatesTable />}
+
       </div>
 
       {/* Voucher Preview */}

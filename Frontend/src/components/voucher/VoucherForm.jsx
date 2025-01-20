@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { CustomerForm } from './CustomerForm'; 
-import { TransactionForm } from './TransactionForm'; 
-import { VoucherPreview } from './VoucherPreview'; 
-import { useAuth } from '../../contexts/AuthContext'; 
-import { generateVoucherNumber } from '../../utils/voucherUtils'; 
+import React, { useState, useEffect } from 'react';
+import { CustomerForm } from './CustomerForm';
+import { TransactionForm } from './TransactionForm';
+import { VoucherPreview } from './VoucherPreview';
+import { useAuth } from '../../contexts/AuthContext';
+import { generateVoucherNumber } from '../../utils/voucherUtils';
 
 export default function VoucherForm({ onSubmit }) {
   const { authState } = useAuth();
@@ -12,20 +12,26 @@ export default function VoucherForm({ onSubmit }) {
   const [transactions, setTransactions] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState(null);
+  const [commissionApplied, setCommissionApplied] = useState(false); // Flag to track commission application
 
-  const handleSubmit = async () => {  
+  // Clear transactions when voucherType changes
+  useEffect(() => {
+    setTransactions([]); // Reset transactions when voucherType changes
+  }, [voucherType]);
+
+  const handleSubmit = async () => {
     if (!authState || !customer || transactions.length === 0) {
       return;
     }
-  
+
     // Generate the voucher number using the async function
     const voucherNo = await generateVoucherNumber();
-  
+
     const totalAmount = transactions.reduce((sum, t) => sum + t.nprAmount, 0);
     const commission = voucherType === 'remit-in'
       ? transactions.reduce((sum, t) => sum + (t.commission || 0), 0)
       : 0;
-  
+
     const newVoucher = {
       id: Math.random().toString(36).substr(2, 9),
       type: voucherType,
@@ -40,17 +46,16 @@ export default function VoucherForm({ onSubmit }) {
       status: 'pending',
       createdAt: new Date(),
     };
-  
+
     setPreviewVoucher(newVoucher);
     setShowPreview(true);
   };
-  
 
   const handleGenerate = () => {
     if (previewVoucher) {
       onSubmit(previewVoucher);
       setCustomer(null);
-      setTransactions([]);
+      setTransactions([]); // Clear transactions after submission
       setShowPreview(false);
       setPreviewVoucher(null);
     }
@@ -58,6 +63,20 @@ export default function VoucherForm({ onSubmit }) {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // Function to apply commission when button is pressed
+  const applyCommission = () => {
+    const updatedTransactions = transactions.map((transaction) => {
+      if (voucherType === 'remit-in') {
+        transaction.commission = transaction.nprAmount * 0.005; // Apply 0.5% commission for 'remit-in'
+      } else {
+        transaction.commission = undefined; // No commission for 'remit-out'
+      }
+      return transaction;
+    });
+    setTransactions(updatedTransactions); // Update the transactions state with applied commission
+    setCommissionApplied(true); // Set flag to true after applying commission
   };
 
   return (
@@ -72,7 +91,6 @@ export default function VoucherForm({ onSubmit }) {
           >
             <option value="remit-out">Remit Out</option>
             <option value="remit-in">Remit In</option>
-            {/* <option value="staff">Staff</option> */}
           </select>
         </div>
 
@@ -84,26 +102,16 @@ export default function VoucherForm({ onSubmit }) {
 
         <TransactionForm
           transactions={transactions}
-          onChange={(updatedTransactions) => {
-            // Update transactions and handle commission logic here
-            const transactionsWithCommission = updatedTransactions.map((transaction) => {
-              if (voucherType === 'remit-in') {
-                transaction.commission = transaction.nprAmount * 0.005; // Apply 0.5% commission
-              } else {
-                transaction.commission = undefined; // No commission for remit-out or staff
-              }
-              return transaction;
-            });
-            setTransactions(transactionsWithCommission);
-          }}
+          onChange={setTransactions} // Directly set transactions without applying commission
           voucherType={voucherType}
         />
 
         <button
           type="button"
-          disabled={!customer || transactions.length === 0}
+          disabled={!customer || transactions.length === 0 || commissionApplied}
           onClick={() => {
-            handleSubmit();
+            // applyCommission(); // Apply commission when the button is clicked
+            handleSubmit(); // Proceed with the form submission
           }}
           className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
         >

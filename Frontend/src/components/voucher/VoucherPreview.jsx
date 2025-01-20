@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { VoucherTemplate } from './VoucherTemplate';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -25,6 +25,8 @@ export function VoucherPreview({
 
       const itrsCode = voucher?.customer?.itrsCode ? Number(voucher.customer.itrsCode) : null;
 
+      console.log("Voucher data before sending to API:", voucher); // Debug log
+
       const voucherData = {
         customer_name: voucher?.customer?.name || '',
         customer_address: voucher?.customer?.address || '',
@@ -41,6 +43,8 @@ export function VoucherPreview({
       };
 
       const response = await axios.post(`${apiUrl}/api/voucher`, voucherData);
+      console.log("API response:", response.data); // Debug log
+
       if (onGenerate) {
         onGenerate();
       }
@@ -52,6 +56,9 @@ export function VoucherPreview({
       alert(`Failed to generate voucher. Error: ${errorMessage}`);
     }
   };
+
+  // Log the voucher data before rendering
+  console.log("Voucher data before rendering:", voucher);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -67,12 +74,14 @@ export function VoucherPreview({
                 Generate Voucher
               </button>
             )}
-            <button
-              onClick={onPrint}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
-            >
-              Print
-            </button>
+            {authState.role !== "Creator" && (
+              <button
+                onClick={onPrint}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
+              >
+                Print
+              </button>
+            )}
             <button
               onClick={onClose}
               className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
@@ -82,18 +91,8 @@ export function VoucherPreview({
           </div>
         </div>
         <div className="p-6">
-          {/* Ensure the full voucher data including customer and voucherType are passed */}
           <VoucherTemplate voucher={{ ...voucher, createdBy: authState?.staffName }} />
         </div>
-
-        {/* <div className="flex justify-end p-4">
-          <button
-            onClick={() => handleUpdateVoucher(voucher)}
-            className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-500"
-          >
-            Update Voucher
-          </button>
-        </div> */}
       </div>
     </div>
   );

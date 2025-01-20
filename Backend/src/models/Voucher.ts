@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   OneToMany,
   PrimaryColumn,
+  UpdateDateColumn
 } from 'typeorm';
 import { Transactions } from './Transaction';
 
@@ -11,6 +12,13 @@ import { Transactions } from './Transaction';
 export class Voucher {
   @PrimaryColumn()
   voucher_number: number;
+
+  // Define the OneToMany relationship to Transactions
+  @OneToMany(() => Transactions, (transaction) => transaction.voucher)
+  transactions: Transactions[];
+
+  @Column({ type: 'varchar', nullable: false })
+  fiscal_year: string = '2081/82';
 
   @CreateDateColumn()
   voucher_date: Date;
@@ -33,20 +41,19 @@ export class Voucher {
   @Column({ type: 'varchar', length: 100, nullable: true, default: null})
   travel_order_ref_number: string;
 
-  @Column({ type: 'enum', enum: ['Yes', 'No'], nullable: true, default: null})
-  voucher_cancellation: string;
-
-  @Column({ type: 'enum', enum: ['Pending', 'Verified'] })
+  @Column({ type: 'enum', enum: ['Pending', 'Verified','Canceled'] })
   voucher_status: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   createdBy: string;
 
-  // The user who verified the voucher
   @Column({ type: 'varchar', length: 255, nullable: true })
-  verifiedBy: string;
+  updatedBy: string;
 
-  // Define the OneToMany relationship to Transactions
-  @OneToMany(() => Transactions, (transaction) => transaction.voucher)
-  transactions: Transactions[];
+  @UpdateDateColumn()
+  updatedAt: Date;
+  
+  @Column({ type: 'varchar', nullable: true })
+  remarks: string;
+  
 }

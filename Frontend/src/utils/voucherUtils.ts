@@ -1,6 +1,6 @@
 import { fetchTotalVoucherCount } from "../services/api";
 
-let startingnumber = 12000; // Start with 0, will be updated after fetching from the API
+let startingnumber = 0; // If needed to start voucher from a starting number add here 
 let voucherCounter=0;
 // Generate voucher number based on the total count from the API
 export const generateVoucherNumber = async (): Promise<string> => {

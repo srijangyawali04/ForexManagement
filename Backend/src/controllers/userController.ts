@@ -5,6 +5,12 @@ import { AppDataSource } from "../initializers/data-source";
 
 const userRepo = AppDataSource.getRepository(User);
 
+// Password validation function
+const isPasswordStrong = (password: string): boolean => {
+  const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return regex.test(password);
+};
+
 // Add User Information
 export const createUser = async (req: Request, res: Response) => {
   const { staff_code, password, staff_name, designation, role, email, mobile_number, user_status, remarks } = req.body;
@@ -19,8 +25,16 @@ export const createUser = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate the password strength
+    if (!isPasswordStrong(password)) {
+      return res.status(400).json({
+        message:
+          'Password must be at least 8 characters long, include an uppercase letter, a number, and a special character.',
+      });
+    }
+
     // Hash the password before saving it to the database
-    const hashedPassword = await bcrypt.hash(password, 10); // 10 is the salt rounds for bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create a new user object with the hashed password
     const user = userRepo.create({
@@ -37,17 +51,16 @@ export const createUser = async (req: Request, res: Response) => {
 
     // Save the user to the database
     await userRepo.save(user);
-
     return res.status(200).json({
       message: "User created successfully.",
       data: user,
     });
   } catch (err) {
-    // Log error in the server console
     console.error("ERROR: Server error occurred during user creation.", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
@@ -92,9 +105,9 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 
-//Update user status
+// Update user status
 export const updateUserStatus = async (req: Request, res: Response) => {
-  const { staff_code, user_status } = req.body; 
+  const { staff_code, user_status, remark } = req.body; // Include remark in request body
 
   try {
     const user = await userRepo.findOne({ where: { staff_code } });
@@ -103,7 +116,9 @@ export const updateUserStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // Update user status and remark (if provided)
     user.user_status = user_status;
+    user.remarks = remark; // Assuming 'remarks' is a field in your User entity
 
     await userRepo.save(user);
 
@@ -114,5 +129,45 @@ export const updateUserStatus = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Failed to update user status', error: error.message });
+  }
+};
+
+
+// Reset Password 
+export const passwordReset = async (req: Request, res: Response) => {
+  const { staff_code, password } = req.body;
+
+  try {
+    // Find the user by staff_code
+    const user = await userRepo.findOne({ where: { staff_code } });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Validate the new password strength
+    if (!isPasswordStrong(password)) {
+      return res.status(400).json({
+        message:
+          'Password must be at least 8 characters long, include an uppercase letter, a number, and a special character.',
+      });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+
+    // Save the updated user record to the database
+    await userRepo.save(user);
+
+    return res.status(200).json({
+      message: 'Password reset successfully.',
+      data: user,
+    });
+  } catch (err) {
+    console.error("ERROR: Server error occurred during password reset.", err);
+    return res.status(500).json({ message: "Server error" });
   }
 };

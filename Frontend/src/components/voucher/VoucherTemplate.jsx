@@ -42,7 +42,6 @@ export const VoucherTemplate = ({ voucher }) => {
     fetchVerifiedByInfo();
   }, [voucher.transactions]);
 
-  // const staffName = localStorage.getItem('staff_name'); 
   const designation = localStorage.getItem('designation'); 
 
   const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A';
@@ -57,10 +56,10 @@ export const VoucherTemplate = ({ voucher }) => {
 
   const totalCommission = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = Number(t.fc_amount) || 0;
-    const calculatedCommission = isNaN(Number(t.commission)) || t.commission === undefined
-      ? fcAmount * 0.005 
-      : Number(t.commission);
-    return sum + calculatedCommission;
+    const commission = voucherType === 'remit-in' && t.commission === undefined
+      ? fcAmount * 0.005 // Calculate commission if not already defined
+      : Number(t.commission); // Use the commission if already defined
+    return sum + commission;
   }, 0);
 
   const totalNRP = (voucher.transactions || []).reduce((sum, t) => {
@@ -72,7 +71,7 @@ export const VoucherTemplate = ({ voucher }) => {
 
   const netNRP = totalNRP - (totalCommission || 0);
 
-  const renderCopy = (isOfficeCopy) => (
+  const renderCopy = () => (
     <div className="bg-white p-8 max-w-3xl mx-auto border border-gray-300 print:border-black mb-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -84,31 +83,30 @@ export const VoucherTemplate = ({ voucher }) => {
           </div>
         </div>
         <div className="text-right">
-          <div className={`inline-block border px-2 ${isOfficeCopy ? 'border-yellow-400 bg-yellow-50' : 'border-green-400 bg-green-50'}`}>
-            {isOfficeCopy ? 'Office Copy' : 'Customer Copy'}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between mb-4">
-        <div></div>
-        <div className="text-right">
-          <p>Voucher No.: {voucherNo}</p>
+          <p className="font-semibold">Voucher No.: 2081/82-{voucherNo}</p>
           <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p>
         </div>
       </div>
-
+  
       <div className="mb-4 space-y-1">
-        <p>Customer Name: {customerName}</p>
-        <p>Passport No.: {passportNo}</p>
-        <p>Address: {address}</p>
         <div className="flex justify-between">
+          <p>Customer Name: {customerName}</p>
           <p>Mobile No.: {mobileNo}</p>
-          {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
-          {travelOrderRef !== 'N/A' && <p>Travel Order Ref. No.: {travelOrderRef}</p>}
         </div>
+        <div className="flex justify-between">
+          <p>Passport No.: {passportNo}</p>
+          {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
+        </div>
+        <div>
+          <p>Address: {address}</p>
+        </div>
+        {travelOrderRef !== 'N/A' && (
+          <div>
+            <p>Travel Order Ref. No.: {travelOrderRef}</p>
+          </div>
+        )}
       </div>
-
+  
       <table className="w-full mb-4 border-collapse">
         <thead>
           <tr className="border border-gray-400">
@@ -132,7 +130,7 @@ export const VoucherTemplate = ({ voucher }) => {
               ? fcAmount * 0.005
               : transaction.commission;
             const nprAmount = fcAmount * exchangeRate;
-
+  
             return (
               <tr key={index} className="border border-gray-400">
                 <td className="border border-gray-400 p-2 text-center">{index + 1}</td>
@@ -181,8 +179,9 @@ export const VoucherTemplate = ({ voucher }) => {
           )}
         </tbody>
       </table>
-       {/* Signatures */}
-       <div className="flex justify-between mt-16">
+  
+      {/* Signatures */}
+      <div className="flex justify-between mt-16">
         <div className="text-center">
           <div className="border-t border-gray-400 pt-1">
             <p>Prepared by</p>
@@ -194,36 +193,35 @@ export const VoucherTemplate = ({ voucher }) => {
           <div className="border-t border-gray-400 pt-1">
             <p>Verified by</p>
             <p>{verifiedByInfo?.staff_name || 'Pending'}</p>
-            <p>{verifiedByInfo?.designation }</p>
+            <p>{verifiedByInfo?.designation}</p>
           </div>
         </div>
       </div>
       <br></br>
-
-      {!isOfficeCopy && (
-        <div className="text-sm mb-8">
-          <p>Note:</p>
-          <ul className="list-disc list-inside pl-4">
-            <li>Validity of this voucher is for same date only.</li>
-            <li>
-              This is only foreign currency exchange voucher and can't be presented as Invoice and
-              doesn't carry any legal obligations.
-            </li>
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-
-  return (
-    <div>
-      <div className="print-container">
-        {renderCopy(true)}
-        <div className="border-dashed border-t border-gray-500 my-4"></div>
-        {renderCopy(false)}
+  
+      <div className="text-sm mb-8">
+        <p>Note:</p>
+        <ul className="list-disc list-inside pl-4">
+          <li>Validity of this voucher is for same date only.</li>
+          <li>
+            This is only foreign currency exchange voucher and can't be presented as Invoice and
+            doesn't carry any legal obligations.
+          </li>
+        </ul>
       </div>
     </div>
   );
+  
+  
+  
+  return (
+    <div>
+      <div className="print-container">
+        {renderCopy()}
+      </div>
+    </div>
+  );
+  
 };
 
 export default VoucherTemplate;

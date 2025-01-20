@@ -54,13 +54,16 @@ export const getUserByStaffCode = async (staffCode) => {
 
 
 // Api for user status
-export const updateUserStatus = async (staffCode, newStatus) => {
+export const updateUserStatus = async (staffCode, newStatus , remark) => {
   try {
     const response = await fetch(`${apiUrl}/api/user/update-status`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ staff_code: staffCode, user_status: newStatus }) // Updated keys to match backend
-    });
+      headers: { 'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        staff_code: staffCode,
+        user_status: newStatus,
+        remark: remark, // Include the remark in the request body
+      }),    });
 
     if (!response.ok) {
       throw new Error('Failed to update user status');
@@ -118,11 +121,42 @@ export const addUser = async (userData) => {
 
 
 
+export const resetUserPassword = async (staffCode, newPassword) => {
+  try {
+      const response = await fetch(`${apiUrl}/api/user/reset-password`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+              staff_code: staffCode,
+              password: newPassword,
+          }),
+      });
+
+      if (!response.ok) {
+          const errorData = await response.text(); // Handle non-JSON error response
+          return { success: false, message: errorData };
+      }
+
+      const data = await response.json();
+      return { success: true, message: data.message, data }; // Return success status and data
+  } catch (error) {
+      return { success: false, message: error.message }; // Return error message
+  }
+};
+
+
+
+
+
 
 // Fetch the logged-in user's information
 export const fetchLoggedInUser = async () => {
   const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
   const staffCode = localStorage.getItem('staff_code'); // Retrieve the logged-in user's staff_code from localStorage
+
+  // Log the staffCode to check its value
+    console.log('Staff Code:', staffCode);
+
 
   if (!token || !staffCode) {
     throw new Error('No authentication token or staff code found.');
@@ -215,29 +249,32 @@ export const createVoucher = async (voucherData) => {
 };
 
 
-// Api for voucher status
-export const updateVoucherStatus = async (voucherNumber, newStatus, loggedInUser) => {
+export const updateVoucherStatus = async (voucherNumber, action, loggedInUser) => {
+  const requestBody = {
+    action: action, 
+    updatedBy: loggedInUser.staff_code, 
+  };
+
+  console.log('Sending request with body:', requestBody); // Log the request body
+
   try {
     const response = await fetch(`${apiUrl}/api/voucher/${voucherNumber}/update-status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        voucher_number: voucherNumber,
-        voucher_status: newStatus,
-        verifiedBy: loggedInUser.staff_code, // Use loggedInUser.staff_name here
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       throw new Error('Failed to update voucher status');
     }
 
-    return await response.json(); // Return the updated voucher data
+    return await response.json();
   } catch (error) {
     console.error('Error updating voucher status:', error);
-    throw error; // Rethrow error
+    throw error;
   }
 };
+
 
 
 

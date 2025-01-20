@@ -74,10 +74,9 @@ export const createVoucher = async (req: Request, res: Response) => {
       passport_number,
       itrs_code,
       travel_order_ref_number,
-      voucher_cancellation,
       voucher_status,
       createdBy, // Store the createdBy value from the request
-      verifiedBy: "Pending", // Default value for verifiedBy
+      updatedBy: "Pending", // Default value for verifiedBy
     });
 
     // Save the voucher first to ensure it exists in the database
@@ -99,7 +98,7 @@ export const createVoucher = async (req: Request, res: Response) => {
         commission: transaction.commission,
         total_NPR: transaction.total_NPR,
         created_by: transaction.created_by,
-        verified_by: transaction.verified_by,
+        updated_by: transaction.updated_by,
         transaction_type: transaction.transaction_type, // Include transaction_type
       });
 
@@ -153,8 +152,8 @@ export const getVoucherList = async (req: Request, res: Response) => {
   }
 };
 
-// Verify a voucher status
-export const verifyVoucher = async (req: Request, res: Response) => {
+/// Update voucher status (Verify or Cancel)
+export const updateVoucherStatus = async (req: Request, res: Response) => {
   try {
     // Convert voucher_number to a number
     const voucher_number = Number(req.params.voucher_number);
@@ -167,39 +166,94 @@ export const verifyVoucher = async (req: Request, res: Response) => {
     // Fetch voucher by voucher_number, including transactions
     const voucher = await voucherRepo.findOne({
       where: { voucher_number },
-      relations: ['transactions'],  // Ensure transactions are fetched with the voucher
+      relations: ['transactions'], // Ensure transactions are fetched with the voucher
     });
 
     if (!voucher) {
       return res.status(404).json({ message: 'Voucher not found' });
     }
 
-    // Update the voucher status and verifiedBy
-    const verifiedBy = req.body.verifiedBy || 'Admin';
-    voucher.voucher_status = 'Verified';
-    voucher.verifiedBy = verifiedBy;
+    // Log the request body and voucher state for debugging
+    console.log('Request Body:', req.body);
+    console.log('Voucher Before Update:', voucher);
 
-    // Update the verified_by for each transaction within the voucher
-    if (voucher.transactions && voucher.transactions.length > 0) {
-      for (const transaction of voucher.transactions) {
-        transaction.verified_by = verifiedBy;  // Update the transaction's verified_by field
-        await transactionRepo.save(transaction); // Save each transaction
+    // Determine action based on the request body
+    const { action, updatedBy } = req.body; // 'action' can be 'verify' or 'cancel'
+
+    // Ensure the action is either 'verify' or 'cancel'
+    if (action !== 'verify' && action !== 'cancel') {
+      return res.status(400).json({ message: 'Invalid action.' });
+    }
+
+    // Perform the action
+    if (action === 'verify') {
+      // Check if voucher is already verified or canceled
+      if (voucher.voucher_status === 'Verified' || voucher.voucher_status === 'Canceled') {
+        return res.status(400).json({ message: 'Voucher has already been verified or canceled.' });
+      }
+
+      // Update voucher status to 'Verified'
+      voucher.voucher_status = 'Verified';
+      voucher.updatedBy = updatedBy || 'Admin';
+
+      // Update the verified_by for each transaction within the voucher
+      if (voucher.transactions && voucher.transactions.length > 0) {
+        try {
+          for (const transaction of voucher.transactions) {
+            transaction.updated_by = updatedBy || 'Admin'; // Update the transaction's verified_by field
+            await transactionRepo.save(transaction); // Save each transaction
+          }
+        } catch (transactionError) {
+          console.error('Error updating transaction:', transactionError);
+          return res.status(500).json({ message: 'Error updating transaction' });
+        }
+      }
+
+    } else if (action === 'cancel') {
+      // Check if voucher is already canceled
+      if (voucher.voucher_status === 'Canceled') {
+        return res.status(400).json({ message: 'Voucher has already been canceled.' });
+      }
+
+      // Update voucher status to 'Canceled'
+      voucher.voucher_status = 'Canceled';
+      voucher.updatedBy = updatedBy || 'System'; // Add canceledBy information
+      // Optionally, mark all transactions as canceled (if necessary)
+      if (voucher.transactions && voucher.transactions.length > 0) {
+        try {
+          for (const transaction of voucher.transactions) {
+            transaction.updated_by = updatedBy || 'System'; // Mark transaction as canceled by the system
+            await transactionRepo.save(transaction); // Save each transaction
+          }
+        } catch (transactionError) {
+          console.error('Error updating transaction:', transactionError);
+          return res.status(500).json({ message: 'Error updating transaction' });
+        }
       }
     }
 
-    // Save the updated voucher
-    await voucherRepo.save(voucher); 
+    // Save the updated voucher and log for debugging
+    try {
+      console.log('Saving updated voucher:', voucher);
+      await voucherRepo.save(voucher);
+    } catch (voucherSaveError) {
+      console.error('Error saving voucher:', voucherSaveError);
+      return res.status(500).json({ message: 'Error saving voucher', error: voucherSaveError.message });
+    }
 
+    // Return success response with updated voucher and transactions
     return res.status(200).json({
-      message: 'Voucher verified',
+      message: `Voucher ${action}d successfully.`,
       voucher,
-      transactions: voucher.transactions,  // Return updated transactions along with the voucher
+      transactions: voucher.transactions, // Return updated transactions along with the voucher
     });
+
   } catch (error) {
-    console.error('Error verifying voucher:', error);
-    return res.status(500).json({ message: 'Error verifying voucher' });
+    console.error('Error updating voucher status:', error);
+    return res.status(500).json({ message: 'Error updating voucher status', error: error.message });
   }
 };
+
 
 
 // Get a voucher by its voucher number

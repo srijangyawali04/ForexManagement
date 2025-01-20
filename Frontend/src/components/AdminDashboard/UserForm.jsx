@@ -101,7 +101,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 name="staff_code"
                 required
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               />
             </div>
 
@@ -114,7 +114,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                   name="password"
                   required
                   onChange={handleChange}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
                 />
                 <button
                   type="button"
@@ -135,7 +135,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 name="staff_name"
                 required
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               />
             </div>
 
@@ -146,7 +146,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 name="designation"
                 required
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               >
                 <option value="">Select Designation</option>
                 {DESIGNATIONS.map((designation) => (
@@ -165,7 +165,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 required
                 value={formData.role} // Ensure role value is controlled by formData
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               >
                 <option value="">Select Role</option>
                 {ROLES.filter(role => !(currentUserRole === 'Admin' && role === 'Admin')).map((role) => (
@@ -184,7 +184,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 name="email"
                 required
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               />
             </div>
 
@@ -196,7 +196,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 name="mobile_number"
                 required
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               />
             </div>
 
@@ -208,7 +208,7 @@ export default function UserForm({ onUserAdd, onClose }) {
                 required
                 value={formData.user_status}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               >
                 {USER_STATUSES.map((status) => (
                   <option key={status} value={status}>
@@ -219,34 +219,20 @@ export default function UserForm({ onUserAdd, onClose }) {
             </div>
           </div>
 
-          {/* Remarks */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Remarks</label>
-            <textarea
-              name="remarks"
-              rows={3}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-sm font-medium text-gray-700 border rounded-md hover:bg-gray-100"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 ${
-                isSubmitting ? 'opacity-50' : ''
-              }`}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 disabled:bg-gray-400"
             >
-              {isSubmitting ? 'Submitting...' : 'Add User'}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
           </div>
         </form>

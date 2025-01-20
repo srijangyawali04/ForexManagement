@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock } from 'lucide-react';
-import { fetchLoggedInUser, fetchVouchers } from '../../services/api';
+import { CheckCircle, Clock, XCircle } from 'lucide-react';
+import { fetchLoggedInUser, fetchVouchers, updateVoucherStatus } from '../../services/api';
 import { VoucherPreview } from './VoucherPreview';
 import VoucherFilter from './VoucherFilter';
 import Pagination from '../AdminDashboard/Pagination';
@@ -12,16 +12,17 @@ const VoucherList = ({ onVerify }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [vouchersPerPage] = useState(10); // Set the number of vouchers per page
+  const [vouchersPerPage] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [voucherStatus, setVoucherStatus] = useState('');
+  const [confirmAction, setConfirmAction] = useState({ show: false, type: '', voucherNumber: null });
 
   // Fetch logged-in user info
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userInfo = await fetchLoggedInUser();
-        setLoggedInUser(userInfo); // Set logged-in user information
+        setLoggedInUser(userInfo);
       } catch (error) {
         console.error('Failed to fetch logged-in user:', error);
       }
@@ -34,8 +35,8 @@ const VoucherList = ({ onVerify }) => {
   useEffect(() => {
     const fetchVoucherData = async () => {
       try {
-        const data = await fetchVouchers(); // Call fetchVouchers to get the data
-        setVouchers(data.data || []); // Ensure that data is in the expected format
+        const data = await fetchVouchers();
+        setVouchers(data.data || []);
       } catch (error) {
         console.error('Error fetching vouchers:', error);
       }
@@ -64,149 +65,208 @@ const VoucherList = ({ onVerify }) => {
     setCurrentPage(1); // Reset to page 1 when filter or search changes
   }, [searchQuery, voucherStatus, vouchers]);
 
-  // Handle voucher click for preview
   const handleVoucherClick = (voucher) => {
-    setSelectedVoucher(voucher); // Set the selected voucher
-    setIsPreviewOpen(true); // Open the preview modal
+    setSelectedVoucher(voucher);
+    setIsPreviewOpen(true);
   };
 
-  // Handle closing the preview modal
   const handleClosePreview = () => {
-    setSelectedVoucher(null); // Clear the selected voucher
-    setIsPreviewOpen(false); // Close the modal
+    setSelectedVoucher(null);
+    setIsPreviewOpen(false);
   };
 
-  // Handle verify button click
-  const handleVerify = (voucherNumber) => {
-    const verificationDate = new Date().toLocaleString();
-    onVerify(voucherNumber, loggedInUser.staff_name, verificationDate);
-    window.location.reload();
+  const handleActionConfirm = async () => {
+    if (!confirmAction.voucherNumber) return;
+
+    try {
+      if (confirmAction.type === 'verify') {
+        await updateVoucherStatus(confirmAction.voucherNumber, 'verify', loggedInUser);
+        onVerify(confirmAction.voucherNumber, loggedInUser.staff_name);
+      } else if (confirmAction.type === 'cancel') {
+        await updateVoucherStatus(confirmAction.voucherNumber, 'cancel', loggedInUser);
+      }
+      window.location.reload();
+    } catch (error) {
+      console.error(`Error ${confirmAction.type}ing voucher:`, error);
+    } finally {
+      setConfirmAction({ show: false, type: '', voucherNumber: null });
+    }
   };
 
-  // Check if the logged-in user is a verifier
   const isVerifier = loggedInUser?.role === 'Verifier';
 
-  // Get the vouchers to display on the current page
   const indexOfLastVoucher = currentPage * vouchersPerPage;
   const indexOfFirstVoucher = indexOfLastVoucher - vouchersPerPage;
   const currentVouchers = filteredVouchers.slice(indexOfFirstVoucher, indexOfLastVoucher);
 
-  // Handle page change and scroll to top
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
-    window.scrollTo(0, 0); // Scroll to top after page change
+    window.scrollTo(0, 0);
   };
 
-  // Handle search query change
   const handleSearch = (query) => {
-    const searchNumber = query ? parseInt(query, 10) : ''; // Parse query to a number
-    
+    const searchNumber = query ? parseInt(query, 10) : '';
     if (searchNumber) {
       const filtered = vouchers.filter((voucher) => voucher.voucher_number === searchNumber);
       setFilteredVouchers(filtered);
     } else {
-      setFilteredVouchers(vouchers); // Reset to all vouchers when search is cleared
+      setFilteredVouchers(vouchers);
     }
   };
-  
 
-  // Handle filter by status change
-  // Handle filter by status
-const handleFilter = (status) => {
-  if (status) {
-    const filtered = vouchers.filter((voucher) => voucher.voucher_status === status);
-    setFilteredVouchers(filtered); // Update filtered vouchers based on status
-  } else {
-    setFilteredVouchers(vouchers); // Reset to all vouchers if no filter is selected
-  }
-};
+  const handleFilter = (status) => {
+    if (status) {
+      const filtered = vouchers.filter((voucher) => voucher.voucher_status === status);
+      setFilteredVouchers(filtered);
+    } else {
+      setFilteredVouchers(vouchers);
+    }
+  };
 
-
-  // Render each voucher with preview and verify functionality
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Voucher List</h2>
 
-      {/* Search and Filter Component */}
       <VoucherFilter
         onSearch={handleSearch}
-        onFilter={handleFilter} // Pass the handleFilter function to VoucherFilter
-        vouchers={vouchers}   
-        filteredVouchers={filteredVouchers} 
+        onFilter={handleFilter}
+        vouchers={vouchers}
+        filteredVouchers={filteredVouchers}
       />
 
-
-      <div className="grid gap-4">
-        {currentVouchers.map((voucher) => (
-          <div key={voucher.voucher_number} className="bg-white p-4 rounded-lg shadow border border-gray-200">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-medium">#{voucher.voucher_number}</span>
-                  <span className="text-sm text-gray-500">({voucher.voucher_status})</span>
-                </div>
-                <div className="text-lg font-semibold">Customer Name: {voucher.customer_name}</div>
-                <div className="text-sm text-gray-500">
-                  Created by {voucher.createdBy} on {new Date(voucher.voucher_date).toLocaleString()}
-                </div>
-              </div>
-              <div
-                className={`flex items-center space-x-1 px-2 py-1 rounded-full text-sm ${
-                  voucher.voucher_status === 'Verified'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}
-              >
-                {voucher.voucher_status === 'Verified' ? <CheckCircle size={16} /> : <Clock size={16} />}
-                <span className="capitalize">{voucher.voucher_status}</span>
-              </div>
-            </div>
-
-            {/* Display Verified By and Date if Verified */}
-            {voucher.voucher_status === 'Verified' && (
-              <div className="mt-2 text-sm text-gray-600">
-                <span className="font-semibold">Verified By: </span>{voucher.verifiedBy} on {voucher.verifiedAt}
-              </div>
-            )}
-
-            <div className="flex space-x-4 mt-2">
-              {/* Preview Button */}
-              <button
-                onClick={() => handleVoucherClick(voucher)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Preview
-              </button>
-
-              {/* Verify Button (Only visible to Verifier role) */}
-              {isVerifier && voucher.voucher_status !== 'Verified' && (
-                <button
-                  onClick={() => handleVerify(voucher.voucher_number)} // Trigger the verify action
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      <table className="min-w-full bg-white border border-gray-200">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 text-center">Voucher Number</th>
+            <th className="px-4 py-2 text-center">Customer Name</th>
+            <th className="px-4 py-2 text-center">Created By</th>
+            <th className="px-4 py-2 text-center">Created On</th>
+            <th className="px-4 py-2 text-center">Voucher Status</th>
+            <th className="px-4 py-2 text-center">Verified/Cancelled By</th>
+            <th className="px-4 py-2 text-center">Verified/Cancelled On</th>
+            <th className="px-4 py-2 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentVouchers.map((voucher) => (
+            <tr key={voucher.voucher_number} className="border-t border-gray-200">
+              <td className="px-4 py-2 text-center">{voucher.voucher_number}</td>
+              <td className="px-4 py-2 text-center">{voucher.customer_name}</td>
+              <td className="px-4 py-2 text-center">{voucher.createdBy}</td>
+              <td className="px-4 py-2 text-center">{new Date(voucher.voucher_date).toLocaleString()}</td>
+              <td className="px-4 py-2 text-center">
+                <span
+                  className={`px-2 py-1 rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
+                    voucher.voucher_status === 'Verified'
+                      ? 'bg-green-100 text-green-800'
+                      : voucher.voucher_status === 'Pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : voucher.voucher_status === 'Canceled'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
                 >
-                  Verify
+                  {voucher.voucher_status === 'Verified' ? (
+                    <CheckCircle size={16} className="mr-1" />
+                  ) : voucher.voucher_status === 'Pending' ? (
+                    <Clock size={16} className="mr-1" />
+                  ) : voucher.voucher_status === 'Canceled' ? (
+                    <XCircle size={16} className="mr-1" />
+                  ) : (
+                    '-'
+                  )}
+                  {voucher.voucher_status}
+                </span>
+              </td>
+              <td className="px-4 py-2 text-center">
+                {voucher.voucher_status === 'Verified' || voucher.voucher_status === 'Canceled'
+                  ? voucher.updatedBy
+                  : '-'}
+              </td>
+              <td className="px-4 py-2 text-center">
+                {voucher.voucher_status === 'Verified' || voucher.voucher_status === 'Canceled'
+                  ? new Date(voucher.updatedAt).toLocaleString()
+                  : '-'}
+              </td>
+              <td className="px-4 py-2 text-center space-x-1">
+                <button
+                  onClick={() => handleVoucherClick(voucher)}
+                  className="bg-blue-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-blue-600 transition duration-200"
+                >
+                  Preview
                 </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* Pagination Component */}
+                {isVerifier && voucher.voucher_status === 'Pending' && (
+                  <>
+                    <button
+                      onClick={() =>
+                        setConfirmAction({
+                          show: true,
+                          type: 'verify',
+                          voucherNumber: voucher.voucher_number,
+                        })
+                      }
+                      className="bg-green-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-600 transition duration-200"
+                    >
+                      Verify
+                    </button>
+                    <button
+                      onClick={() =>
+                        setConfirmAction({
+                          show: true,
+                          type: 'cancel',
+                          voucherNumber: voucher.voucher_number,
+                        })
+                      }
+                      className="bg-red-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-red-600 transition duration-200"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
       <Pagination
         currentPage={currentPage}
         totalPages={Math.ceil(filteredVouchers.length / vouchersPerPage)}
         onPageChange={handlePageChange}
       />
 
-      {/* Voucher Preview Modal */}
       {isPreviewOpen && selectedVoucher && (
         <VoucherPreview
           voucher={selectedVoucher}
           onClose={handleClosePreview}
           onPrint={() => window.print()}
+          onGenerate={() => console.log('Generate logic here')}
           showGenerateButton={false}
         />
+      )}
+
+      {confirmAction.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Confirm Action</h2>
+            <p className="mb-6">Are you sure you want to {confirmAction.type} this voucher?</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setConfirmAction({ show: false, type: '', voucherNumber: null })}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleActionConfirm}
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

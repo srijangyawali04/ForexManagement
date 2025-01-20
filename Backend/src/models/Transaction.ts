@@ -33,7 +33,7 @@ export class Transactions {
   created_by: string;
 
   @Column({ type: 'varchar', length: 50, default: 'Pending' })  // Set default to 'Pending'
-  verified_by: string;
+  updated_by: string;
   
   @Column({ type: 'varchar', length: 10, enum: ['remit-in', 'remit-out'] })
   transaction_type: string;

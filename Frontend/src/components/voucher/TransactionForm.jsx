@@ -5,10 +5,9 @@ import { useAuth } from '../../contexts/AuthContext';
 export function TransactionForm({ transactions, onChange, voucherType }) {
   const [exchangeRates, setExchangeRates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [exchangeDate, setExchangeDate] = useState(null); // State to store the exchange date
   const { authState } = useAuth(); // Access the authState from context
-  const [exchangeDateValid, setExchangeDateValid] = useState(true); // State to track validity of exchange date
-  
+  const [commission, setCommission] = useState(0);  // Add commission state
+
   // Fetch exchange rates when component mounts
   useEffect(() => {
     const getExchangeRates = async () => {
@@ -16,11 +15,6 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         const rates = await fetchExchangeRates();
         setExchangeRates(rates);
         setLoading(false); // Set loading to false once data is fetched
-
-        // Assuming the fetched data has a field `exchange_date`
-        if (rates && rates.length > 0) {
-          setExchangeDate(rates[0].exchange_date); // Set the exchange date
-        }
       } catch (error) {
         console.error('Failed to fetch exchange rates:', error);
         setLoading(false); // Set loading to false even in case of error
@@ -29,24 +23,6 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
 
     getExchangeRates();
   }, []);
-
-  // Ensure exchangeRates and exchangeRates[0] exist before accessing fetchedAt
-  const exchangeDateOnly = exchangeRates.length > 0 && exchangeRates[0]?.fetchedAt
-  ? new Date(exchangeRates[0].fetchedAt).toISOString().split('T')[0]
-  : null; // Extract YYYY-MM-DD from exchangeDate
-
-  // Get the current date in YYYY-MM-DD format
-  const currentDate = new Date().toISOString().split('T')[0]; 
-  const isExchangeDateValid = exchangeDateOnly === currentDate;
-
-  // Prevent adding transaction if the exchange date is not today's date
-  useEffect(() => {
-    if (exchangeDateOnly && !isExchangeDateValid) {
-      setExchangeDateValid(false); // Set validity to false when exchange date is not valid
-    } else {
-      setExchangeDateValid(true); // Reset validity when exchange date is valid
-    }
-  }, [exchangeDateOnly, isExchangeDateValid]);
 
   // Helper function to get the correct exchange rate based on voucherType
   const getExchangeRate = (currency) => {
@@ -62,17 +38,12 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   };
 
   const addTransaction = () => {
-    if (!isExchangeDateValid) {
-      alert('Exchange rates are not valid for today. Cannot add transaction.');
-      return;
-    }
-
     const newTransaction = {
       currency_name: '',              // Initially empty
       currency_iso_code: '',          // Initially empty
       exchange_rate: 0,               // Default exchange rate
       fc_amount: 0,                   // Default FCY amount
-      commission: voucherType === 'remit-in' ? 0 : null,  // Commission for 'remit-in'
+      commission: null,               // Commission set to null by default
       total_NPR: 0,                   // Default Total NPR (sync with backend)
       created_by: authState.staffCode, // Current user
       verified_by: 'Pending',         // Default verification status
@@ -107,29 +78,27 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         updated.nprAmount = updated.fc_amount * updated.exchange_rate || 0;
       }
   
-      // Commission logic for 'remit-in' or 'remit-out'
-      if (voucherType === 'remit-in' && (field === 'fc_amount' || field === 'nprAmount')) {
-        if (updated.fc_amount > 0) {
-          updated.commission = updated.fc_amount * 0.005 || 0;
-        } else {
-          updated.commission = 0; // Prevent NaN if fc_amount is 0 or invalid
-        }
-      } else if (voucherType === 'remit-out') {
-        updated.commission = null; // Set commission to null for 'remit-out'
-      }
-  
-      // Calculate total_NPR based on voucher type
-      if (voucherType === 'remit-in') {
-        updated.total_NPR = updated.nprAmount - updated.commission;
-      } else if (voucherType === 'remit-out') {
-        updated.total_NPR = updated.nprAmount; // For 'remit-out', total_NPR is equal to nprAmount
-      }
-  
       return updated;
     });
   
     onChange(updatedTransactions);
-  }; 
+  };
+
+  // Set commission manually for a specific transaction
+  const applyCommission = (index) => {
+    const updatedTransactions = transactions.map((transaction, i) => {
+      if (i === index && voucherType === 'remit-in') {
+        // Calculate commission as 0.5% of NPR amount
+        const newCommission = transaction.nprAmount * 0.005;
+        return { ...transaction, commission: newCommission }; // Update commission only for the selected transaction
+      }
+      return transaction; // Leave other transactions unchanged
+    });
+  
+    onChange(updatedTransactions); // Update the transactions with the new commission
+  };
+  
+  
 
   return (
     <div className="space-y-4">
@@ -138,22 +107,15 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         <button
           type="button"
           onClick={addTransaction}
-          disabled={!exchangeDateValid} // Disable the button if exchange date is invalid
-          className={`bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200 ${!exchangeDateValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md hover:bg-indigo-200"
         >
           Add Currency
         </button>
       </div>
-      {/* Display the exchange date if it exists */}
-      {exchangeRates.length > 0 && exchangeRates[0].fetchedAt && (
-        <div className="text-sm text-gray-500 mt-2">
-          Latest Exchange Rate Fetched Date: {new Date(exchangeRates[0].fetchedAt).toLocaleString()}
-        </div>
-      )}
 
       <div className="space-y-4">
         {transactions.map((transaction, index) => (
-          <div key={index} className="grid grid-cols-5 gap-4 items-end border p-4 rounded-md">
+          <div key={index} className="grid grid-cols-7 gap-4 items-end border p-4 rounded-md">
             <div>
               <label className="block text-sm font-medium text-gray-700">Currency</label>
               <select
@@ -202,17 +164,34 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
               />
             </div>
-            {voucherType === 'remit-in' && (
+
+            {/* Commission Column */}
+            {transaction.commission !== null && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Commission (0.5%)</label>
+                <label className="block text-sm font-medium text-gray-700">Commission</label>
                 <input
                   type="number"
-                  value={transaction.commission || ''} // Default value for commission
+                  value={transaction.commission || ''} // Display the manually set commission
                   readOnly
                   className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
                 />
               </div>
             )}
+
+            {/* Apply Commission Button */}
+            {voucherType === 'remit-in' && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => applyCommission(index)} // Pass the index to apply commission for this specific transaction
+                  className="bg-green-100 text-green-700 px-4 py-2 rounded-md hover:bg-green-200"
+                >
+                  Apply Commission
+                </button>
+
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => removeTransaction(index)} // Use the removeTransaction function
