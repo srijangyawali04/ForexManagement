@@ -27,7 +27,7 @@ export class Transactions {
   commission: number;
 
   @Column({ type: 'decimal', precision: 15, scale: 2 })
-  total_NPR: number;
+  NPR_amount: number;
 
   @Column({ type: 'varchar', length: 50 })  // Set default to 'Pending'
   created_by: string;

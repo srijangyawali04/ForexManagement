@@ -95,7 +95,7 @@ export const createVoucher = async (req: Request, res: Response) => {
         exchange_rate: transaction.exchange_rate,
         fc_amount: transaction.fc_amount,
         commission: transaction.commission,
-        total_NPR: transaction.total_NPR,
+        NPR_amount: transaction.NPR_amount,
         created_by: transaction.created_by,
         updated_by: transaction.updated_by,
         transaction_type: transaction.transaction_type, // Include transaction_type

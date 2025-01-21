@@ -54,7 +54,8 @@ export const VoucherTemplate = ({ voucher }) => {
   const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
   const travelOrderRef = voucher.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
-
+ 
+  // Total Commission
   const totalCommission = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = Number(t.fc_amount) || 0;
     const commission = voucherType === 'remit-in' && t.commission === undefined
@@ -63,175 +64,179 @@ export const VoucherTemplate = ({ voucher }) => {
     return sum + commission;
   }, 0);
 
+  // Directly use NRP_amount from the payload for total NRP
   const totalNRP = (voucher.transactions || []).reduce((sum, t) => {
-    const fcAmount = t.fc_amount || 0;
-    const exchangeRate = t.exchange_rate || 0;
-    const nprAmount = fcAmount * exchangeRate;
+    const nprAmount = parseFloat(t.NPR_amount) || 0;  // Convert NPR_amount to a number
     return sum + nprAmount;
   }, 0) || voucher.totalAmount || 0;
-
+  
   const netNRP = totalNRP - (totalCommission || 0);
   const amountInWords = numberToWords(netNRP); // Convert net amount to words
 
-  const renderCopy = () => (
-    <div className="bg-white p-8 max-w-full mx-auto border border-gray-300 print:border-black mb-8 print:mx-4 print:p-4">
-      <div className="printable-content">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <img src={logo} alt="Nepal Rastra Bank" className="w-16 h-16" />
-            <div>
-              <h1 className="text-lg font-bold">Nepal Rastra Bank</h1>
-              <p className="text-sm">Banking Department</p>
-              <p className="text-sm">Remittance Section</p>
+  const renderCopy = () => {  
+    return (
+      <div className="bg-white p-8 max-w-full mx-auto border border-gray-300 print:border-black mb-8 print:mx-4 print:p-4">
+        <div className="printable-content">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <img src={logo} alt="Nepal Rastra Bank" className="w-16 h-16" />
+              <div>
+                <h1 className="text-lg font-bold">Nepal Rastra Bank</h1>
+                <p className="text-sm">Banking Department</p>
+                <p className="text-sm">Remittance Section</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="font-semibold">Voucher No.: 2081/82-{voucherNo}</p>
+              <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="font-semibold">Voucher No.: 2081/82-{voucherNo}</p>
-            <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p>
-          </div>
-        </div>
-  
-        <div className="mb-4 space-y-1">
-          <div className="flex justify-between">
-            <p>Customer Name: {customerName}</p>
-            <p>Mobile No.: {mobileNo}</p>
-          </div>
-          <div className="flex justify-between">
-            <p>Passport No.: {passportNo}</p>
-            {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
-          </div>
-          <div>
-            <p>Address: {address}</p>
-          </div>
-          {travelOrderRef !== 'N/A' && (
-            <div>
-              <p>Travel Order Ref. No.: {travelOrderRef}</p>
+    
+          <div className="mb-4 space-y-1">
+            <div className="flex justify-between">
+              <p>Customer Name: {customerName}</p>
+              <p>Mobile No.: {mobileNo}</p>
             </div>
-          )}
-        </div>
-  
-        <table className="w-full mb-4 border-collapse">
-          <thead>
-            <tr className="border border-gray-400">
-              <th className="border border-gray-400 p-2">S.N.</th>
-              <th className="border border-gray-400 p-2">Currency</th>
-              <th className="border border-gray-400 p-2">
-                {voucherType === 'remit-out' ? 'Buying' : 'Selling'} Exchange Rate
-              </th>
-              <th className="border border-gray-400 p-2">FC Amount</th>
-              <th className="border border-gray-400 p-2">NPR Amount</th>
-              {voucherType === 'remit-in' && (
-                <th className="border border-gray-400 p-2">Commission (0.5%)</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {(voucher.transactions || []).map((transaction, index) => {
-              const fcAmount = transaction.fc_amount || 0;
-              const exchangeRate = transaction.exchange_rate || 0;
-              const commission = isNaN(transaction.commission) || transaction.commission === undefined
-                ? fcAmount * 0.005
-                : transaction.commission;
-              const nprAmount = fcAmount * exchangeRate;
-  
-              return (
-                <tr key={index} className="border border-gray-400">
-                  <td className="border border-gray-400 p-2 text-center">{index + 1}</td>
-                  <td className="border border-gray-400 p-2">{transaction.currency_iso_code}</td>
-                  <td className="border border-gray-400 p-2 text-right">
-                    {exchangeRate && !isNaN(Number(exchangeRate))
-                      ? Number(exchangeRate).toFixed(2)
-                      : '0.00'}
-                  </td>
-                  <td className="border border-gray-400 p-2 text-right">
-                    {formatAmount(fcAmount)}
-                  </td>
-                  <td className="border border-gray-400 p-2 text-right">
-                    {formatAmount(nprAmount)}
-                  </td>
-                  {voucherType === 'remit-in' && (
+            <div className="flex justify-between">
+              <p>Passport No.: {passportNo}</p>
+              {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
+            </div>
+            <div>
+              <p>Address: {address}</p>
+            </div>
+            {travelOrderRef !== 'N/A' && (
+              <div>
+                <p>Travel Order Ref. No.: {travelOrderRef}</p>
+              </div>
+            )}
+          </div>
+    
+          <table className="w-full mb-4 border-collapse">
+            <thead>
+              <tr className="border border-gray-400">
+                <th className="border border-gray-400 p-2">S.N.</th>
+                <th className="border border-gray-400 p-2">Currency</th>
+                <th className="border border-gray-400 p-2">
+                  {voucherType === 'remit-out' ? 'Buying' : 'Selling'} Exchange Rate
+                </th>
+                <th className="border border-gray-400 p-2">FC Amount</th>
+                <th className="border border-gray-400 p-2">NPR Amount</th>
+                {voucherType === 'remit-in' && (
+                  <th className="border border-gray-400 p-2">Commission (0.5%)</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {voucher.transactions?.map((transaction, index) => {  
+                const fcAmount = transaction.fc_amount || 0;
+                const exchangeRate = voucher.transactions?.[0]?.exhange_rate || transaction.exchange_rate || 0;
+                const commission = isNaN(transaction.commission) || transaction.commission === undefined
+                  ? fcAmount * 0.005
+                  : transaction.commission;
+                const nprAmount = transaction.NPR_amount || 0;  
+                return (
+                  <tr key={index} className="border border-gray-400">
+                    <td className="border border-gray-400 p-2 text-center">{index + 1}</td>
+                    <td className="border border-gray-400 p-2">{transaction.currency_iso_code}</td>
                     <td className="border border-gray-400 p-2 text-right">
-                      {formatAmount(commission)}
+                      {exchangeRate && !isNaN(Number(exchangeRate))
+                        ? Number(exchangeRate).toFixed(2)
+                        : '0.00'}
                     </td>
-                  )}
-                </tr>
-              );
-            })}
-            <tr className="border border-gray-400 font-bold">
-              <td colSpan={4} className="border border-gray-400 p-2 text-right">
-                Total
-              </td>
-              <td className="border border-gray-400 p-2 text-right">
-                {formatAmount(totalNRP)}
-              </td>
-              {voucherType === 'remit-in' && (
-                <td className="border border-gray-400 p-2 text-right">
-                  {formatAmount(totalCommission)}
-                </td>
-              )}
-            </tr>
-            {voucherType === 'remit-in' && (
+                    <td className="border border-gray-400 p-2 text-right">
+                      {formatAmount(fcAmount)}
+                    </td>
+                    <td className="border border-gray-400 p-2 text-right">
+                      {console.log('Rendering NRP_amount:', nprAmount)}
+                      {formatAmount(nprAmount)} {/* Display NRP_amount */}
+                    </td>
+                    {voucherType === 'remit-in' && (
+                      <td className="border border-gray-400 p-2 text-right">
+                        {formatAmount(commission)}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
               <tr className="border border-gray-400 font-bold">
                 <td colSpan={4} className="border border-gray-400 p-2 text-right">
-                  Net Total
+                  Total
                 </td>
-                <td colSpan={2} className="border border-gray-400 p-2 text-right">
-                  {formatAmount(netNRP)}
+                <td className="border border-gray-400 p-2 text-right">
+                  {formatAmount(totalNRP)}
+                </td>
+                {voucherType === 'remit-in' && (
+                  <td className="border border-gray-400 p-2 text-right">
+                    {formatAmount(totalCommission)}
+                  </td>
+                )}
+              </tr>
+              {voucherType === 'remit-in' && (
+                <tr className="border border-gray-400 font-bold">
+                  <td colSpan={4} className="border border-gray-400 p-2 text-right">
+                    Net Total
+                  </td>
+                  <td colSpan={2} className="border border-gray-400 p-2 text-right">
+                    {formatAmount(netNRP)}
+                  </td>
+                </tr>
+              )}
+              <tr className="border border-gray-400">
+                <td colSpan={6} className="border border-gray-400 p-2 text-right">
+                  <strong>Amount in Words:</strong> {amountInWords}<normal> Only</normal>
                 </td>
               </tr>
-            )}
-            <tr className="border border-gray-400">
-              <td colSpan={6} className="border border-gray-400 p-2 text-right">
-                <strong>Amount in Words:</strong> {amountInWords}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-  
-        <div className="flex justify-between mt-16">
-          <div className="text-center">
-            <div className="border-t border-gray-400 pt-1">
-              <p>Prepared by</p>
-              <p>{createdByInfo?.staff_name || '_________________'}</p>
-              <p>{createdByInfo?.designation || '_________________'}</p>
+            </tbody>
+          </table>
+    
+          <div className="flex justify-between mt-16">
+            <div className="text-center">
+              <div className="border-t border-gray-400 pt-1">
+                <p>Prepared by</p>
+                <p>{createdByInfo?.staff_name || '_________________'}</p>
+                <p>{createdByInfo?.designation || '_________________'}</p>
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="border-t border-gray-400 pt-1">
+                <p>Verified by</p>
+                <p>
+                  {voucher?.voucher_status === 'Verified' 
+                    ? verifiedByInfo?.staff_name || 'Pending' 
+                    : voucher?.voucher_status === 'Canceled' 
+                    ? 'Canceled' 
+                    : 'Pending'}
+                </p>
+                <p>
+                  {voucher?.voucher_status === 'Verified' 
+                    ? verifiedByInfo?.designation 
+                    : ''}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="text-center">
-            <div className="border-t border-gray-400 pt-1">
-              <p>Verified by</p>
-              <p>{verifiedByInfo?.staff_name || 'Pending'}</p>
-              <p>{verifiedByInfo?.designation}</p>
-            </div>
+          <br></br>
+    
+          <div className="text-sm mb-8">
+            <p>Note:</p>
+            <ul className="list-disc list-inside pl-4">
+              <li>Validity of this voucher is for same date only.</li>
+              <li>
+                This is only foreign currency exchange voucher and can't be presented as Invoice and
+                doesn't carry any legal obligations.
+              </li>
+              {voucher?.transactions?.some(transaction => transaction.transaction_type === 'remit-in') && (
+                <li>
+                  Commission will only be applied in denomination less than 50.
+                </li>
+              )}
+            </ul>
           </div>
         </div>
-        <br></br>
-  
-        <div className="text-sm mb-8">
-          <p>Note:</p>
-          <ul className="list-disc list-inside pl-4">
-            <li>Validity of this voucher is for same date only.</li>
-            <li>
-              This is only foreign currency exchange voucher and can't be presented as Invoice and
-              doesn't carry any legal obligations.
-            </li>
-            <li>
-              Commissin will only be applied in denominaton less than 50.
-            </li>
-          </ul>
-        </div>
       </div>
-    </div>
-  );
+    );
+  };
   
-
-
-  return (
-    <div>
-      <div className="print-container">
-        {renderCopy()}
-      </div>
-    </div>
-  );
+  return renderCopy();
+  
 };
-
-export default VoucherTemplate;

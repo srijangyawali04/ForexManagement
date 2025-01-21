@@ -44,7 +44,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
       exchange_rate: 0,               // Default exchange rate
       fc_amount: 0,                   // Default FCY amount
       commission: null,               // Commission set to null by default
-      total_NPR: 0,                   // Default Total NPR (sync with backend)
+      NPR_amount: 0,                   // Default Total NPR (sync with backend)
       created_by: authState.staffCode, // Current user
       verified_by: 'Pending',         // Default verification status
       transaction_type: voucherType,  // 'remit-in' or 'remit-out'
@@ -75,7 +75,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   
       // Recalculate the nprAmount based on fc_amount and exchange_rate
       if (field === 'fc_amount' || field === 'exchange_rate') {
-        updated.nprAmount = updated.fc_amount * updated.exchange_rate || 0;
+        updated.NPR_amount = updated.fc_amount * updated.exchange_rate || 0;
       }
   
       return updated;
@@ -89,7 +89,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
     const updatedTransactions = transactions.map((transaction, i) => {
       if (i === index && voucherType === 'remit-in') {
         // Calculate commission as 0.5% of NPR amount
-        const newCommission = transaction.nprAmount * 0.005;
+        const newCommission = transaction.NPR_amount * 0.005;
         return { ...transaction, commission: newCommission }; // Update commission only for the selected transaction
       }
       return transaction; // Leave other transactions unchanged
@@ -145,7 +145,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">FCY Amount</label>
+              <label className="block text-sm font-medium text-gray-700">FC Amount</label>
               <input
                 type="number"
                 value={transaction.fc_amount || ''} // Default value for fc_amount
@@ -156,10 +156,10 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">NPR Amount</label>
+              <label className="block text-sm font-medium text-gray-700">Amount NRP</label>
               <input
                 type="number"
-                value={transaction.nprAmount || ''} // Default value for fc_amount
+                value={transaction.NPR_amount || ''} // Default value for fc_amount
                 readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
               />

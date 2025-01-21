@@ -142,8 +142,8 @@ const VoucherList = ({ onVerify }) => {
             <th className="px-4 py-2 text-center">Created By</th>
             <th className="px-4 py-2 text-center">Created On</th>
             <th className="px-4 py-2 text-center">Voucher Status</th>
-            <th className="px-4 py-2 text-center">Verified/Cancelled By</th>
-            <th className="px-4 py-2 text-center">Verified/Cancelled On</th>
+            <th className="px-4 py-2 text-center">Verified/Canceled By</th>
+            <th className="px-4 py-2 text-center">Verified/Canceled On</th>
             <th className="px-4 py-2 text-center">Actions</th>
           </tr>
         </thead>

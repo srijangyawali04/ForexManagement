@@ -167,18 +167,23 @@ export default function UserList({ loading, onUpdateStatus }) {
         {/* Header Section */}
         <header className="bg-indigo-600 text-white p-4">
           <div className="container mx-auto flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-bold">Forex Management System</h1>
-              {authState.staffName && (  // Check if staffName exists in authState
-                <div className="text-sm">
-                  <span className="opacity-75">Welcome,</span>{' '}
-                  <span className="font-semibold">{authState.staffName}</span>{' '}
-                  <span className="bg-indigo-500 px-2 py-1 rounded-full text-xs">
-                    {authState.role}
-                  </span>
-                </div>
-              )}
-            </div>
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold">Remittance Voucher System</h1>
+            {authState.staffName && ( // Check if staffName exists in authState
+              <div className="text-sm">
+                <span className="opacity-75">Welcome,</span>{' '}
+                <span className="font-semibold">{authState.staffName}</span>{' '}
+                <span className="bg-indigo-500 px-2 py-1 rounded-full text-xs">
+                  {authState.role}
+                </span>{' '}
+                <span className="font-bold text-base ml-10">
+                  {new Date().toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+
+
             {/* Logout Button */}
             {authState.staffName && ( // Check if staffName exists in authState
               <button

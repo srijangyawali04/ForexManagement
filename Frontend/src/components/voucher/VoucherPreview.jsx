@@ -60,6 +60,9 @@ export function VoucherPreview({
   // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
 
+  // Check if the voucher is verified
+  const isVoucherVerified = voucher?.voucher_status === "Verified";
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
@@ -83,13 +86,13 @@ export function VoucherPreview({
             {authState.role !== "Creator" && (
               <button
                 onClick={onPrint}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500"
+                className={`bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 ${!isVoucherVerified ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={!isVoucherVerified} // Disable print button if voucher is not verified
               >
                 Print
               </button>
             )}
           </div>
-
         </div>
         <div className="p-6">
           <VoucherTemplate voucher={{ ...voucher, createdBy: authState?.staffName }} />

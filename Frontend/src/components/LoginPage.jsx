@@ -81,8 +81,10 @@ const LoginPage = () => {
         <div className="px-8 py-10 bg-white">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-semibold text-gray-800 mb-2">
-              Forex Management System
+              Remittance Voucher System
             </h1>
+            <h2 className="text-xl font-normal text-gray-800 mb-2">Banking Department</h2>
+            <br></br>
             <p className="text-gray-500 text-sm">Please login to your account</p>
           </div>
 

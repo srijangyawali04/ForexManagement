@@ -68,6 +68,7 @@ const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
           <option value="">Filter by Status</option>
           <option value="Verified">Verified</option>
           <option value="Pending">Pending</option>
+          <option value="Canceled">Canceled</option>
         </select>
       </div>
 
