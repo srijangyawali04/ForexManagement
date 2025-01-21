@@ -35,8 +35,8 @@ export class Voucher {
   @Column({ type: 'varchar', length: 255 })
   customer_address: string;
 
-  @Column({ type: 'int' , nullable: true})
-  itrs_code: number;
+  @Column({ type: 'varchar' , nullable: true})
+  itrs_code: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true, default: null})
   travel_order_ref_number: string;

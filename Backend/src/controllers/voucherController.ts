@@ -6,10 +6,10 @@ import { AppDataSource } from "../initializers/data-source";
 const voucherRepo = AppDataSource.getRepository(Voucher);
 const transactionRepo = AppDataSource.getRepository(Transactions);
 
-// Utility function to validate required fields
+// Utility function to validate required fields, excluding optional ones
 const validateRequiredFields = (fields: Record<string, any>): string | null => {
   for (const [key, value] of Object.entries(fields)) {
-    if (!value) {
+    if (!value && key !== 'itrs_code') { // Exclude 'itrs_code' from required fields
       return key; // Return the missing field
     }
   }
@@ -25,21 +25,19 @@ export const createVoucher = async (req: Request, res: Response) => {
       mobile_number,
       passport_number,
       itrs_code,
-      travel_order_ref_number = null, 
+      travel_order_ref_number = null,
       voucher_status = "Pending", 
       createdBy, 
       voucher_number, // Ensure voucher_number is sent
       transactions, // Array of transactions to be associated with the voucher
     } = req.body;
 
-
-    // Validate required fields
+    // Validate required fields, excluding 'itrs_code'
     const missingField = validateRequiredFields({
       customer_name,
       customer_address,
       mobile_number,
       passport_number,
-      itrs_code,
       voucher_status,
       createdBy,
       voucher_number, // Include voucher_number in validation
@@ -50,11 +48,6 @@ export const createVoucher = async (req: Request, res: Response) => {
       return res.status(400).json({
         message: `Missing required field: ${missingField}`,
       });
-    }
-
-    // Validate 'itrs_code' and 'voucher_status'
-    if (typeof itrs_code !== "number") {
-      return res.status(400).json({ message: "Invalid 'itrs_code'. It must be a number." });
     }
 
     const validVoucherStatuses = ["Pending", "Verified"];
@@ -71,7 +64,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       customer_address,
       mobile_number,
       passport_number,
-      itrs_code,
+      itrs_code, // Optional field, can be null
       travel_order_ref_number,
       voucher_status,
       createdBy, // Store the createdBy value from the request
@@ -107,7 +100,6 @@ export const createVoucher = async (req: Request, res: Response) => {
 
     // Wait for all transactions to be saved
     await Promise.all(transactionPromises);
-
 
     return res.status(201).json({
       message: "Voucher and transactions created successfully.",

@@ -168,7 +168,7 @@ export default function UserList({ loading, onUpdateStatus }) {
         <header className="bg-indigo-600 text-white p-4">
           <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold">Remittance Voucher System</h1>
+            <h1 className="text-xl font-bold">Remittance Voucher Generation System</h1>
             {authState.staffName && ( // Check if staffName exists in authState
               <div className="text-sm">
                 <span className="opacity-75">Welcome,</span>{' '}

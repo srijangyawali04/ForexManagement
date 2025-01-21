@@ -37,8 +37,8 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
   };
 
   const handleBlur = (field, fieldValue) => {
-    // Set error if the field is empty
-    if (fieldValue.trim() === '') {
+    // Set error if the field is empty (except for ITRS code which is optional)
+    if (fieldValue.trim() === '' && field !== 'itrsCode') {
       setErrors((prev) => ({ ...prev, [field]: true }));
     }
   };
@@ -49,7 +49,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            {isStaffVoucher ? 'Staff Name' : 'Customer Name'}
+            {isStaffVoucher ? 'Staff Name' : 'Customer Name'} *
           </label>
           <input
             type="text"
@@ -65,7 +65,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            {isStaffVoucher ? 'Staff Code' : 'Passport No'}
+            {isStaffVoucher ? 'Staff Code' : 'Passport No'} *
           </label>
           <input
             type="text"
@@ -80,7 +80,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           {errors.passportNo && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Address</label>
+          <label className="block text-sm font-medium text-gray-700">Address *</label>
           <input
             type="text"
             value={initialValues.address}
@@ -94,7 +94,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           {errors.address && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Mobile No</label>
+          <label className="block text-sm font-medium text-gray-700">Mobile No *</label>
           <input
             type="text"
             value={initialValues.mobileNo}
@@ -109,7 +109,7 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
         </div>
         {!isStaffVoucher && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">ITRS Code</label>
+            <label className="block text-sm font-medium text-gray-700">ITRS Code (Optional)</label>
             <input
               type="text"
               value={initialValues.itrsCode}

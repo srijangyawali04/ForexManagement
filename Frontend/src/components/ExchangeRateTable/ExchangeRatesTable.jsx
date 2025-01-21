@@ -41,6 +41,7 @@ const ExchangeRatesTable = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SN</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency ISO</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Buy Rate</th>
@@ -50,13 +51,14 @@ const ExchangeRatesTable = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {exchangeRates.map((rate) => {
+              {exchangeRates.map((rate, index) => {
                 // Parse the buy_rate and sell_rate to ensure they are numbers before calling .toFixed()
                 const buyRate = !isNaN(rate.buy_rate) ? parseFloat(rate.buy_rate).toFixed(4) : 'N/A';
                 const sellRate = !isNaN(rate.sell_rate) ? parseFloat(rate.sell_rate).toFixed(4) : 'N/A';
 
                 return (
                   <tr key={rate.currency_iso} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td> {/* SN */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{rate.currency_iso}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{rate.currency_name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{buyRate}</td>
