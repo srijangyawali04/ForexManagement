@@ -248,7 +248,7 @@ export const createVoucher = async (voucherData) => {
   }
 };
 
-
+// Change voucher status
 export const updateVoucherStatus = async (voucherNumber, action, loggedInUser) => {
   const requestBody = {
     action: action, 

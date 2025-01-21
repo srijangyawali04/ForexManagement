@@ -25,10 +25,9 @@ export const createVoucher = async (req: Request, res: Response) => {
       mobile_number,
       passport_number,
       itrs_code,
-      travel_order_ref_number = null, // Default to null if not provided
-      voucher_cancellation = null, // Default to null if not provided
-      voucher_status = "Pending", // Default to "Pending"
-      createdBy, // Ensure to get createdBy from the request body
+      travel_order_ref_number = null, 
+      voucher_status = "Pending", 
+      createdBy, 
       voucher_number, // Ensure voucher_number is sent
       transactions, // Array of transactions to be associated with the voucher
     } = req.body;
@@ -109,7 +108,7 @@ export const createVoucher = async (req: Request, res: Response) => {
     // Wait for all transactions to be saved
     await Promise.all(transactionPromises);
 
-    // Send response after both voucher and transactions are created
+
     return res.status(201).json({
       message: "Voucher and transactions created successfully.",
       data: { voucher: savedVoucher, transactions },
@@ -232,7 +231,6 @@ export const updateVoucherStatus = async (req: Request, res: Response) => {
       }
     }
 
-    // Save the updated voucher and log for debugging
     try {
       console.log('Saving updated voucher:', voucher);
       await voucherRepo.save(voucher);
@@ -241,11 +239,10 @@ export const updateVoucherStatus = async (req: Request, res: Response) => {
       return res.status(500).json({ message: 'Error saving voucher', error: voucherSaveError.message });
     }
 
-    // Return success response with updated voucher and transactions
     return res.status(200).json({
       message: `Voucher ${action}d successfully.`,
       voucher,
-      transactions: voucher.transactions, // Return updated transactions along with the voucher
+      transactions: voucher.transactions, 
     });
 
   } catch (error) {

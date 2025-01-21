@@ -41,3 +41,41 @@
   }
 }
 
+@media print {
+  @page {
+    size: A4;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-content, .printable-content * {
+    visibility: visible;
+  }
+
+  .printable-content {
+    border: 1px solid black; 
+    padding: 25px;
+    margin: 0; 
+    width: 100%;
+    max-width: 100%; 
+    box-sizing: border-box;
+    padding-left: 10mm;
+    padding-right: 10mm;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+}

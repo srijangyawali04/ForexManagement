@@ -68,27 +68,14 @@
 
 /* Print-Specific Styles */
 @media print {
-  body * {
-    visibility: hidden;
+  /* Hide non-printable elements like buttons */
+  .voucher-print-content button,
+  .voucher-print-content .voucher-actions {
+    display: none;
   }
-  .print-container,
-  .print-container * {
-    visibility: visible;
-  }
-  .print-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 21cm; /* A4 Width */
-    height: 29.7cm; /* A4 Height */
-    padding: 10mm; /* Adjust padding to fit content */
-    margin: 0;
-  }
-  .print-button {
-    display: none; /* Hide the print button */
-  }
-  .separator {
-    display: none; /* Hide separator for print */
+
+  .voucher-content {
+    display: block;
   }
 }
 

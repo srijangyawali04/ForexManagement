@@ -74,6 +74,12 @@ export function VoucherPreview({
                 Generate Voucher
               </button>
             )}
+            <button
+              onClick={onClose}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
+            >
+              Close
+            </button>
             {authState.role !== "Creator" && (
               <button
                 onClick={onPrint}
@@ -82,13 +88,8 @@ export function VoucherPreview({
                 Print
               </button>
             )}
-            <button
-              onClick={onClose}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"
-            >
-              Close
-            </button>
           </div>
+
         </div>
         <div className="p-6">
           <VoucherTemplate voucher={{ ...voucher, createdBy: authState?.staffName }} />
