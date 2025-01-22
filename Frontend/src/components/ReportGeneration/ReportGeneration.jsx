@@ -1,18 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Calendar, CalendarDays, DollarSign, FileText, FileSpreadsheet, X } from 'lucide-react';
-
-const CURRENCIES = [
-  { code: 'all', name: 'All Currencies' },
-  { code: 'USD', name: 'US Dollar (USD)' },
-  { code: 'EUR', name: 'Euro (EUR)' },
-  { code: 'GBP', name: 'British Pound (GBP)' },
-  { code: 'JPY', name: 'Japanese Yen (JPY)' },
-  { code: 'AUD', name: 'Australian Dollar (AUD)' },
-  { code: 'CAD', name: 'Canadian Dollar (CAD)' },
-  { code: 'CHF', name: 'Swiss Franc (CHF)' },
-  { code: 'CNY', name: 'Chinese Yuan (CNY)' },
-  { code: 'INR', name: 'Indian Rupee (INR)' },
-];
+import { fetchExchangeRates , fetchTransactionReport} from '../../services/api';
 
 const VOUCHER_TYPES = [
   { code: 'all', name: 'All Types' },
@@ -23,9 +11,51 @@ const VOUCHER_TYPES = [
 export const TransactionDateFilter = ({ onFilterChange }) => {
   const [filterType, setFilterType] = useState('today');
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
+  const [currencies, setCurrencies] = useState([{ code: 'all', name: 'All Currencies' }]);
   const [selectedCurrency, setSelectedCurrency] = useState('all');
   const [selectedVoucherType, setSelectedVoucherType] = useState('all');
   const [showReport, setShowReport] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [transactionData, setTransactionData] = useState(null);
+
+  useEffect(() => {
+    const getCurrencyName = async () => {
+      try {
+        const rates = await fetchExchangeRates();
+        
+        // Transform the fetched rates to match the structure of the CURRENCIES array
+        const currencyList = rates.map((rate) => ({
+          code: rate.currency_iso,
+          name: `${rate.currency_name} (${rate.currency_iso})`, // Use currency_name and currency_iso
+        }));
+
+        // Prepend the "All Currencies" option
+        setCurrencies([{ code: 'all', name: 'All Currencies' }, ...currencyList]);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch exchange rates:', error);
+        setLoading(false);
+      }
+    };
+
+    getCurrencyName();
+  }, []);
+
+  useEffect(() => {
+    if (transactionData) {
+      console.log("Transaction Data Loaded:", transactionData);
+    }
+  }, [transactionData]);
+  
+  const handleCurrencyChange = (currency) => {
+    setSelectedCurrency(currency);
+    onFilterChange({
+      dates: filterType === 'today' ? new Date().toISOString().split('T')[0] : dateRange,
+      currency,
+      voucherType: selectedVoucherType,
+    });
+  };
+
 
   const handleFilterTypeChange = (type) => {
     setFilterType(type);
@@ -56,15 +86,8 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
       });
     }
   };
+  
 
-  const handleCurrencyChange = (currency) => {
-    setSelectedCurrency(currency);
-    onFilterChange({
-      dates: filterType === 'today' ? new Date().toISOString().split('T')[0] : dateRange,
-      currency,
-      voucherType: selectedVoucherType,
-    });
-  };
 
   const handleVoucherTypeChange = (type) => {
     setSelectedVoucherType(type);
@@ -75,9 +98,44 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
     });
   };
 
-  const handleCreateReport = () => {
-    setShowReport(true);
+  const handleCreateReport = async () => {
+    setLoading(true); // Set loading to true when the report is being fetched
+    try {
+      let filters = {};
+  
+      // Check if the "today" filter is selected
+      if (filterType === 'today') {
+        filters.today = true;
+      } else {
+        // Use date range if not 'today'
+        filters.startDate = dateRange.startDate; // Assuming dateRange has a startDate and endDate property
+        filters.endDate = dateRange.endDate;
+      }
+  
+      // Include the currency filter if selected
+      if (selectedCurrency && selectedCurrency !== 'all') {
+        filters.currency = selectedCurrency;
+      }
+  
+      // Include the transaction type if selected and it's not 'all'
+      if (selectedVoucherType && selectedVoucherType !== 'all') {
+        filters.transactionType = selectedVoucherType;
+      }
+  
+      // Fetch the transaction report using the constructed filters
+      const data = await fetchTransactionReport(filters);
+      
+      // Store the fetched data in state
+      setTransactionData(data);
+    } catch (error) {
+      console.error('Error fetching transaction report:', error);
+    } finally {
+      setLoading(false); // Set loading to false after the data is fetched or if an error occurred
+    }
   };
+  
+  
+  
 
   const handleClearFilter = (type) => {
     if (type === 'currency') {
@@ -93,7 +151,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
     if (selectedCurrency !== 'all') {
       filters.push({
         type: 'currency',
-        label: CURRENCIES.find((c) => c.code === selectedCurrency)?.name,
+        label: currencies.find((c) => c.code === selectedCurrency)?.name,
       });
     }
 
@@ -175,7 +233,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
                 onChange={(e) => handleCurrencyChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
               >
-                {CURRENCIES.map((currency) => (
+                {currencies.map((currency) => (
                   <option key={currency.code} value={currency.code}>
                     {currency.name}
                   </option>
@@ -228,28 +286,95 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
         </div>
       </div>
 
+      {/* Temporary Report Display */}
       {showReport && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FileSpreadsheet className="w-5 h-5" />
-            Transaction Report
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Date Range</div>
-              <div className="text-sm text-gray-700">{filterType === 'today' ? 'Today' : `${dateRange.startDate} to ${dateRange.endDate}`}</div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Currency</div>
-              <div className="text-sm text-gray-700">{CURRENCIES.find((c) => c.code === selectedCurrency)?.name}</div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Voucher Type</div>
-              <div className="text-sm text-gray-700">{VOUCHER_TYPES.find((t) => t.code === selectedVoucherType)?.name}</div>
+        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <FileSpreadsheet className="w-5 h-5" />
+              Transaction Report
+            </h2>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowReport(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Close
+              </button>
             </div>
           </div>
+
+          {filteredTransactions.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Description
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredTransactions.map((transaction) => (
+                    <tr key={transaction.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {transaction.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                        {transaction.type}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {transaction.description}
+                      </td>
+                      <td
+                        className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
+                          transaction.amount >= 0 ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {transaction.amount.toLocaleString("en-US", {
+                          style: "currency",
+                          currency: transaction.currency,
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot className="bg-gray-50">
+                  <tr>
+                    <td colSpan={3} className="px-6 py-4 text-sm font-medium text-gray-900">
+                      Total
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                      {filteredTransactions
+                        .reduce((acc, curr) => acc + curr.amount, 0)
+                        .toLocaleString("en-US", {
+                          style: "currency",
+                          currency: selectedCurrency === "all" ? "USD" : selectedCurrency,
+                        })}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              No transactions found for the selected filters.
+            </div>
+          )}
         </div>
       )}
+
+
+
     </div>
   );
 };

@@ -366,3 +366,31 @@ export const fetchTotalVoucherCount = async () => {
   }
 };
 
+// api.jsx
+export const fetchTransactionReport = async (filters) => {
+  try {
+    // Construct the URL with query parameters based on the filters
+    const queryParams = new URLSearchParams(filters).toString();
+    const url = `${apiUrl}/api/transaction/report-generation?${queryParams}`;
+
+    // Send a GET request to the server
+    const response = await fetch(url, {
+      method: 'GET', // Adjust the method if necessary
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch transaction report: ${response.statusText}`);
+    }
+
+    // Parse the JSON data from the response
+    const data = await response.json();
+
+    return data; // Return the transaction data
+  } catch (error) {
+    console.error('Error fetching transaction report:', error);
+    throw error;
+  }
+};

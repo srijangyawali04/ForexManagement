@@ -11,6 +11,6 @@ const router = express.Router();
 router.get("/",fetchAllTransactions);
 
 // Define the route for fetching specific transactions
-router.get('/transactions', fetchSpecificTransactions);
+router.get('/report-generation', fetchSpecificTransactions);
 
 export default router;
