@@ -25,12 +25,16 @@ export const createVoucher = async (req: Request, res: Response) => {
       mobile_number,
       passport_number,
       itrs_code,
+      visiting_country,
+      purpose_of_visit,
+      source_of_foreign_currency,
       travel_order_ref_number = null,
       voucher_status = "Pending", 
       createdBy, 
       voucher_number, // Ensure voucher_number is sent
       transactions, // Array of transactions to be associated with the voucher
     } = req.body;
+    console.log('Request Body:', req.body);
 
     // Validate required fields, excluding 'itrs_code'
     const missingField = validateRequiredFields({
@@ -64,6 +68,9 @@ export const createVoucher = async (req: Request, res: Response) => {
       customer_address,
       mobile_number,
       passport_number,
+      visiting_country,
+      purpose_of_visit,
+      source_of_foreign_currency,
       itrs_code, // Optional field, can be null
       travel_order_ref_number,
       voucher_status,

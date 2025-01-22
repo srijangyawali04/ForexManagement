@@ -58,7 +58,7 @@ const ExchangeRatesTable = () => {
 
                 return (
                   <tr key={rate.currency_iso} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td> {/* SN */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{rate.currency_iso}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{rate.currency_name}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{buyRate}</td>

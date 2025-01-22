@@ -40,6 +40,9 @@ export default function VoucherForm({ onSubmit }) {
       customer,
       transactions,
       totalAmount,
+      visitingCountry: voucherType == 'remit-in',
+      purposeOfVisit: voucherType == 'remit-out',
+      sourceOfForeignCurrency: voucherType == 'remit-out',
       netTotal: voucherType === 'remit-in' ? totalAmount - commission : totalAmount,
       createdBy: authState?.staffCode || 'Unknown',
       travelOrderRef: voucherType === 'staff' ? `HRMD...${Math.random().toString(36).slice(2, 8)}` : undefined,
@@ -65,20 +68,6 @@ export default function VoucherForm({ onSubmit }) {
     window.print();
   };
 
-  // Function to apply commission when button is pressed
-  const applyCommission = () => {
-    const updatedTransactions = transactions.map((transaction) => {
-      if (voucherType === 'remit-in') {
-        transaction.commission = transaction.nprAmount * 0.005; // Apply 0.5% commission for 'remit-in'
-      } else {
-        transaction.commission = undefined; // No commission for 'remit-out'
-      }
-      return transaction;
-    });
-    setTransactions(updatedTransactions); // Update the transactions state with applied commission
-    setCommissionApplied(true); // Set flag to true after applying commission
-  };
-
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,8 +86,10 @@ export default function VoucherForm({ onSubmit }) {
         <CustomerForm
           value={customer}
           onChange={setCustomer}
-          isStaffVoucher={voucherType === 'staff'}
+          voucherType={voucherType} // Pass voucherType as a prop
+          key={voucherType} // Use voucherType as a key to trigger re-rendering
         />
+
 
         <TransactionForm
           transactions={transactions}

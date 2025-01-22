@@ -38,6 +38,15 @@ export class Voucher {
   @Column({ type: 'varchar' , nullable: true})
   itrs_code: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true }) 
+  visiting_country: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true }) 
+  purpose_of_visit: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true }) 
+  source_of_foreign_currency: string;
+
   @Column({ type: 'varchar', length: 100, nullable: true, default: null})
   travel_order_ref_number: string;
 

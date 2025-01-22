@@ -1,43 +1,48 @@
 import React, { useState, useEffect } from 'react';
 
-export function CustomerForm({ value, onChange, isStaffVoucher }) {
+export function CustomerForm({ value, onChange, voucherType }) {
   const [errors, setErrors] = useState({});
   const [initialValues, setInitialValues] = useState({
     name: '',
     passportNo: '',
     address: '',
     mobileNo: '',
-    itrsCode: ''
+    itrsCode: '',
+    visitingCountry: '',
+    purposeOfVisit: '',
+    sourceOfForeignCurrency: '',
   });
 
-  // Initialize form values if provided via props
+  // Refresh initialValues whenever voucherType changes
   useEffect(() => {
-    if (value) {
-      setInitialValues({
-        name: value.name || '',
-        passportNo: value.passportNo || '',
-        address: value.address || '',
-        mobileNo: value.mobileNo || '',
-        itrsCode: value.itrsCode || ''
-      });
-    }
-  }, [value]);
+    const updatedValues = {
+      name: '',
+      passportNo: '',
+      address: '',
+      mobileNo: '',
+      itrsCode: '',
+      visitingCountry: '',
+      purposeOfVisit: '',
+      sourceOfForeignCurrency: '',
+      ...value,
+    };
+    setInitialValues(updatedValues);
+  }, [voucherType, value]);
 
   const handleChange = (field, fieldValue) => {
-    // Update the field value in the parent component
-    onChange({
-      ...initialValues,
-      [field]: fieldValue,
-    });
+    const updatedValues = { ...initialValues, [field]: fieldValue };
+    setInitialValues(updatedValues);
+    onChange(updatedValues);
 
-    // Clear error if the field is no longer empty
+    // Set errors only if the field is required and is empty
     if (fieldValue.trim() !== '') {
       setErrors((prev) => ({ ...prev, [field]: false }));
+    } else {
+      setErrors((prev) => ({ ...prev, [field]: true }));
     }
   };
 
   const handleBlur = (field, fieldValue) => {
-    // Set error if the field is empty (except for ITRS code which is optional)
     if (fieldValue.trim() === '' && field !== 'itrsCode') {
       setErrors((prev) => ({ ...prev, [field]: true }));
     }
@@ -47,9 +52,10 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
     <div className="space-y-4">
       <h3 className="text-lg font-medium">Customer Information</h3>
       <div className="grid grid-cols-2 gap-4">
+        {/* Customer/Staff Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            {isStaffVoucher ? 'Staff Name' : 'Customer Name'} *
+            {voucherType === 'staff' ? 'Staff Name' : 'Customer Name'} *
           </label>
           <input
             type="text"
@@ -63,10 +69,10 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           />
           {errors.name && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
+
+        {/* Passport Number */}
         <div>
-          <label className="block text-sm font-medium text-gray-700">
-            {isStaffVoucher ? 'Staff Code' : 'Passport No'} *
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Passport No *</label>
           <input
             type="text"
             value={initialValues.passportNo}
@@ -79,6 +85,8 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           />
           {errors.passportNo && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
+
+        {/* Address */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Address *</label>
           <input
@@ -93,6 +101,8 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           />
           {errors.address && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
+
+        {/* Mobile Number */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Mobile No *</label>
           <input
@@ -107,21 +117,77 @@ export function CustomerForm({ value, onChange, isStaffVoucher }) {
           />
           {errors.mobileNo && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
-        {!isStaffVoucher && (
+
+        {/* Conditional Fields */}
+        {voucherType === 'remit-in' && (
           <div>
-            <label className="block text-sm font-medium text-gray-700">ITRS Code (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Source of Foreign Currency *
+            </label>
             <input
               type="text"
-              value={initialValues.itrsCode}
-              onChange={(e) => handleChange('itrsCode', e.target.value)}
-              onBlur={(e) => handleBlur('itrsCode', e.target.value)}
+              value={initialValues.sourceOfForeignCurrency}
+              onChange={(e) => handleChange('sourceOfForeignCurrency', e.target.value)}
+              onBlur={(e) => handleBlur('sourceOfForeignCurrency', e.target.value)}
               className={`mt-1 block w-full rounded-md border ${
-                errors.itrsCode ? 'border-red-500' : 'border-gray-300'
+                errors.sourceOfForeignCurrency ? 'border-red-500' : 'border-gray-300'
               } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+              required
             />
-            {errors.itrsCode && <p className="text-red-500 text-sm">This field is required.</p>}
+            {errors.sourceOfForeignCurrency && (
+              <p className="text-red-500 text-sm">This field is required.</p>
+            )}
           </div>
         )}
+        {voucherType === 'remit-out' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Visiting Country *</label>
+              <input
+                type="text"
+                value={initialValues.visitingCountry}
+                onChange={(e) => handleChange('visitingCountry', e.target.value)}
+                onBlur={(e) => handleBlur('visitingCountry', e.target.value)}
+                className={`mt-1 block w-full rounded-md border ${
+                  errors.visitingCountry ? 'border-red-500' : 'border-gray-300'
+                } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+                required
+              />
+              {errors.visitingCountry && (
+                <p className="text-red-500 text-sm">This field is required.</p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Purpose of Visit *</label>
+              <input
+                type="text"
+                value={initialValues.purposeOfVisit}
+                onChange={(e) => handleChange('purposeOfVisit', e.target.value)}
+                onBlur={(e) => handleBlur('purposeOfVisit', e.target.value)}
+                className={`mt-1 block w-full rounded-md border ${
+                  errors.purposeOfVisit ? 'border-red-500' : 'border-gray-300'
+                } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+                required
+              />
+              {errors.purposeOfVisit && (
+                <p className="text-red-500 text-sm">This field is required.</p>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ITRS Code */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            ITRS Code (Optional)
+          </label>
+          <input
+            type="text"
+            value={initialValues.itrsCode}
+            onChange={(e) => handleChange('itrsCode', e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
       </div>
     </div>
   );

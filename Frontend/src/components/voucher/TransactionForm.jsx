@@ -37,7 +37,18 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
     return exchangeRateForUnit;
   };
 
+  // Check if exchange rates are up-to-date
+  const isExchangeRateValid = exchangeRates.every(
+    (rate) => new Date(rate.fetchedAt).toISOString().split('T')[0] === new Date().toISOString().split('T')[0]
+  );
+
+  // Prevent adding a new transaction if exchange rates are not valid
   const addTransaction = () => {
+    if (!isExchangeRateValid) {
+      alert('Exchange rates are not up-to-date. Please refresh the rates and try again.');
+      return; // Prevent adding a new transaction
+    }
+
     const newTransaction = {
       currency_name: '',              // Initially empty
       currency_iso_code: '',          // Initially empty
@@ -59,6 +70,11 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   };
 
   const updateTransaction = (index, field, value) => {
+    if (!isExchangeRateValid) {
+      alert('Exchange rates are not up-to-date. Please refresh the rates and try again.');
+      return; // Prevent updating the transaction if exchange rates are not valid
+    }
+
     const updatedTransactions = transactions.map((t, i) => {
       if (i !== index) return t;
   
@@ -98,8 +114,6 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
     onChange(updatedTransactions); // Update the transactions with the new commission
   };
   
-  
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
