@@ -1,8 +1,16 @@
-// import express from "express";
-// import { createTransaction } from "../controllers/transactionController";
+import express from "express";
+import {fetchAllTransactions, fetchSpecificTransactions} from "../controllers/transactionController";
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.post("/", createTransaction);
+// Specify the specific method to use for the route
+// router.post("/report-generation", ReportGenerationController.reportGeneration);
 
-// export default router;
+
+//fetch all transaction
+router.get("/",fetchAllTransactions);
+
+// Define the route for fetching specific transactions
+router.get('/transactions', fetchSpecificTransactions);
+
+export default router;
