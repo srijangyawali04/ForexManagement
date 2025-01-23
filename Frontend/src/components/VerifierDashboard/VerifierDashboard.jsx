@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import VoucherForm from '../voucher/VoucherForm';
 import VoucherList from '../voucher/VoucherList';
 import { VoucherPreview } from '../voucher/VoucherPreview';
 import { fetchLoggedInUser, updateVoucherStatus , fetchVouchers } from '../../services/api'; // Import necessary functions
 import ExchangeRatesTable from '../ExchangeRateTable/ExchangeRatesTable';
-
+import {TransactionDateFilter} from '../ReportGeneration/ReportGeneration';
 
 const VerifierDashboard = () => {
   const { authState, logout } = useAuth();
@@ -63,6 +62,9 @@ const VerifierDashboard = () => {
     }
   };
 
+  const handleFilterChange = (filter) => {
+    // console.log('Filter updated:', filter);
+  };
 
   // Handle previewing a voucher
   const handlePreviewVoucher = (voucher) => {
@@ -122,6 +124,12 @@ const VerifierDashboard = () => {
         >
           Exchange Rates
         </button>
+        <button
+            className={`px-4 py-2 rounded ${view === 'report' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
+            onClick={() => setView('report')}
+          >
+            Report
+          </button>
       </div>
 
       {/* Content */} 
@@ -134,6 +142,7 @@ const VerifierDashboard = () => {
           />
         )}
         {view === 'exchangeRates' && <ExchangeRatesTable />}
+        {view === 'report' && <TransactionDateFilter onFilterChange={handleFilterChange}/>}
 
       </div>
 

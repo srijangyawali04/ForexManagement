@@ -38,7 +38,6 @@
 
     const handleFilterChange = (filter) => {
       console.log('Filter updated:', filter);
-      // Perform actions based on the updated filter
     };
 
     const handleVerifyVoucher = (voucherId) => {

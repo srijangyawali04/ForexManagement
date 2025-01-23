@@ -14,7 +14,6 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   const [currencies, setCurrencies] = useState([{ code: 'all', name: 'All Currencies' }]);
   const [selectedCurrency, setSelectedCurrency] = useState('all');
   const [selectedVoucherType, setSelectedVoucherType] = useState('all');
-  const [showReport, setShowReport] = useState(false);
   const [loading, setLoading] = useState(true);
   const [transactionData, setTransactionData] = useState([]);
 
