@@ -16,7 +16,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   const [selectedVoucherType, setSelectedVoucherType] = useState('all');
   const [showReport, setShowReport] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [transactionData, setTransactionData] = useState(null);
+  const [transactionData, setTransactionData] = useState([]);
 
   useEffect(() => {
     const getCurrencyName = async () => {
@@ -40,15 +40,10 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
 
     getCurrencyName();
   }, []);
-
-  useEffect(() => {
-    if (transactionData) {
-      console.log("Transaction Data Loaded:", transactionData);
-    }
-  }, [transactionData]);
   
   const handleCurrencyChange = (currency) => {
     setSelectedCurrency(currency);
+    setTransactionData([]);
     onFilterChange({
       dates: filterType === 'today' ? new Date().toISOString().split('T')[0] : dateRange,
       currency,
@@ -59,6 +54,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
 
   const handleFilterTypeChange = (type) => {
     setFilterType(type);
+    setTransactionData([]);
     if (type === 'today') {
       const today = new Date().toISOString().split('T')[0];
       onFilterChange({
@@ -78,6 +74,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   const handleDateChange = (field, value) => {
     const newDateRange = { ...dateRange, [field]: value };
     setDateRange(newDateRange);
+    setTransactionData([]);
     if (filterType === 'specific') {
       onFilterChange({
         dates: newDateRange,
@@ -91,6 +88,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
 
   const handleVoucherTypeChange = (type) => {
     setSelectedVoucherType(type);
+    setTransactionData([]);
     onFilterChange({
       dates: filterType === 'today' ? new Date().toISOString().split('T')[0] : dateRange,
       currency: selectedCurrency,
@@ -166,6 +164,32 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   };
 
   const activeFilters = getActiveFilters();
+
+   // Calculate totals for remit-in and remit-out transactions
+   const totals = (transactionData.data || []).reduce((acc, transaction) => {
+    const nprAmount = parseFloat(transaction.NPR_amount);
+    let commission = parseFloat(transaction.commission);
+  
+    // If commission is NaN, set it to 0 so it doesn't affect the total
+    if (isNaN(commission)) {
+      commission = 0;
+    }
+  
+    if (transaction.transaction_type === 'remit-in') {
+      acc.remitIn.nprAmount += nprAmount;
+      acc.remitIn.commission += commission;
+      acc.remitIn.netTotal = acc.remitIn.nprAmount - acc.remitIn.commission;
+    } else if (transaction.transaction_type === 'remit-out') {
+      acc.remitOut.netTotal += nprAmount;
+    }
+  
+    return acc;
+  }, {
+    remitIn: { nprAmount: 0, commission: 0, netTotal: 0 },
+    remitOut: { netTotal: 0 }
+  });
+
+  
 
   return (
     <div className="space-y-4">
@@ -286,94 +310,194 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
         </div>
       </div>
 
-      {/* Temporary Report Display */}
-      {showReport && (
-        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <FileSpreadsheet className="w-5 h-5" />
-              Transaction Report
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowReport(false)}
-                className="text-gray-500 hover:text-gray-700"
+      {/* Table */}
+      <div className="mt-8 overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead>
+            <tr className="bg-gray-50">
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Close
-              </button>
-            </div>
-          </div>
-
-          {filteredTransactions.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredTransactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.date}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
-                        {transaction.type}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {transaction.description}
-                      </td>
-                      <td
-                        className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
-                          transaction.amount >= 0 ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        {transaction.amount.toLocaleString("en-US", {
-                          style: "currency",
-                          currency: transaction.currency,
+                SN
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Voucher Date
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Currency
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                ISO Code
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Voucher Type
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Exchange Rate
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                FC Amount
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                NPR Amount
+              </th>
+              {selectedVoucherType !== 'remit-out' && (
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Commission
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {loading ? (
+              <tr>
+                <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
+                  <div className="flex items-center justify-center space-x-2">
+                    <FileSpreadsheet className="animate-spin h-5 w-5" />
+                    <span>Loading transactions...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : !transactionData?.data || transactionData.data.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
+                  No transactions found. Try adjusting your filters.
+                </td>
+              </tr>
+            ) : (
+              transactionData.data.map((transaction, index) => (
+                <tr key={transaction.transaction_id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {index + 1} {/* Serial number */}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {transaction.voucher_date}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {transaction.currency_name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {transaction.currency_iso_code}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">
+                    {transaction.transaction_type}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {parseFloat(transaction.exchange_rate).toFixed(4)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {parseFloat(transaction.fc_amount).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {parseFloat(transaction.NPR_amount).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                  {selectedVoucherType !== 'remit-out' && (
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {isNaN(parseFloat(transaction.commission)) 
+                        ? "No Commission" 
+                        : parseFloat(transaction.commission).toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
                         })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-gray-50">
-                  <tr>
-                    <td colSpan={3} className="px-6 py-4 text-sm font-medium text-gray-900">
-                      Total
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
-                      {filteredTransactions
-                        .reduce((acc, curr) => acc + curr.amount, 0)
-                        .toLocaleString("en-US", {
-                          style: "currency",
-                          currency: selectedCurrency === "all" ? "USD" : selectedCurrency,
-                        })}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No transactions found for the selected filters.
-            </div>
-          )}
-        </div>
-      )}
+                  )}
 
+                </tr>
+              ))
+            )}
+            {/* Summary Rows */}
+            {/* Remit In Summary */}
+            {selectedVoucherType !== 'remit-out' && (
+              <>
+                <tr className="bg-green-50">
+                  <td className="px-6 py-2 whitespace-nowrap text-base font-bold text-green-700">
+                    Remit In
+                  </td>
+                  <td colSpan={6} className="px-6 py-2 whitespace-nowrap text-sm text-right text-green-700">
+                    Total:
+                  </td>
+                  <td className="px-6 py-2 whitespace-nowrap text-sm  text-green-700">
+                    {totals.remitIn.nprAmount.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                  <td className="px-6 py-2 whitespace-nowrap text-sm  text-green-700">
+                    {totals.remitIn.commission.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                </tr>
+                <tr className="bg-green-50">
+                  <td className="px-6 py-2 whitespace-nowrap text-sm font-medium text-green-700">
+                  </td>
+                  <td colSpan={6} className="px-6 py-2 whitespace-nowrap text-base text-right text-green-700">
+                    Remittance In Net Total:
+                  </td>
+                  <td colSpan={2} className="px-6 py-2 whitespace-nowrap text-base font-bold text-green-700">
+                    {totals.remitIn.netTotal.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                </tr>
+              </>
+            )}
 
+            {/* Remit Out Summary */}
+            {selectedVoucherType !== 'remit-in' && (
+              <>
+                <tr className="bg-red-50">
+                  <td className="px-6 py-2 whitespace-nowrap text-base font-bold text-red-700">
+                    Remit Out
+                  </td>
+                  <td colSpan={6} className="px-6 py-2 whitespace-nowrap text-base text-right text-red-700">
+                    Remittance Out Total:
+                  </td>
+                  <td colSpan={2} className="px-6 py-2 whitespace-nowrap text-base font-bold text-red-700">
+                    {totals.remitOut.netTotal.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </td>
+                </tr>
+              </>
+            )}
+          </tbody>
+        </table>
+      </div>
 
     </div>
   );
