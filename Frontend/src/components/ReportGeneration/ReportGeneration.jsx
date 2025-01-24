@@ -1,6 +1,7 @@
 import React, { useState , useEffect} from 'react';
 import { Calendar, CalendarDays, DollarSign, FileText, FileSpreadsheet, X } from 'lucide-react';
 import { fetchExchangeRates , fetchTransactionReport} from '../../services/api';
+import generateTransactionPDF from '../../utils/pdfGenerator';
 
 const VOUCHER_TYPES = [
   { code: 'all', name: 'All Types' },
@@ -17,6 +18,7 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   const [loading, setLoading] = useState(true);
   const [transactionData, setTransactionData] = useState([]);
 
+  console.log(transactionData); 
   useEffect(() => {
     const getCurrencyName = async () => {
       try {
@@ -188,6 +190,37 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
     remitOut: { netTotal: 0 }
   });
 
+  const handleDownloadPDF = () => {
+    // Validate and get the selected currency from transactionData
+    const transactions = transactionData.data || [];
+    const currency = transactions.length > 0 && transactions[0].currency_name ? transactions[0].currency_name : 'N/A'; // Default if no data
+  
+    // Validate transaction_type from transactionData
+    const transactionType = transactionData.transaction_type || 'N/A'; // Default if not found
+  
+    // Ensure the totals are valid numbers
+    const remitInTotal = totals.remitIn.nprAmount;
+    const remitInCommission = totals.remitIn.commission;
+    const remitInNetTotal = totals.remitIn.netTotal;
+    const remitOutTotal = totals.remitOut.netTotal;
+    
+  
+    generateTransactionPDF({
+      startDate: dateRange.startDate,  // Start date from dateRange
+      endDate: dateRange.endDate,      // End date from dateRange
+      currency,              
+      voucherType: transactionType,    // Transaction type from transactionData
+      transactions,   
+      remitInTotal,
+      remitInCommission,
+      remitInNetTotal,
+      remitOutTotal
+    });
+  };
+  
+  
+  
+  
   
 
   return (
@@ -304,6 +337,13 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
             >
               <FileSpreadsheet className="w-4 h-4" />
               Create Report
+            </button>
+            <button
+              onClick={handleDownloadPDF}
+              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ml-3"
+            >
+              <FileText className="w-4 h-4" />
+              Download PDF
             </button>
           </div>
         </div>
