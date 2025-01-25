@@ -26,6 +26,9 @@ export class Voucher {
   @Column({ type: 'varchar', length: 255 })
   customer_name: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  voucher_staff_code: string;
+
   @Column({ type: 'varchar', length: 255 })
   passport_number: string;
 

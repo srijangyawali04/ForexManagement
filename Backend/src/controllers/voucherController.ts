@@ -21,6 +21,7 @@ export const createVoucher = async (req: Request, res: Response) => {
   try {
     const {
       customer_name,
+      voucher_staff_code,
       customer_address,
       mobile_number,
       passport_number,
@@ -65,6 +66,7 @@ export const createVoucher = async (req: Request, res: Response) => {
     const voucher = voucherRepo.create({
       voucher_number,
       customer_name,
+      voucher_staff_code,
       customer_address,
       mobile_number,
       passport_number,

@@ -35,7 +35,7 @@ export class Transactions {
   @Column({ type: 'varchar', length: 50, default: 'Pending' })  // Set default to 'Pending'
   updated_by: string;
   
-  @Column({ type: 'varchar', length: 10, enum: ['remit-in', 'remit-out'] })
+  @Column({ type: 'varchar', length: 15, enum: ['remit-in', 'remit-out', 'staff-voucher'] })
   transaction_type: string;
 
 }

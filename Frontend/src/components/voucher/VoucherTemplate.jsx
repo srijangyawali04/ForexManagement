@@ -48,11 +48,12 @@ export const VoucherTemplate = ({ voucher }) => {
   const voucherNo = voucher.voucherNo || voucher.voucher_number || 'N/A';
   const voucherDate = voucher.date || voucher.voucher_date || '';
   const customerName = voucher.customer?.name || voucher.customer_name || 'N/A';
+  const voucherStaffCode = voucher.customer?.voucherStaffCode || voucher.voucher_staff_code || 'N/A';
   const passportNo = voucher.customer?.passportNo || voucher.passport_number || 'N/A';
   const address = voucher.customer?.address || voucher.customer_address || 'N/A';
   const mobileNo = voucher.customer?.mobileNo || voucher.mobile_number || 'N/A';
   const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
-  const travelOrderRef = voucher.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
+  const travelOrderRef = voucher.customer?.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
  
   // Total Commission
@@ -94,23 +95,26 @@ export const VoucherTemplate = ({ voucher }) => {
     
           <div className="mb-4 space-y-1">
             <div className="flex justify-between">
-              <p>Customer Name: {customerName}</p>
+              <p>
+                Customer Name: {customerName} 
+                {voucherType === 'staff-voucher' && voucherStaffCode && (
+                  <span> ({voucherStaffCode})</span>
+                )}
+              </p>
               <p>Mobile No.: {mobileNo}</p>
             </div>
             <div className="flex justify-between">
               <p>Passport No.: {passportNo}</p>
               {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
             </div>
-            <div>
+            <div className="flex justify-between">
               <p>Address: {address}</p>
-            </div>
-            {travelOrderRef !== 'N/A' && (
-              <div>
+              {travelOrderRef !== 'N/A' && (
                 <p>Travel Order Ref. No.: {travelOrderRef}</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-    
+
           <table className="w-full mb-4 border-collapse">
             <thead>
               <tr className="border border-gray-400">
@@ -182,9 +186,9 @@ export const VoucherTemplate = ({ voucher }) => {
                 </tr>
               )}
               <tr className="border border-gray-400">
-                <td colSpan={6} className="border border-gray-400 p-2 text-right">
-                  <strong>Amount in Words:</strong> {amountInWords}<normal> Only</normal>
-                </td>
+                  <td colSpan={6} className="border border-gray-400 p-2 text-right">
+                    <strong>Amount in Words:</strong> {amountInWords} Only
+                  </td>
               </tr>
             </tbody>
           </table>

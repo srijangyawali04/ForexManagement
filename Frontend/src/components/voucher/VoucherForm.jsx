@@ -39,13 +39,14 @@ export default function VoucherForm({ onSubmit }) {
       date: new Date(),
       customer,
       transactions,
-      totalAmount,
       visitingCountry: voucherType == 'remit-in',
       purposeOfVisit: voucherType == 'remit-out',
       sourceOfForeignCurrency: voucherType == 'remit-out',
+      travelOrderRef: voucherType === 'staff-voucher',
+      voucherStaffCode : voucherType == 'staff-voucher',
+      totalAmount,
       netTotal: voucherType === 'remit-in' ? totalAmount - commission : totalAmount,
       createdBy: authState?.staffCode || 'Unknown',
-      travelOrderRef: voucherType === 'staff' ? `HRMD...${Math.random().toString(36).slice(2, 8)}` : undefined,
       status: 'pending',
       createdAt: new Date(),
     };
@@ -71,16 +72,26 @@ export default function VoucherForm({ onSubmit }) {
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Voucher Type</label>
+        <div className="w-full max-w-xs space-y-2">
+          <label 
+            htmlFor="voucher-type" 
+            className="block text-lg font-medium text-gray-700"
+          >
+            Voucher Type
+          </label>
           <select
+            id="voucher-type"
             value={voucherType}
             onChange={(e) => setVoucherType(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-75"
           >
             <option value="remit-out">Remit Out</option>
             <option value="remit-in">Remit In</option>
+            <option value="staff-voucher">Remit Out - Travel Order for NRB Staffs</option>
           </select>
+          <p className="text-sm text-gray-500">
+            Choose the type of voucher you want to create
+          </p>
         </div>
 
         <CustomerForm

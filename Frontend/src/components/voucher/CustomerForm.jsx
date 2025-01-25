@@ -7,6 +7,8 @@ export function CustomerForm({ value, onChange, voucherType }) {
     passportNo: '',
     address: '',
     mobileNo: '',
+    travelOrderRef: '',
+    voucherStaffCode: '',
     itrsCode: '',
     visitingCountry: '',
     purposeOfVisit: '',
@@ -20,6 +22,8 @@ export function CustomerForm({ value, onChange, voucherType }) {
       passportNo: '',
       address: '',
       mobileNo: '',
+      travelOrderRef: '',
+      voucherStaffCode: '',
       itrsCode: '',
       visitingCountry: '',
       purposeOfVisit: '',
@@ -175,6 +179,49 @@ export function CustomerForm({ value, onChange, voucherType }) {
             </div>
           </>
         )}
+
+        {/* Conditional Field */}
+        {voucherType === 'staff-voucher' && (
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Staff Code *</label>
+              <input
+                type="text"
+                value={initialValues.voucherStaffCode}
+                onChange={(e) => handleChange('voucherStaffCode', e.target.value)}
+                onBlur={(e) => handleBlur('voucherStaffCode', e.target.value)}
+                className={`mt-1 block w-full rounded-md border ${
+                  errors.voucherStaffCode ? 'border-red-500' : 'border-gray-300'
+                } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+                required
+              />
+              {errors.voucherStaffCode && (
+                <p className="text-red-500 text-sm">This field is required.</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Travel Order Ref. No. *
+              </label>
+              <input
+                type="text"
+                value={initialValues.travelOrderRef}  
+                onChange={(e) => handleChange('travelOrderRef', e.target.value)}  
+                onBlur={(e) => handleBlur('travelOrderRef', e.target.value)}
+                className={`mt-1 block w-full rounded-md border ${
+                  errors.travelOrderRef ? 'border-red-500' : 'border-gray-300'
+                } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+                required
+              />
+              {errors.travelOrderRef && (
+                <p className="text-red-500 text-sm">This field is required.</p>
+              )}
+            </div>
+
+          </>
+        )}
+
 
         {/* ITRS Code */}
         <div>

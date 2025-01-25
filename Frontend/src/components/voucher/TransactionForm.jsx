@@ -30,7 +30,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
     if (!rate) return 0;
 
     // Calculate exchange rate based on voucher type
-    const exchangeRateForUnit = voucherType === 'remit-out'
+    const exchangeRateForUnit = voucherType === 'remit-out' || 'staff-voucher'
       ? rate.sell_rate / rate.unit // For 'remit-out', use the sell rate divided by the unit
       : rate.buy_rate / rate.unit; // For 'remit-in', use the buy rate divided by the unit
 
@@ -74,7 +74,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
       alert('Exchange rates are not up-to-date. Please refresh the rates and try again.');
       return; // Prevent updating the transaction if exchange rates are not valid
     }
-
+  
     const updatedTransactions = transactions.map((t, i) => {
       if (i !== index) return t;
   
@@ -85,13 +85,18 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
         const selectedRate = exchangeRates.find((rate) => rate.currency_iso === value);
         updated.currency_name = selectedRate?.currency_name || '';
         updated.currency_iso_code = selectedRate?.currency_iso || '';
-        updated.exchange_rate = getExchangeRate(value); // Calculate exchange rate
-        updated.fc_amount = updated.exchange_rate * (updated.fc_amount || 0); // Update FCY amount
+        updated.exchange_rate = parseFloat(getExchangeRate(value).toFixed(2)); // Limit exchange rate to 2 decimal places
+        updated.fc_amount = updated.fc_amount || 0; // Keep FCY amount unchanged
       }
   
-      // Recalculate the nprAmount based on fc_amount and exchange_rate
+      // Recalculate the NPR amount and limit it to 2 decimal places
       if (field === 'fc_amount' || field === 'exchange_rate') {
-        updated.NPR_amount = updated.fc_amount * updated.exchange_rate || 0;
+        updated.NPR_amount = parseFloat((updated.fc_amount * updated.exchange_rate || 0).toFixed(2)); // Limit to 2 decimal places
+      }
+  
+      // Limit the commission to 2 decimal places
+      if (field === 'commission') {
+        updated.commission = parseFloat((value || 0).toFixed(2));
       }
   
       return updated;
@@ -99,13 +104,13 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   
     onChange(updatedTransactions);
   };
-
+  
   // Set commission manually for a specific transaction
   const applyCommission = (index) => {
     const updatedTransactions = transactions.map((transaction, i) => {
       if (i === index && voucherType === 'remit-in') {
         // Calculate commission as 0.5% of NPR amount
-        const newCommission = transaction.NPR_amount * 0.005;
+        const newCommission = parseFloat((transaction.NPR_amount * 0.005).toFixed(2)); // Limit commission to 2 decimal places
         return { ...transaction, commission: newCommission }; // Update commission only for the selected transaction
       }
       return transaction; // Leave other transactions unchanged
@@ -113,6 +118,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   
     onChange(updatedTransactions); // Update the transactions with the new commission
   };
+  
   
   return (
     <div className="space-y-4">

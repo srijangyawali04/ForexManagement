@@ -29,6 +29,7 @@ export function VoucherPreview({
 
       const voucherData = {
         customer_name: voucher?.customer?.name || '',
+        voucher_staff_code: voucher?.customer?.voucherStaffCode || null,
         customer_address: voucher?.customer?.address || '',
         mobile_number: voucher?.customer?.mobileNo || '',
         passport_number: voucher?.customer?.passportNo || '',
@@ -38,7 +39,7 @@ export function VoucherPreview({
         source_of_foreign_currency: voucher?.customer?.sourceOfForeignCurrency|| null,
         voucher_status: "Pending",
         voucher_number: voucher?.voucherNo || null,
-        travel_order_ref_number: voucher?.travel_order_ref_number || null,
+        travel_order_ref_number: voucher?.customer?.travelOrderRef || null,
         voucher_cancellation: voucher?.voucher_cancellation || null,
         createdBy: authState.staffCode,
         verifiedBy: "Pending",
