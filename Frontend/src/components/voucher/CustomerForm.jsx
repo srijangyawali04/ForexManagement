@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getNames } from 'country-list';
+import Select from 'react-select';
 
 export function CustomerForm({ value, onChange, voucherType }) {
   const countries = getNames();
@@ -55,9 +56,9 @@ export function CustomerForm({ value, onChange, voucherType }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-[60%]">
       <h3 className="text-lg font-medium">Customer Information</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-4 ">
         {/* Customer/Staff Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -68,7 +69,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.name}
             onChange={(e) => handleChange('name', e.target.value)}
             onBlur={(e) => handleBlur('name', e.target.value)}
-            className={`mt-1 block w-full rounded-md border ${
+            className={`mt-1 block w-full h-9 rounded-md border ${
               errors.name ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -84,7 +85,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.passportNo}
             onChange={(e) => handleChange('passportNo', e.target.value)}
             onBlur={(e) => handleBlur('passportNo', e.target.value)}
-            className={`mt-1 block w-full rounded-md border ${
+            className={`mt-1 block w-full h-9 rounded-md border ${
               errors.passportNo ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -100,7 +101,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.address}
             onChange={(e) => handleChange('address', e.target.value)}
             onBlur={(e) => handleBlur('address', e.target.value)}
-            className={`mt-1 block w-full rounded-md border ${
+            className={`mt-1 block w-full h-9 rounded-md border ${
               errors.address ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -116,7 +117,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.mobileNo}
             onChange={(e) => handleChange('mobileNo', e.target.value)}
             onBlur={(e) => handleBlur('mobileNo', e.target.value)}
-            className={`mt-1 block w-full rounded-md border ${
+            className={`mt-1 block w-full h-9 rounded-md border ${
               errors.mobileNo ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -135,7 +136,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
               value={initialValues.sourceOfForeignCurrency}
               onChange={(e) => handleChange('sourceOfForeignCurrency', e.target.value)}
               onBlur={(e) => handleBlur('sourceOfForeignCurrency', e.target.value)}
-              className={`mt-1 block w-full rounded-md border ${
+              className={`mt-1 block w-full h-9 rounded-md border ${
                 errors.sourceOfForeignCurrency ? 'border-red-500' : 'border-gray-300'
               } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
               required
@@ -148,25 +149,18 @@ export function CustomerForm({ value, onChange, voucherType }) {
         {voucherType === 'remit-out' && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="  block text-sm font-medium text-gray-700">
                 Visiting Country *
               </label>
-              <select
-                value={initialValues.visitingCountry}
-                onChange={(e) => handleChange('visitingCountry', e.target.value)}
+              <Select
+                value={{ label: initialValues.visitingCountry, value: initialValues.visitingCountry }}
+                onChange={(selectedOption) => handleChange('visitingCountry', selectedOption.value)}
                 onBlur={(e) => handleBlur('visitingCountry', e.target.value)}
-                className={`mt-1 block w-full rounded-md border ${
-                  errors.visitingCountry ? 'border-red-500' : 'border-gray-300'
-                } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+                options={countries.map(country => ({ label: country, value: country }))}
+                classNamePrefix="react-select"
+                isSearchable
                 required
-              >
-                <option value="">Select a country</option>
-                {countries.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
+              />
               {errors.visitingCountry && (
                 <p className="text-red-500 text-sm">This field is required.</p>
               )}
@@ -179,7 +173,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 value={initialValues.purposeOfVisit}
                 onChange={(e) => handleChange('purposeOfVisit', e.target.value)}
                 onBlur={(e) => handleBlur('purposeOfVisit', e.target.value)}
-                className={`mt-1 block w-full rounded-md border ${
+                className={`mt-1 block w-full h-9 rounded-md border ${
                   errors.purposeOfVisit ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -193,14 +187,14 @@ export function CustomerForm({ value, onChange, voucherType }) {
 
         {voucherType === 'staff-voucher' && (
           <>
-            <div>
+            <div >
               <label className="block text-sm font-medium text-gray-700">Staff Code *</label>
               <input
                 type="text"
                 value={initialValues.voucherStaffCode}
                 onChange={(e) => handleChange('voucherStaffCode', e.target.value)}
                 onBlur={(e) => handleBlur('voucherStaffCode', e.target.value)}
-                className={`mt-1 block w-full rounded-md border ${
+                className={`mt-1 block w-full h-9 rounded-md border ${
                   errors.voucherStaffCode ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -210,7 +204,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
               )}
             </div>
 
-            <div>
+            <div >
               <label className="block text-sm font-medium text-gray-700">
                 Travel Order Ref. No. *
               </label>
@@ -219,7 +213,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 value={initialValues.travelOrderRef}  
                 onChange={(e) => handleChange('travelOrderRef', e.target.value)}  
                 onBlur={(e) => handleBlur('travelOrderRef', e.target.value)}
-                className={`mt-1 block w-full rounded-md border ${
+                className={`mt-1 block w-full h-9 rounded-md border ${
                   errors.travelOrderRef ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -234,7 +228,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
 
 
         {/* ITRS Code */}
-        <div>
+        <div >
           <label className="block text-sm font-medium text-gray-700">
             ITRS Code (Optional)
           </label>
@@ -242,9 +236,14 @@ export function CustomerForm({ value, onChange, voucherType }) {
             type="text"
             value={initialValues.itrsCode}
             onChange={(e) => handleChange('itrsCode', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            onBlur={(e) => handleBlur('itrsCode', e.target.value)}
+            className={`mt-1 block w-full h-9 rounded-md border ${
+              errors.itrsCode ? 'border-red-500' : 'border-gray-300'
+            } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
           />
         </div>
+
+
       </div>
     </div>
   );

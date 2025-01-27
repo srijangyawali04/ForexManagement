@@ -115,7 +115,7 @@ export default function VoucherForm({ onSubmit }) {
             // applyCommission(); // Apply commission when the button is clicked
             handleSubmit(); // Proceed with the form submission
           }}
-          className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+          className="w-auto bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
         >
           Preview Voucher
         </button>
