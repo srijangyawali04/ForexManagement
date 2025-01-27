@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-const generateTransactionPDF = ({ startDate, endDate, currency, voucherType, transactions, remitInTotal,remitInCommission,remitInNetTotal,remitOutTotal }) => {
+const generateTransactionPDF = ({ startDate, endDate, selectedCurrency,selectedVoucherType, voucherType, transactions, remitInTotal,remitInCommission,remitInNetTotal,remitOutTotal }) => {
   const doc = new jsPDF();
 
   // Format the date to only show the date (e.g., 'YYYY-MM-DD')
@@ -24,8 +24,8 @@ const formatDate = (dateString) => {
   // Add filters info with compact spacing
   doc.setFontSize(10);
   doc.text(`Date Range: ${startDate} - ${endDate}`, 14, 25);
-  doc.text(`Currency: ${currency}`, 14, 30);
-  doc.text(`Voucher Type: ${voucherType}`, 14, 35);
+  doc.text(`Currency: ${selectedCurrency}`, 14, 30);
+  // doc.text(`Voucher Type: ${selectedVoucherType}`, 14, 35);
 
   // Add transaction table with compact styling
   autoTable(doc, {
@@ -46,7 +46,7 @@ const formatDate = (dateString) => {
       index + 1, // Serial Number
       formatDate(t.voucher_date),
       t.currency_name,
-      t.t_type,
+      t.transaction_type,
       t.exchange_rate,
       t.fc_amount,
       t.NPR_amount,

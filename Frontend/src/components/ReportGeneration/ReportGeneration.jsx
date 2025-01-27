@@ -208,8 +208,8 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
     generateTransactionPDF({
       startDate: dateRange.startDate,  // Start date from dateRange
       endDate: dateRange.endDate,      // End date from dateRange
-      currency,              
-      voucherType: transactionType,    // Transaction type from transactionData
+      selectedCurrency,              
+      voucherType: selectedVoucherType,    // Transaction type from transactionData
       transactions,   
       remitInTotal,
       remitInCommission,
