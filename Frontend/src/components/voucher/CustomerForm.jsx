@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { getNames } from 'country-list';
 
 export function CustomerForm({ value, onChange, voucherType }) {
+  const countries = getNames();
   const [errors, setErrors] = useState({});
   const [initialValues, setInitialValues] = useState({
     name: '',
@@ -146,9 +148,10 @@ export function CustomerForm({ value, onChange, voucherType }) {
         {voucherType === 'remit-out' && (
           <>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Visiting Country *</label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700">
+                Visiting Country *
+              </label>
+              <select
                 value={initialValues.visitingCountry}
                 onChange={(e) => handleChange('visitingCountry', e.target.value)}
                 onBlur={(e) => handleBlur('visitingCountry', e.target.value)}
@@ -156,11 +159,19 @@ export function CustomerForm({ value, onChange, voucherType }) {
                   errors.visitingCountry ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
-              />
+              >
+                <option value="">Select a country</option>
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
               {errors.visitingCountry && (
                 <p className="text-red-500 text-sm">This field is required.</p>
               )}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700">Purpose of Visit *</label>
               <input
@@ -180,7 +191,6 @@ export function CustomerForm({ value, onChange, voucherType }) {
           </>
         )}
 
-        {/* Conditional Field */}
         {voucherType === 'staff-voucher' && (
           <>
             <div>

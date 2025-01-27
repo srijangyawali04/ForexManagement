@@ -51,13 +51,14 @@ export const createUser = async (req: Request, res: Response) => {
 
     // Save the user to the database
     await userRepo.save(user);
+    delete user.password;
     return res.status(200).json({
       message: "User created successfully.",
       data: user,
     });
   } catch (err) {
     console.error("ERROR: Server error occurred during user creation.", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server Error" }); /// new
   }
 };
 
