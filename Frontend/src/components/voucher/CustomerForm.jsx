@@ -69,7 +69,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.name}
             onChange={(e) => handleChange('name', e.target.value)}
             onBlur={(e) => handleBlur('name', e.target.value)}
-            className={`mt-1 block w-full h-9 rounded-md border ${
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
               errors.name ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -85,7 +85,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.passportNo}
             onChange={(e) => handleChange('passportNo', e.target.value)}
             onBlur={(e) => handleBlur('passportNo', e.target.value)}
-            className={`mt-1 block w-full h-9 rounded-md border ${
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
               errors.passportNo ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -101,7 +101,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.address}
             onChange={(e) => handleChange('address', e.target.value)}
             onBlur={(e) => handleBlur('address', e.target.value)}
-            className={`mt-1 block w-full h-9 rounded-md border ${
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
               errors.address ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -117,7 +117,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.mobileNo}
             onChange={(e) => handleChange('mobileNo', e.target.value)}
             onBlur={(e) => handleBlur('mobileNo', e.target.value)}
-            className={`mt-1 block w-full h-9 rounded-md border ${
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
               errors.mobileNo ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             required
@@ -136,7 +136,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
               value={initialValues.sourceOfForeignCurrency}
               onChange={(e) => handleChange('sourceOfForeignCurrency', e.target.value)}
               onBlur={(e) => handleBlur('sourceOfForeignCurrency', e.target.value)}
-              className={`mt-1 block w-full h-9 rounded-md border ${
+              className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
                 errors.sourceOfForeignCurrency ? 'border-red-500' : 'border-gray-300'
               } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
               required
@@ -173,7 +173,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 value={initialValues.purposeOfVisit}
                 onChange={(e) => handleChange('purposeOfVisit', e.target.value)}
                 onBlur={(e) => handleBlur('purposeOfVisit', e.target.value)}
-                className={`mt-1 block w-full h-9 rounded-md border ${
+                className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
                   errors.purposeOfVisit ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -194,7 +194,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 value={initialValues.voucherStaffCode}
                 onChange={(e) => handleChange('voucherStaffCode', e.target.value)}
                 onBlur={(e) => handleBlur('voucherStaffCode', e.target.value)}
-                className={`mt-1 block w-full h-9 rounded-md border ${
+                className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
                   errors.voucherStaffCode ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -213,7 +213,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 value={initialValues.travelOrderRef}  
                 onChange={(e) => handleChange('travelOrderRef', e.target.value)}  
                 onBlur={(e) => handleBlur('travelOrderRef', e.target.value)}
-                className={`mt-1 block w-full h-9 rounded-md border ${
+                className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
                   errors.travelOrderRef ? 'border-red-500' : 'border-gray-300'
                 } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
                 required
@@ -237,7 +237,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
             value={initialValues.itrsCode}
             onChange={(e) => handleChange('itrsCode', e.target.value)}
             onBlur={(e) => handleBlur('itrsCode', e.target.value)}
-            className={`mt-1 block w-full h-9 rounded-md border ${
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
               errors.itrsCode ? 'border-red-500' : 'border-gray-300'
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
           />
