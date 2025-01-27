@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchExchangeRates } from '../../services/api'; // Import the API function
 import { useAuth } from '../../contexts/AuthContext';
+import { Trash } from 'lucide-react';
 
 export function TransactionForm({ transactions, onChange, voucherType }) {
   const [exchangeRates, setExchangeRates] = useState([]);
@@ -122,7 +123,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
   
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-start items-center space-x-4">
         <h3 className="text-lg font-medium">Currency Transactions</h3>        
         <button
           type="button"
@@ -141,7 +142,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
               <select
                 value={transaction.currency_iso_code} // Use currency_iso_code
                 onChange={(e) => updateTransaction(index, 'currency_iso_code', e.target.value)} // Update currency_iso_code
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="mt-1 block w-full h-9 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               >
                 <option value="">Select Currency</option> {/* Default option */}
                 {loading ? (
@@ -161,7 +162,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 type="number"
                 value={transaction.exchange_rate || ''} // Default value for exchange_rate
                 readOnly
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
+                className="mt-1 pl-2 block w-full h-9 rounded-md border-gray-300 bg-gray-50"
               />
             </div>
             <div>
@@ -170,7 +171,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 type="number"
                 value={transaction.fc_amount || ''} // Default value for fc_amount
                 onChange={(e) => updateTransaction(index, 'fc_amount', parseFloat(e.target.value))} // Ensure correct float parsing
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="mt-1 pl-2 block w-full h-9 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 step="0.01"
                 required
               />
@@ -181,7 +182,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 type="number"
                 value={transaction.NPR_amount || ''} // Default value for fc_amount
                 readOnly
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
+                className="mt-1 pl-2 block w-full h-9 rounded-md border-gray-300 bg-gray-50"
               />
             </div>
 
@@ -193,7 +194,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                   type="number"
                   value={transaction.commission || ''} // Display the manually set commission
                   readOnly
-                  className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50"
+                  className="mt-1 pl-2 block w-full h-9 rounded-md border-gray-300 bg-gray-50"
                 />
               </div>
             )}
@@ -204,7 +205,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
                 <button
                   type="button"
                   onClick={() => applyCommission(index)} // Pass the index to apply commission for this specific transaction
-                  className="bg-green-100 text-green-700 px-4 py-2 rounded-md hover:bg-green-200"
+                  className="bg-green-100 ml-auto text-green-700 h-9 px-4 py-2 rounded-md hover:bg-green-200"
                 >
                   Apply Commission
                 </button>
@@ -215,9 +216,9 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
             <button
               type="button"
               onClick={() => removeTransaction(index)} // Use the removeTransaction function
-              className="bg-red-100 text-red-700 px-3 py-2 rounded-md hover:bg-red-200"
+              className="bg-red-100 ml-auto  text-red-700 px-3 py-2 rounded-md hover:bg-red-200"
             >
-              Remove
+              <Trash className="h-5 w-5 text-red-700" /> {/* Adjust the size and color */}
             </button>
           </div>
         ))}
