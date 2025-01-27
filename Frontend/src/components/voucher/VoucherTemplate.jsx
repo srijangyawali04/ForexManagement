@@ -187,7 +187,7 @@ export const VoucherTemplate = ({ voucher }) => {
               )}
               <tr className="border border-gray-400">
                   <td colSpan={6} className="border border-gray-400 p-2 text-right">
-                    <strong>Amount in Words:</strong> {amountInWords} Only
+                    <strong>Amount in Words:</strong> {amountInWords}
                   </td>
               </tr>
             </tbody>
