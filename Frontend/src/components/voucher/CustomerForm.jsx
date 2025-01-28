@@ -10,6 +10,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
     passportNo: '',
     address: '',
     mobileNo: '',
+    approved: '',
     travelOrderRef: '',
     voucherStaffCode: '',
     itrsCode: '',
@@ -25,6 +26,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
       passportNo: '',
       address: '',
       mobileNo: '',
+      approved: '',
       travelOrderRef: '',
       voucherStaffCode: '',
       itrsCode: '',
@@ -108,6 +110,7 @@ export function CustomerForm({ value, onChange, voucherType }) {
           />
           {errors.address && <p className="text-red-500 text-sm">This field is required.</p>}
         </div>
+        
 
         {/* Mobile Number */}
         <div>
@@ -161,9 +164,6 @@ export function CustomerForm({ value, onChange, voucherType }) {
                 isSearchable
                 required
               />
-              {errors.visitingCountry && (
-                <p className="text-red-500 text-sm">This field is required.</p>
-              )}
             </div>
 
             <div>
@@ -242,6 +242,24 @@ export function CustomerForm({ value, onChange, voucherType }) {
             } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
           />
         </div>
+
+        {/* Approved By */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Approved By *</label>
+          <input
+            type="text"
+            value={initialValues.approved}
+            onChange={(e) => handleChange('approved', e.target.value)}
+            onBlur={(e) => handleBlur('approved', e.target.value)}
+            placeholder="Designation, Staff Name" // Added placeholder
+            className={`mt-1 pl-2 block w-full h-9 rounded-md border ${
+              errors.approved ? 'border-red-500' : 'border-gray-300'
+            } shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
+            required
+          />
+          {errors.approved && <p className="text-red-500 text-sm">This field is required.</p>}
+        </div>
+
 
 
       </div>

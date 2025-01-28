@@ -52,6 +52,7 @@ export const VoucherTemplate = ({ voucher }) => {
   const passportNo = voucher.customer?.passportNo || voucher.passport_number || 'N/A';
   const address = voucher.customer?.address || voucher.customer_address || 'N/A';
   const mobileNo = voucher.customer?.mobileNo || voucher.mobile_number || 'N/A';
+  const approvedBy = voucher.customer?.approved || voucher.approved_by || 'N/A';
   const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
   const travelOrderRef = voucher.customer?.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
@@ -101,16 +102,16 @@ export const VoucherTemplate = ({ voucher }) => {
                   <span> ({voucherStaffCode})</span>
                 )}
               </p>
-              <p>Mobile No.: {mobileNo}</p>
+              <p>Mobile Number: {mobileNo}</p>
             </div>
             <div className="flex justify-between">
-              <p>Passport No.: {passportNo}</p>
+              <p>Passport Number: {passportNo}</p>
               {itrsCode !== 'N/A' && <p>ITRS Code: {itrsCode}</p>}
             </div>
             <div className="flex justify-between">
               <p>Address: {address}</p>
               {travelOrderRef !== 'N/A' && (
-                <p>Travel Order Ref. No.: {travelOrderRef}</p>
+                <p>Travel Order Ref. No : {travelOrderRef}</p>
               )}
             </div>
           </div>
@@ -192,6 +193,9 @@ export const VoucherTemplate = ({ voucher }) => {
               </tr>
             </tbody>
           </table>
+          <div className='font-bold'>
+            <p>Approved By: {approvedBy}</p>
+          </div>
     
           <div className="flex justify-between mt-16">
             <div className="text-center">
