@@ -17,7 +17,7 @@ dotenv.config();
 
 // Configure CORS
 const corsOptions = {
-    origin: "http://project.srijangyawali.com" ,  // Allow frontend to connect
+    origin: "http://remittancesystem.srijangyawali.com" ,  // Allow frontend to connect
     methods: ["GET", "POST", "PUT", "PATCH"], 
     credentials: true, 
 };

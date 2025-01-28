@@ -56,9 +56,9 @@ export function CustomerForm({ value, onChange, voucherType }) {
   };
 
   return (
-    <div className="space-y-4 w-[60%]">
+    <div className="space-y-4">
       <h3 className="text-lg font-medium">Customer Information</h3>
-      <div className="grid grid-cols-2 gap-x-5 gap-y-4 ">
+      <div className="grid grid-cols-4 gap-x-5 gap-y-4  ">
         {/* Customer/Staff Name */}
         <div>
           <label className="block text-sm font-medium text-gray-700">

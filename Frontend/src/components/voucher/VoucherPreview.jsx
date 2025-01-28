@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import { VoucherTemplate } from './VoucherTemplate';
 import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
@@ -13,6 +14,13 @@ export function VoucherPreview({
   const { authState } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  const [confirmAction, setConfirmAction] = useState({
+    show: false,
+    type: '', // 'submit' or 'cancel'
+    voucherNumber: null, // Optional: Pass a voucher number if needed
+  });
+
+  // Function to handle voucher generation
   const handleGenerateVoucher = async () => {
     try {
       if (!authState || !authState.staffName) {
@@ -34,16 +42,16 @@ export function VoucherPreview({
         mobile_number: voucher?.customer?.mobileNo || '',
         passport_number: voucher?.customer?.passportNo || '',
         itrs_code: itrsCode || null,
-        visiting_country: voucher?.customer?.visitingCountry || null, 
-        purpose_of_visit: voucher?.customer?.purposeOfVisit || null, 
-        source_of_foreign_currency: voucher?.customer?.sourceOfForeignCurrency|| null,
+        visiting_country: voucher?.customer?.visitingCountry || null,
+        purpose_of_visit: voucher?.customer?.purposeOfVisit || null,
+        source_of_foreign_currency: voucher?.customer?.sourceOfForeignCurrency || null,
         voucher_status: "Pending",
         voucher_number: voucher?.voucherNo || null,
         travel_order_ref_number: voucher?.customer?.travelOrderRef || null,
         voucher_cancellation: voucher?.voucher_cancellation || null,
         createdBy: authState.staffCode,
         verifiedBy: "Pending",
-        transactions: voucher?.transactions || []
+        transactions: voucher?.transactions || [],
       };
 
       const response = await axios.post(`${apiUrl}/api/voucher`, voucherData);
@@ -61,6 +69,16 @@ export function VoucherPreview({
     }
   };
 
+  // Function to trigger the confirmation dialog
+  const handleConfirmGenerateVoucher = () => {
+    setConfirmAction({
+      show: true,
+      type: 'submit',
+      voucherNumber: null, // Optional: Pass a voucher number if needed
+    });
+  };
+
+
   // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
 
@@ -75,11 +93,38 @@ export function VoucherPreview({
           <div className="space-x-2">
             {showGenerateButton && (
               <button
-                onClick={handleGenerateVoucher}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-500"
-              >
-                Generate Voucher
-              </button>
+              onClick={handleConfirmGenerateVoucher}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+            >
+              Submit Voucher
+            </button>
+            )}
+            {/* Confirmation Dialog */}
+            {confirmAction.show && (
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <h3 className="text-lg font-medium mb-4">
+                    Are you sure you want to submit the voucher?
+                  </h3>
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      onClick={() => setConfirmAction({ show: false, type: '', voucherNumber: null })}
+                      className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
+                    >
+                      No
+                    </button>
+                    <button
+                      onClick={() => {
+                        setConfirmAction({ show: false, type: '', voucherNumber: null }); // Close the dialog
+                        handleGenerateVoucher(); // Call the generate voucher function
+                      }}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+                    >
+                      Yes
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
             <button
               onClick={onClose}
