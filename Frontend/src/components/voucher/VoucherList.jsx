@@ -16,6 +16,8 @@ const VoucherList = ({ onVerify }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [voucherStatus, setVoucherStatus] = useState('');
   const [confirmAction, setConfirmAction] = useState({ show: false, type: '', voucherNumber: null });
+  const [previewedVoucher, setPreviewedVoucher] = useState(null); // Added to track previewed voucher
+
 
   // Fetch logged-in user info
   useEffect(() => {
@@ -64,8 +66,10 @@ const VoucherList = ({ onVerify }) => {
     setFilteredVouchers(filtered);
     setCurrentPage(1); // Reset to page 1 when filter or search changes
   }, [searchQuery, voucherStatus, vouchers]);
+  
 
   const handleVoucherClick = (voucher) => {
+    setPreviewedVoucher(voucher.voucher_number);
     setSelectedVoucher(voucher);
     setIsPreviewOpen(true);
   };
@@ -151,12 +155,12 @@ const VoucherList = ({ onVerify }) => {
           {currentVouchers.map((voucher) => (
             <tr key={voucher.voucher_number} className="border-t border-gray-200">
               <td className="px-4 py-2 text-center">{voucher.voucher_number}</td>
-              <td className="px-4 py-2 text-center">{voucher.customer_name}</td>
+              <td className="px-4 py-2 text-left">{voucher.customer_name}</td>
               <td className="px-4 py-2 text-center">{voucher.createdBy}</td>
               <td className="px-4 py-2 text-center">{new Date(voucher.voucher_date).toLocaleString()}</td>
               <td className="px-4 py-2 text-center">
                 <span
-                  className={`px-2 py-1 rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
+                  className={`px-1 py-1  rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
                     voucher.voucher_status === 'Verified'
                       ? 'bg-green-100 text-green-800'
                       : voucher.voucher_status === 'Pending'
@@ -206,7 +210,12 @@ const VoucherList = ({ onVerify }) => {
                           voucherNumber: voucher.voucher_number,
                         })
                       }
-                      className="bg-green-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-green-600 transition duration-200"
+                      disabled={previewedVoucher !== voucher.voucher_number} // Disable if not previewed
+                      className={`text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
+                        previewedVoucher === voucher.voucher_number
+                          ? 'bg-green-500 text-white hover:bg-green-600'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
                     >
                       Verify
                     </button>
@@ -218,7 +227,12 @@ const VoucherList = ({ onVerify }) => {
                           voucherNumber: voucher.voucher_number,
                         })
                       }
-                      className="bg-red-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-red-600 transition duration-200"
+                      disabled={previewedVoucher !== voucher.voucher_number} // Disable if not previewed
+                      className={`text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
+                        previewedVoucher === voucher.voucher_number
+                          ? 'bg-red-500 text-white hover:bg-red-600'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
                     >
                       Cancel
                     </button>

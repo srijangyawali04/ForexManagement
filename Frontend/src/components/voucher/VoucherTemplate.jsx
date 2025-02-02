@@ -81,15 +81,15 @@ export const VoucherTemplate = ({ voucher }) => {
         <div className="printable-content">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <img src={logo} alt="Nepal Rastra Bank" className="w-16 h-16" />
+              <img src={logo} alt="Nepal Rastra Bank" className="w-20 h-20" />
               <div>
-                <h1 className="text-lg font-bold">Nepal Rastra Bank</h1>
-                <p className="text-sm">Banking Department</p>
-                <p className="text-sm">Remittance Section</p>
+                <h1 className="text-2xl font-bold">Nepal Rastra Bank</h1>
+                <p className="text-lg">Banking Department</p>
+                <p className="text-lg">Remittance Section</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="font-semibold">Voucher No.: 2081/82-{voucherNo}</p>
+              <p>Voucher No.: 2081/82-{voucherNo}</p>
               <p>Date: {voucherDate ? new Date(voucherDate).toLocaleDateString('en-US') : 'N/A'}</p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export const VoucherTemplate = ({ voucher }) => {
               </tr>
             </tbody>
           </table>
-          <div className='font-bold'>
+          <div className='font-semibold'>
             <p>Approved By: {approvedBy}</p>
           </div>
     
@@ -226,12 +226,11 @@ export const VoucherTemplate = ({ voucher }) => {
           <br></br>
     
           <div className="text-sm mb-8">
-            <p>Note:</p>
+            <p className='font-semibold'>Note:</p>
             <ul className="list-disc list-inside pl-4">
               <li>Validity of this voucher is for same date only.</li>
               <li>
-                This is only foreign currency exchange voucher and can't be presented as Invoice and
-                doesn't carry any legal obligations.
+                This is only foreign currency exchange voucher and can't be presented as Invoice and doesn't carry any legal obligations.
               </li>
               {voucher?.transactions?.some(transaction => transaction.transaction_type === 'remit-in') && (
                 <li>

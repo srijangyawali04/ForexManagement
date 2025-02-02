@@ -92,7 +92,13 @@
         <div className="container mx-auto mt-4 space-x-4">
           <button
             className={`px-4 py-2 rounded ${view === 'list' ? 'bg-indigo-600 text-white' : 'bg-gray-200'}`}
-            onClick={() => setView('list')}
+            onClick={() => {
+              if (view === 'list') {
+                window.location.reload(); 
+              } else {
+                setView('list'); 
+              }
+            }}
           >
             View Vouchers
           </button>

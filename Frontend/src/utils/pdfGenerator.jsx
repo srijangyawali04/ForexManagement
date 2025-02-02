@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import logo from '../assets/logo.png';
 
 const generateTransactionPDF = ({ startDate, endDate, selectedCurrency,selectedVoucherType, voucherType, transactions, remitInTotal,remitInCommission,remitInNetTotal,remitOutTotal }) => {
   const doc = new jsPDF();
@@ -16,20 +17,37 @@ const formatDate = (dateString) => {
   console.log ('remit out total :', remitOutTotal);
   console.log('comission total',remitInCommission)
   
+  // Add logo (adjust x, y, width, and height as needed)
+  const imgWidth = 20; // Adjust as needed
+  const imgHeight = 20; // Adjust as needed
+
+  // Add logo to the left side
+  doc.addImage(logo, 'PNG', 10, 10, imgWidth, imgHeight);
 
   // Add title with appropriate font size
   doc.setFontSize(16);
-  doc.text('Transaction Report', 14, 15);
+  doc.text('Nepal Rastra Bank', 35, 15);
+
+  doc.setFontSize(12)
+  doc.text('Banking Department', 35, 20);
+  doc.text('Remittance Section', 35, 25);
+
+  const pageWidth = doc.internal.pageSize.getWidth(); // Get page width
+  const textWidth = doc.getTextWidth('Transaction Report'); // Get text width
+  const centerX = (pageWidth - textWidth) / 2; // Calculate centered X position
+
+  doc.setFontSize(14);
+  doc.text('Transaction Report', centerX, 40);
 
   // Add filters info with compact spacing
   doc.setFontSize(10);
-  doc.text(`Date Range: ${startDate} - ${endDate}`, 14, 25);
-  doc.text(`Currency: ${selectedCurrency}`, 14, 30);
+  doc.text(`Date Range: ${startDate} - ${endDate}`, 14, 50);
+  doc.text(`Currency: ${selectedCurrency}`, 14, 55);
   // doc.text(`Voucher Type: ${selectedVoucherType}`, 14, 35);
 
   // Add transaction table with compact styling
   autoTable(doc, {
-    startY: 40,
+    startY: 60,
     head: [
       [
         'SN',

@@ -7,7 +7,7 @@ import { generateVoucherNumber } from '../../utils/voucherUtils';
 
 export default function VoucherForm({ onSubmit }) {
   const { authState } = useAuth();
-  const [voucherType, setVoucherType] = useState('remit-in');
+  const [voucherType, setVoucherType] = useState('remit-out');
   const [customer, setCustomer] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
@@ -69,6 +69,13 @@ export default function VoucherForm({ onSubmit }) {
     window.print();
   };
 
+  const textColors = {
+    "remit-out": "text-red-600",
+    "remit-in": "text-green-600",
+    "staff-voucher": "text-blue-600",
+  };
+
+  
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -83,11 +90,13 @@ export default function VoucherForm({ onSubmit }) {
             id="voucher-type"
             value={voucherType}
             onChange={(e) => setVoucherType(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-75"
+            className={`mt-1 font-semibold text-[15px] block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-75 ${textColors[voucherType]}`}
           >
-            <option value="remit-out">Remit Out</option>
-            <option value="remit-in">Remit In</option>
-            <option value="staff-voucher">Remit Out - Travel Order for NRB Staffs</option>
+            <option value="remit-out" className="text-red-600">Remit Out</option>
+            <option value="remit-in" className="text-green-600">Remit In</option>
+            <option value="staff-voucher" className="text-blue-600">
+              Remit Out - Travel Order for NRB Staffs
+            </option>
           </select>
           <p className="text-sm text-gray-500">
             Choose the type of voucher you want to create
