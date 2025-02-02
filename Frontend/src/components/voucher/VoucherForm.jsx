@@ -71,7 +71,7 @@ export default function VoucherForm({ onSubmit }) {
 
   const textColors = {
     "remit-out": "text-red-600",
-    "remit-in": "text-green-600",
+    "remit-in": "text-green-900",
     "staff-voucher": "text-blue-600",
   };
 
@@ -79,7 +79,7 @@ export default function VoucherForm({ onSubmit }) {
   return (
     <>
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="w-full max-w-xs space-y-2">
+        <div className="w-full max-w-[25%] space-y-2">
           <label 
             htmlFor="voucher-type" 
             className="block text-lg font-medium text-gray-700"
@@ -90,12 +90,12 @@ export default function VoucherForm({ onSubmit }) {
             id="voucher-type"
             value={voucherType}
             onChange={(e) => setVoucherType(e.target.value)}
-            className={`mt-1 font-semibold text-[15px] block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-75 ${textColors[voucherType]}`}
+            className={`mt-1 font-semibold text-[20px] block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-75 ${textColors[voucherType]}`}
           >
             <option value="remit-out" className="text-red-600">Remit Out</option>
-            <option value="remit-in" className="text-green-600">Remit In</option>
+            <option value="remit-in" className="text-green-900">Remit In</option>
             <option value="staff-voucher" className="text-blue-600">
-              Remit Out - Travel Order for NRB Staffs
+              Remit Out - NRB Staffs-Travel Order 
             </option>
           </select>
           <p className="text-sm text-gray-500">

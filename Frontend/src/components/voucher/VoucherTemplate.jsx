@@ -52,7 +52,7 @@ export const VoucherTemplate = ({ voucher }) => {
   const passportNo = voucher.customer?.passportNo || voucher.passport_number || 'N/A';
   const address = voucher.customer?.address || voucher.customer_address || 'N/A';
   const mobileNo = voucher.customer?.mobileNo || voucher.mobile_number || 'N/A';
-  const approvedBy = voucher.customer?.approved || voucher.approved_by || 'N/A';
+  const orderedBy = voucher.customer?.ordered || voucher.ordered_by || 'N/A';
   const itrsCode = voucher.customer?.itrsCode || voucher.itrs_code || 'N/A';
   const travelOrderRef = voucher.customer?.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
@@ -121,9 +121,7 @@ export const VoucherTemplate = ({ voucher }) => {
               <tr className="border border-gray-400">
                 <th className="border border-gray-400 p-2">S.N.</th>
                 <th className="border border-gray-400 p-2">Currency</th>
-                <th className="border border-gray-400 p-2">
-                  {voucherType === 'remit-out' ? 'Buying' : 'Selling'} Exchange Rate
-                </th>
+                <th className="border border-gray-400 p-2">Exchange Rate</th>
                 <th className="border border-gray-400 p-2">FC Amount</th>
                 <th className="border border-gray-400 p-2">NPR Amount</th>
                 {voucherType === 'remit-in' && (
@@ -194,7 +192,7 @@ export const VoucherTemplate = ({ voucher }) => {
             </tbody>
           </table>
           <div className='font-semibold'>
-            <p>Approved By: {approvedBy}</p>
+            <p>Ordered By: {orderedBy}</p>
           </div>
     
           <div className="flex justify-between mt-16">

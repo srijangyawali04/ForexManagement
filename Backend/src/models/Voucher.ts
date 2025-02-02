@@ -66,6 +66,6 @@ export class Voucher {
   updatedAt: Date;
   
   @Column({ type: 'varchar', nullable: true })
-  approved_by: string;
+  ordered_by: string;
   
 }

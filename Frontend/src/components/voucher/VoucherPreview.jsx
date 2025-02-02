@@ -41,7 +41,7 @@ export function VoucherPreview({
         customer_address: voucher?.customer?.address || '',
         mobile_number: voucher?.customer?.mobileNo || '',
         passport_number: voucher?.customer?.passportNo || '',
-        approved_by: voucher?.customer?.approved || '',
+        ordered_by: voucher?.customer?.ordered || '',
         itrs_code: itrsCode || null,
         visiting_country: voucher?.customer?.visitingCountry || null,
         purpose_of_visit: voucher?.customer?.purposeOfVisit || null,

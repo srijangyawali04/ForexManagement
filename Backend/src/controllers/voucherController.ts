@@ -26,7 +26,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       mobile_number,
       passport_number,
       itrs_code,
-      approved_by,
+      ordered_by,
       visiting_country,
       purpose_of_visit,
       source_of_foreign_currency,
@@ -45,7 +45,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       mobile_number,
       passport_number,
       voucher_status,
-      approved_by,
+      ordered_by,
       createdBy,
       voucher_number, // Include voucher_number in validation
       transactions, // Ensure transactions are passed
@@ -71,7 +71,7 @@ export const createVoucher = async (req: Request, res: Response) => {
       voucher_staff_code,
       customer_address,
       mobile_number,
-      approved_by,
+      ordered_by,
       passport_number,
       visiting_country,
       purpose_of_visit,

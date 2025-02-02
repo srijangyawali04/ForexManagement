@@ -31,7 +31,7 @@ export function TransactionForm({ transactions, onChange, voucherType }) {
     if (!rate) return 0;
 
     // Calculate exchange rate based on voucher type
-    const exchangeRateForUnit = voucherType === 'remit-out' || 'staff-voucher'
+    const exchangeRateForUnit = voucherType !== 'remit-in'
       ? rate.sell_rate / rate.unit // For 'remit-out', use the sell rate divided by the unit
       : rate.buy_rate / rate.unit; // For 'remit-in', use the buy rate divided by the unit
 
