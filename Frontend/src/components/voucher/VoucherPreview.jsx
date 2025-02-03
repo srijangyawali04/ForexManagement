@@ -1,7 +1,8 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VoucherTemplate } from './VoucherTemplate';
 import { useAuth } from '../../contexts/AuthContext';
+import { fetchLoggedInUser, updateVoucherStatus } from '../../services/api';
 import axios from 'axios';
 
 export function VoucherPreview({
@@ -13,12 +14,28 @@ export function VoucherPreview({
 }) {
   const { authState } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
+  const [loggedInUser, setLoggedInUser] = useState(null);
+  const [isVerified, setIsVerified] = useState(voucher?.voucher_status === "Verified");
+
 
   const [confirmAction, setConfirmAction] = useState({
     show: false,
     type: '', // 'submit' or 'cancel'
     voucherNumber: null, // Optional: Pass a voucher number if needed
   });
+   // Fetch logged-in user info
+    useEffect(() => {
+      const fetchUser = async () => {
+        try {
+          const userInfo = await fetchLoggedInUser();
+          setLoggedInUser(userInfo);
+        } catch (error) {
+          console.error('Failed to fetch logged-in user:', error);
+        }
+      };
+  
+      fetchUser();
+    }, []);
 
   // Function to handle voucher generation
   const handleGenerateVoucher = async () => {
@@ -70,6 +87,8 @@ export function VoucherPreview({
     }
   };
 
+  
+
   // Function to trigger the confirmation dialog
   const handleConfirmGenerateVoucher = () => {
     setConfirmAction({
@@ -79,12 +98,52 @@ export function VoucherPreview({
     });
   };
 
+  const handleVerifyVoucher = async () => {
+  const voucherNumber = confirmAction.voucherNumber; 
+
+  if (!voucherNumber) return;
+
+  try {
+    await updateVoucherStatus(voucherNumber, "verify", loggedInUser);
+
+    setConfirmAction({ show: false, type: "", voucherNumber: null });
+
+    alert("Voucher verified successfully!");
+    onClose(); // Close preview modal
+
+    // Reload the page
+    window.location.reload();
+  } catch (error) {
+    console.error("Error verifying voucher:", error);
+    alert("Failed to verify voucher.");
+  }
+};
+
+  
+  
+  
+  const handleCancelVoucher = async () => {
+    if (!confirmAction.voucherNumber) return;
+  
+    try {
+      await updateVoucherStatus(confirmAction.voucherNumber, "cancel", loggedInUser);
+      alert("Voucher canceled successfully!");
+      onClose(); // Close preview modal
+      window.location.reload();
+    } catch (error) {
+      console.error("Error canceling voucher:", error);
+      alert("Failed to cancel voucher.");
+    } finally {
+      setConfirmAction({ show: false, type: "", voucherNumber: null });
+    }
+  };
+  
 
   // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
 
   // Check if the voucher is verified
-  const isVoucherVerified = voucher?.voucher_status === "Verified";
+  const isVoucherVerified = isVerified;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -105,21 +164,37 @@ export function VoucherPreview({
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <h3 className="text-lg font-medium mb-4">
-                    Are you sure you want to submit the voucher?
+                    {confirmAction.type === "submit"
+                      ? "Are you sure you want to submit the voucher?"
+                      : confirmAction.type === "verify"
+                      ? "Are you sure you want to verify this voucher?"
+                      : "Are you sure you want to cancel this voucher?"}
                   </h3>
                   <div className="flex justify-end space-x-4">
                     <button
-                      onClick={() => setConfirmAction({ show: false, type: '', voucherNumber: null })}
+                      onClick={() => setConfirmAction({ show: false, type: "", voucherNumber: null })}
                       className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
                     >
                       No
                     </button>
                     <button
                       onClick={() => {
-                        setConfirmAction({ show: false, type: '', voucherNumber: null }); // Close the dialog
-                        handleGenerateVoucher(); // Call the generate voucher function
+                        setConfirmAction({ show: false, type: "", voucherNumber: null }); // Close the dialog
+                        if (confirmAction.type === "submit") {
+                          handleGenerateVoucher();
+                        } else if (confirmAction.type === "verify") {
+                          handleVerifyVoucher(confirmAction.voucherNumber);
+                        } else if (confirmAction.type === "cancel") {
+                          handleCancelVoucher(confirmAction.voucherNumber);
+                        }
                       }}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+                      className={`px-4 py-2 rounded-md text-white ${
+                        confirmAction.type === "submit"
+                          ? "bg-blue-600 hover:bg-blue-500"
+                          : confirmAction.type === "verify"
+                          ? "bg-green-500 hover:bg-green-600"
+                          : "bg-red-500 hover:bg-red-600"
+                      }`}
                     >
                       Yes
                     </button>
@@ -127,6 +202,37 @@ export function VoucherPreview({
                 </div>
               </div>
             )}
+
+            {/* Show Verify and Cancel buttons only for Verifier */}
+            {authState.role === "Verifier" && voucher.voucher_status === "Pending" && !isVoucherVerified && (
+              <>
+                <button
+                  onClick={() =>
+                    setConfirmAction({
+                      show: true,
+                      type: "verify",
+                      voucherNumber: voucher.voucher_number,
+                    })
+                  }
+                  className="bg-green-500 text-white px-3 py-1 rounded-md shadow hover:bg-green-600"
+                >
+                  Verify
+                </button>
+                <button
+                  onClick={() =>
+                    setConfirmAction({
+                      show: true,
+                      type: "cancel",
+                      voucherNumber: voucher.voucher_number,
+                    })
+                  }
+                  className="bg-red-500 text-white px-3 py-1 rounded-md shadow hover:bg-red-600"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+
             <button
               onClick={onClose}
               className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200"

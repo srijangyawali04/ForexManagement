@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, Clock, XCircle } from 'lucide-react';
 import { fetchLoggedInUser, fetchVouchers, updateVoucherStatus } from '../../services/api';
 import { VoucherPreview } from './VoucherPreview';
+import { useAuth } from '../../contexts/AuthContext';
 import VoucherFilter from './VoucherFilter';
 import Pagination from '../AdminDashboard/Pagination';
 
@@ -17,6 +18,7 @@ const VoucherList = ({ onVerify }) => {
   const [voucherStatus, setVoucherStatus] = useState('');
   const [confirmAction, setConfirmAction] = useState({ show: false, type: '', voucherNumber: null });
   const [previewedVoucher, setPreviewedVoucher] = useState(null); // Added to track previewed voucher
+  const { authState } = useAuth();
 
 
   // Fetch logged-in user info
@@ -201,51 +203,23 @@ const VoucherList = ({ onVerify }) => {
                   : '-'}
               </td>
               <td className="px-4 py-2 text-center space-x-1">
+
                 <button
                   onClick={() => handleVoucherClick(voucher)}
-                  className="bg-blue-500 text-white text-sm px-3 py-1 rounded-md shadow hover:bg-blue-600 transition duration-200"
+                  className={`text-white text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
+                    authState.role === "Creator"
+                      ? "bg-blue-500 hover:bg-blue-600"
+                      : voucher.voucher_status === "Pending"
+                      ? "bg-blue-500 hover:bg-blue-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
                 >
-                  Preview
+                  {authState.role === "Creator"
+                    ? "Preview"
+                    : voucher.voucher_status !== "Pending"
+                    ? "Preview"
+                    : "Process Voucher"}
                 </button>
-
-                {isVerifier && voucher.voucher_status === 'Pending' && (
-                  <>
-                    <button
-                      onClick={() =>
-                        setConfirmAction({
-                          show: true,
-                          type: 'verify',
-                          voucherNumber: voucher.voucher_number,
-                        })
-                      }
-                      disabled={previewedVoucher !== voucher.voucher_number} // Disable if not previewed
-                      className={`text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
-                        previewedVoucher === voucher.voucher_number
-                          ? 'bg-green-500 text-white hover:bg-green-600'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      Verify
-                    </button>
-                    <button
-                      onClick={() =>
-                        setConfirmAction({
-                          show: true,
-                          type: 'cancel',
-                          voucherNumber: voucher.voucher_number,
-                        })
-                      }
-                      disabled={previewedVoucher !== voucher.voucher_number} // Disable if not previewed
-                      className={`text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
-                        previewedVoucher === voucher.voucher_number
-                          ? 'bg-red-500 text-white hover:bg-red-600'
-                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      }`}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                )}
               </td>
             </tr>
           ))}

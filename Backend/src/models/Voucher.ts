@@ -53,7 +53,7 @@ export class Voucher {
   @Column({ type: 'varchar', length: 100, nullable: true, default: null})
   travel_order_ref_number: string;
 
-  @Column({ type: 'enum', enum: ['Pending', 'Verified','Canceled'] })
+  @Column({ type: 'enum', enum: ['Pending', 'Verified','Canceled','Edit'] })
   voucher_status: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
