@@ -5,6 +5,8 @@ import { VoucherPreview } from './VoucherPreview';
 import { useAuth } from '../../contexts/AuthContext';
 import VoucherFilter from './VoucherFilter';
 import Pagination from '../AdminDashboard/Pagination';
+import { EditPanel } from './EditPanel';
+
 
 const VoucherList = ({ onVerify }) => {
   const [vouchers, setVouchers] = useState([]);
@@ -19,6 +21,7 @@ const VoucherList = ({ onVerify }) => {
   const [confirmAction, setConfirmAction] = useState({ show: false, type: '', voucherNumber: null });
   const [previewedVoucher, setPreviewedVoucher] = useState(null); // Added to track previewed voucher
   const { authState } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
 
   // Fetch logged-in user info
@@ -137,6 +140,11 @@ const VoucherList = ({ onVerify }) => {
     }
   };
 
+  const handleEditVoucher = (voucher) => {
+    setSelectedVoucher(voucher);
+    setIsEditOpen(true);
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Voucher List</h2>
@@ -253,6 +261,18 @@ const VoucherList = ({ onVerify }) => {
           onGenerate={() => console.log('Generate logic here')}
           showGenerateButton={false}
         />
+      )}
+
+      {/* Edit Panel Modal */}
+      {isEditOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <EditPanel
+            isOpen={isEditOpen}
+            onClose={() => setIsEditOpen(false)}
+            onSubmit={(updatedData) => console.log("Updated Data:", updatedData)}
+            initialData={selectedVoucher}
+          />
+        </div>
       )}
 
       {confirmAction.show && (
