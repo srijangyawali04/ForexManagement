@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, XCircle ,Pencil} from 'lucide-react';
 import { fetchLoggedInUser, fetchVouchers, updateVoucherStatus } from '../../services/api';
 import { VoucherPreview } from './VoucherPreview';
 import { useAuth } from '../../contexts/AuthContext';
@@ -169,36 +169,41 @@ const VoucherList = ({ onVerify }) => {
               <td className="px-4 py-2 text-center">{voucher.createdBy}</td>
               <td className="px-4 py-2 text-center">{new Date(voucher.voucher_date).toLocaleString()}</td>
               <td className="px-4 py-2 text-center">
-                <span
-                  className={`px-1 py-1  rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
-                    voucher.voucher_status === 'Verified'
-                      ? 'bg-green-100 text-green-800'
-                      : voucher.voucher_status === 'Pending'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : voucher.voucher_status === 'Canceled'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {voucher.voucher_status === 'Verified' ? (
-                    <CheckCircle size={16} className="mr-1" />
-                  ) : voucher.voucher_status === 'Pending' ? (
-                    <Clock size={16} className="mr-1" />
-                  ) : voucher.voucher_status === 'Canceled' ? (
-                    <XCircle size={16} className="mr-1" />
-                  ) : (
-                    '-'
-                  )}
-                  {voucher.voucher_status}
-                </span>
+              <span
+                className={`px-1 py-1 rounded-full text-sm flex items-center justify-center whitespace-nowrap ${
+                  voucher.voucher_status === 'Verified'
+                    ? 'bg-green-100 text-green-800'
+                    : voucher.voucher_status === 'Pending'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : voucher.voucher_status === 'Canceled'
+                    ? 'bg-red-100 text-red-800'
+                    : voucher.voucher_status === 'Edit'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                {voucher.voucher_status === 'Verified' ? (
+                  <CheckCircle size={16} className="mr-1" />
+                ) : voucher.voucher_status === 'Pending' ? (
+                  <Clock size={16} className="mr-1" />
+                ) : voucher.voucher_status === 'Canceled' ? (
+                  <XCircle size={16} className="mr-1" />
+                ) : voucher.voucher_status === 'Edit' ? (
+                  <Pencil size={16} className="mr-1" />
+                ) : (
+                  '-'
+                )}
+                {voucher.voucher_status === 'Edit' ? 'Require Editing' : voucher.voucher_status}
+              </span>
+
               </td>
               <td className="px-4 py-2 text-center">
-                {voucher.voucher_status === 'Verified' || voucher.voucher_status === 'Canceled'
+                {voucher.voucher_status !== 'Pending'
                   ? voucher.updatedBy
                   : '-'}
               </td>
               <td className="px-4 py-2 text-center">
-                {voucher.voucher_status === 'Verified' || voucher.voucher_status === 'Canceled'
+                {voucher.voucher_status !== 'Pending'
                   ? new Date(voucher.updatedAt).toLocaleString()
                   : '-'}
               </td>

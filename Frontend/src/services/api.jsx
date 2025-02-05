@@ -394,3 +394,32 @@ export const fetchTransactionReport = async (filters) => {
     throw error;
   }
 };
+
+
+// Apply corrections to a voucher
+export const applyVoucherCorrection = async (voucherNumber, correctionData) => {
+  const token = localStorage.getItem('authToken'); // Retrieve the token from localStorage
+
+  try {
+    const response = await fetch(`${apiUrl}/api/voucher/${voucherNumber}/correction`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`, // Include the Authorization token
+      },
+      body: JSON.stringify(correctionData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error applying voucher correction:', errorData);
+      throw new Error('Failed to apply voucher correction');
+    }
+
+    const data = await response.json();
+    return data; // Return the updated voucher data
+  } catch (error) {
+    console.error('Error applying voucher correction:', error);
+    throw new Error('Failed to apply voucher correction');
+  }
+};

@@ -138,6 +138,28 @@ export function VoucherPreview({
     }
   };
   
+  const handleEditVoucher = async () => {
+    if (!confirmAction.voucherNumber) return;
+  
+    try {
+      await updateVoucherStatus(confirmAction.voucherNumber, "edit", loggedInUser);
+      alert("Voucher sent for edit successfully!");
+  
+      setConfirmAction({
+        show: false,
+        type: "",
+        voucherNumber: null,
+      });
+  
+      window.location.reload(); // Reload after state update
+    } catch (error) {
+      console.error("Failed to update voucher status:", error);
+      alert("Failed to send voucher for edit.");
+    }
+  };
+  
+
+
 
   // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
@@ -168,7 +190,9 @@ export function VoucherPreview({
                       ? "Are you sure you want to submit the voucher?"
                       : confirmAction.type === "verify"
                       ? "Are you sure you want to verify this voucher?"
-                      : "Are you sure you want to cancel this voucher?"}
+                      : confirmAction.type === "cancel"
+                      ? "Are you sure you want to cancel this voucher?"
+                      : "Are you sure you want to send this voucher for correction?"}
                   </h3>
                   <div className="flex justify-end space-x-4">
                     <button
@@ -186,6 +210,8 @@ export function VoucherPreview({
                           handleVerifyVoucher(confirmAction.voucherNumber);
                         } else if (confirmAction.type === "cancel") {
                           handleCancelVoucher(confirmAction.voucherNumber);
+                        } else if (confirmAction.type === "edit") {
+                          handleEditVoucher(confirmAction.voucherNumber);
                         }
                       }}
                       className={`px-4 py-2 rounded-md text-white ${
@@ -193,7 +219,9 @@ export function VoucherPreview({
                           ? "bg-blue-600 hover:bg-blue-500"
                           : confirmAction.type === "verify"
                           ? "bg-green-500 hover:bg-green-600"
-                          : "bg-red-500 hover:bg-red-600"
+                          : confirmAction.type === "cancel"
+                          ? "bg-red-500 hover:bg-red-600"
+                          : "bg-yellow-500 hover:bg-yellow-600"
                       }`}
                     >
                       Yes
@@ -203,7 +231,8 @@ export function VoucherPreview({
               </div>
             )}
 
-            {/* Show Verify and Cancel buttons only for Verifier */}
+
+            {/* Show Verify, Cancel, and Edit Request buttons only for Verifier */}
             {authState.role === "Verifier" && voucher.voucher_status === "Pending" && !isVoucherVerified && (
               <>
                 <button
@@ -218,6 +247,7 @@ export function VoucherPreview({
                 >
                   Verify
                 </button>
+                
                 <button
                   onClick={() =>
                     setConfirmAction({
@@ -230,8 +260,22 @@ export function VoucherPreview({
                 >
                   Cancel
                 </button>
+
+                <button
+                  onClick={() =>
+                    setConfirmAction({
+                      show: true,
+                      type: "edit",
+                      voucherNumber: voucher.voucher_number,
+                    })
+                  }
+                  className="bg-yellow-500 text-white px-3 py-1 rounded-md shadow hover:bg-yellow-600"
+                >
+                  Send for Correction
+                </button>
               </>
             )}
+
 
             <button
               onClick={onClose}

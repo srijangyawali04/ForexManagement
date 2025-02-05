@@ -190,7 +190,7 @@ export const VoucherTemplate = ({ voucher }) => {
                   </td>
               </tr>
             </tbody>
-          </table>
+          </table>      
           <div className='font-semibold'>
             <p>Ordered By: {orderedBy}</p>
           </div>

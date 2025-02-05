@@ -1,5 +1,5 @@
 import express from "express";
-import { createVoucher , getVoucherList, updateVoucherStatus , getVoucherByNumber , getTotalVouchers} from "../controllers/voucherController";
+import { createVoucher , getVoucherList, updateVoucherStatus , getVoucherByNumber , getTotalVouchers , applyCorrection} from "../controllers/voucherController";
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.patch("/:voucher_number/update-status", updateVoucherStatus);
 // Route to get voucherbynumber
 router.get("/:voucher_number", getVoucherByNumber);
 
-
-
+// Route to apply corrections to a voucher
+router.patch("/:voucher_number/correction", applyCorrection);
 
 export default router;
