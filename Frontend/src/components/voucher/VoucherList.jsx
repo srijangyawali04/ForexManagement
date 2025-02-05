@@ -208,7 +208,7 @@ const VoucherList = ({ onVerify }) => {
                   : '-'}
               </td>
               <td className="px-4 py-2 text-center space-x-1">
-
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleVoucherClick(voucher)}
                   className={`text-white text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
@@ -219,12 +219,20 @@ const VoucherList = ({ onVerify }) => {
                       : "bg-green-500 hover:bg-green-600"
                   }`}
                 >
-                  {authState.role === "Creator"
-                    ? "Preview"
-                    : voucher.voucher_status !== "Pending"
+                  {authState.role === "Creator" || voucher.voucher_status !== "Pending"
                     ? "Preview"
                     : "Process Voucher"}
                 </button>
+
+                {voucher.voucher_status === "Edit" && authState.role === "Creator" && (
+                  <button
+                    onClick={() => handleEditVoucher(voucher)}
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md shadow transition duration-200"
+                  >
+                    Edit
+                  </button>
+                )}
+              </div>
               </td>
             </tr>
           ))}
