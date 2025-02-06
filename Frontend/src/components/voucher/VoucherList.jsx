@@ -8,7 +8,7 @@ import Pagination from '../AdminDashboard/Pagination';
 import { EditPanel } from './EditPanel';
 
 
-const VoucherList = ({ onVerify }) => {
+const VoucherList = ({ onVerify  }) => {
   const [vouchers, setVouchers] = useState([]);
   const [filteredVouchers, setFilteredVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
@@ -23,6 +23,8 @@ const VoucherList = ({ onVerify }) => {
   const { authState } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+  const isPastDate = (voucherDate) => new Date(voucherDate) < new Date(today);
 
   // Fetch logged-in user info
   useEffect(() => {
@@ -234,11 +236,15 @@ const VoucherList = ({ onVerify }) => {
 
                 {voucher.voucher_status === "Edit" && authState.role === "Creator" && (
                   <button
-                    onClick={() => handleEditVoucher(voucher)}
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-3 py-1 rounded-md shadow transition duration-200"
+                    onClick={() => !isPastDate(voucher.voucher_date) && handleEditVoucher(voucher)}
+                    disabled={isPastDate(voucher.voucher_date)}
+                    className={`text-white text-sm px-3 py-1 rounded-md shadow transition duration-200 ${
+                      isPastDate(voucher.voucher_date) ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600"
+                    }`}
                   >
                     Edit
                   </button>
+                  
                 )}
               </div>
               </td>
@@ -263,17 +269,17 @@ const VoucherList = ({ onVerify }) => {
         />
       )}
 
-      {/* Edit Panel Modal */}
-      {isEditOpen && (
+      {isEditOpen && selectedVoucher && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <EditPanel
             isOpen={isEditOpen}
             onClose={() => setIsEditOpen(false)}
             onSubmit={(updatedData) => console.log("Updated Data:", updatedData)}
-            initialData={selectedVoucher}
-          />
+            initialData={selectedVoucher || {}}
+          />  
         </div>
       )}
+
 
       {confirmAction.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
