@@ -24,6 +24,12 @@ export function VoucherPreview({
     voucherNumber: null, // Optional: Pass a voucher number if needed
   });
 
+  // Add click handler for outside clicks
+  const handleOutsideClick = (e) => {
+    if (e.target.classList.contains('modal-overlay')) {
+      onClose();
+    }
+  };
 
    // Fetch logged-in user info
     useEffect(() => {
@@ -103,30 +109,27 @@ export function VoucherPreview({
   const handleVerifyVoucher = async () => {
     const voucherNumber = confirmAction.voucherNumber;
     if (!voucherNumber) return;
-
+  
     try {
       await updateVoucherStatus(voucherNumber, "verify", loggedInUser);
       setConfirmAction({ show: false, type: "", voucherNumber: null });
       alert("Voucher verified successfully!");
-      onClose();
-      if (onRefresh) onRefresh(); // Refresh voucher list
+      onClose(); // Close preview modal first
+      if (onRefresh) onRefresh(); // Refresh the list
     } catch (error) {
       console.error("Error verifying voucher:", error);
       alert("Failed to verify voucher.");
     }
   };
-
-  
-  
   
   const handleCancelVoucher = async () => {
     if (!confirmAction.voucherNumber) return;
-
+  
     try {
       await updateVoucherStatus(confirmAction.voucherNumber, "cancel", loggedInUser);
       alert("Voucher canceled successfully!");
-      onClose();
-      if (onRefresh) onRefresh(); // Refresh voucher list
+      onClose(); // Close preview modal first
+      if (onRefresh) onRefresh(); // Refresh the list
     } catch (error) {
       console.error("Error canceling voucher:", error);
       alert("Failed to cancel voucher.");
@@ -137,19 +140,19 @@ export function VoucherPreview({
   
   const handleEditVoucher = async () => {
     if (!confirmAction.voucherNumber) return;
-
+  
     try {
       await updateVoucherStatus(confirmAction.voucherNumber, "edit", loggedInUser);
       alert("Voucher sent for edit successfully!");
       setConfirmAction({ show: false, type: "", voucherNumber: null });
-      if (onRefresh) onRefresh(); // Refresh voucher list
+      onClose(); // Close preview modal first
+      if (onRefresh) onRefresh(); // Refresh the list
     } catch (error) {
       console.error("Failed to update voucher status:", error);
       alert("Failed to send voucher for edit.");
     }
   };
-
-
+  
 
   // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
@@ -158,7 +161,7 @@ export function VoucherPreview({
   const isVoucherVerified = isVerified;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 modal-overlay" onClick={handleOutsideClick}>
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-lg font-semibold">Voucher Preview</h2>
