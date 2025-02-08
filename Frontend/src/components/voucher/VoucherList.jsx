@@ -41,26 +41,23 @@ const VoucherList = ({ onVerify  }) => {
   }, []);
 
   // Fetch vouchers from the backend
-  // Fetch vouchers from the backend
   useEffect(() => {
     const fetchVoucherData = async () => {
       try {
-        const data = await fetchVouchers();
-        let filteredData = data.data || [];
-
-        // If the logged-in user is a Creator, filter vouchers created by them
-        if (loggedInUser?.role === 'Creator') {
-          filteredData = filteredData.filter(voucher => voucher.createdBy === loggedInUser.staff_code);
-        }
-
-        setVouchers(filteredData);
+        const data = await fetchVouchers(loggedInUser);
+        setVouchers(data.data || []);
+        setFilteredVouchers(data.data || []); // Set filtered vouchers directly
       } catch (error) {
         console.error('Error fetching vouchers:', error);
       }
     };
-
-    fetchVoucherData();
-  }, [loggedInUser]); // Add loggedInUser as a dependency
+  
+    if (loggedInUser) {
+      fetchVoucherData();
+    }
+  }, [loggedInUser]);
+  
+  
 
   // Combine search query and status filter
   useEffect(() => {

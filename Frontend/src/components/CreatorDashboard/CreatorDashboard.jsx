@@ -29,7 +29,7 @@
       if (!loggedInUser) {
         getUserInfo();
       }
-    }, [loggedInUser]);
+    }, []);
 
     const handleCreateVoucher = (voucher) => {
       setVouchers((prevVouchers) => [...prevVouchers, { id: Date.now().toString(), ...voucher }]);
@@ -127,10 +127,11 @@
         <div className="container mx-auto mt-6">
           {view === 'list' && (
             <VoucherList
-              vouchers={vouchers}
-              onVerify={handleVerifyVoucher}
-              onPreview={handlePreviewVoucher} // Pass the preview function here
-            />
+            vouchers={vouchers}
+            onVerify={handleVerifyVoucher}
+            onPreview={handlePreviewVoucher}
+            loggedInUser={loggedInUser} // Pass loggedInUser directly to VoucherList
+          />
           )}
           {view === 'form' && <VoucherForm onSubmit={handleCreateVoucher} />}
           {view === 'exchangeRates' && <ExchangeRatesTable />}

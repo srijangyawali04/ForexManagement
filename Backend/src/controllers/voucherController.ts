@@ -134,10 +134,21 @@ export const createVoucher = async (req: Request, res: Response) => {
 // Get all vouchers for the list in the front-end
 export const getVoucherList = async (req: Request, res: Response) => {
   try {
-    const vouchers = await voucherRepo.find({
-      relations: ["transactions"], // To fetch related transactions as well
-      order: { voucher_date: "DESC" }, // Optional: order vouchers by creation date
-    });
+    const { staffCode } = req.query;
+    
+    let queryOptions: any = {
+      relations: ["transactions"],
+      order: { voucher_date: "DESC" },
+    };
+
+    // Add where clause only if staffCode is provided
+    if (staffCode) {
+      queryOptions.where = {
+        createdBy: staffCode
+      };
+    }
+
+    const vouchers = await voucherRepo.find(queryOptions);
 
     if (!vouchers) {
       return res.status(404).json({ message: "No vouchers found" });
@@ -155,6 +166,8 @@ export const getVoucherList = async (req: Request, res: Response) => {
     });
   }
 };
+
+
 
 /// Update voucher status (Verify, Cancel, or Edit)
 export const updateVoucherStatus = async (req: Request, res: Response) => {

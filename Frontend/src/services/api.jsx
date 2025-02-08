@@ -279,15 +279,46 @@ export const updateVoucherStatus = async (voucherNumber, action, loggedInUser) =
 
 
 // Fetch voucher data
-export const fetchVouchers = async () => {
-  const token = localStorage.getItem('authToken'); // Retrieve the token
+// export const fetchVouchers = async () => {
+//   const token = localStorage.getItem('authToken'); // Retrieve the token
 
+//   try {
+//     const response = await fetch(`${apiUrl}/api/voucher`, {
+//       method: 'GET',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Authorization': `Bearer ${token}`, // Include the Authorization token
+//       },
+//     });
+
+//     if (!response.ok) {
+//       throw new Error('Failed to fetch vouchers');
+//     }
+
+//     const data = await response.json();
+//     return data; // Return the list of vouchers
+//   } catch (error) {
+//     console.error('Error fetching vouchers:', error);
+//     throw error; // Rethrow error to be handled in the component
+//   }
+// };
+
+export const fetchVouchers = async (user) => {
+  const token = localStorage.getItem('authToken');
+  
   try {
-    const response = await fetch(`${apiUrl}/api/voucher`, {
+    let url = `${apiUrl}/api/voucher`;
+    
+    if (user?.role === 'Creator') {
+      url += `?staffCode=${user.staff_code}`;
+    }
+    console.log('logged ', user)
+    console.log('url',url)
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`, // Include the Authorization token
+        'Authorization': `Bearer ${token}`,
       },
     });
 
@@ -295,13 +326,15 @@ export const fetchVouchers = async () => {
       throw new Error('Failed to fetch vouchers');
     }
 
-    const data = await response.json();
-    return data; // Return the list of vouchers
+    return await response.json();
   } catch (error) {
     console.error('Error fetching vouchers:', error);
-    throw error; // Rethrow error to be handled in the component
+    throw error;
   }
 };
+
+
+
 
 
 // API for fetching a voucher by voucher number
