@@ -22,6 +22,7 @@ const VoucherList = ({ onVerify  }) => {
   const [previewedVoucher, setPreviewedVoucher] = useState(null); // Added to track previewed voucher
   const { authState } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0); // Add refresh state
 
   const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
   const isPastDate = (voucherDate) => new Date(voucherDate) < new Date(today);
@@ -101,13 +102,27 @@ const VoucherList = ({ onVerify  }) => {
       } else if (confirmAction.type === 'cancel') {
         await updateVoucherStatus(confirmAction.voucherNumber, 'cancel', loggedInUser);
       }
-      window.location.reload();
+      // Instead of window.location.reload(), trigger component refresh
+      setRefreshKey(prevKey => prevKey + 1); // Force component re-render
+      setConfirmAction({ show: false, type: '', voucherNumber: null });
     } catch (error) {
       console.error(`Error ${confirmAction.type}ing voucher:`, error);
-    } finally {
-      setConfirmAction({ show: false, type: '', voucherNumber: null });
     }
   };
+
+  // Add key to force re-render when refreshKey changes
+  useEffect(() => {
+    const fetchVoucherData = async () => {
+      try {
+        const data = await fetchVouchers(loggedInUser);
+        setVouchers(data.data || []);
+      } catch (error) {
+        console.error('Error fetching vouchers:', error);
+      }
+    };
+
+    fetchVoucherData();
+  }, [loggedInUser, refreshKey]); 
 
   const isVerifier = loggedInUser?.role === 'Verifier';
 
@@ -263,6 +278,7 @@ const VoucherList = ({ onVerify  }) => {
           onPrint={() => window.print()}
           onGenerate={() => console.log('Generate logic here')}
           showGenerateButton={false}
+          onRefresh={() => setRefreshKey(prev => prev + 1)}
         />
       )}
 
@@ -273,6 +289,7 @@ const VoucherList = ({ onVerify  }) => {
             onClose={() => setIsEditOpen(false)}
             onSubmit={(updatedData) => console.log("Updated Data:", updatedData)}
             initialData={selectedVoucher || {}}
+            onRefresh={() => setRefreshKey(prev => prev + 1)}
           />  
         </div>
       )}

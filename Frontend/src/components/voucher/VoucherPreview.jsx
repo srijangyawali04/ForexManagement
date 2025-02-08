@@ -10,19 +10,21 @@ export function VoucherPreview({
   onClose,
   onPrint,
   onGenerate,
-  showGenerateButton = false
+  showGenerateButton = false,
+  onRefresh 
 }) {
   const { authState } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [isVerified, setIsVerified] = useState(voucher?.voucher_status === "Verified");
-
-
+  const [refreshKey, setRefreshKey] = useState(0);
   const [confirmAction, setConfirmAction] = useState({
     show: false,
     type: '', // 'submit' or 'cancel'
     voucherNumber: null, // Optional: Pass a voucher number if needed
   });
+
+
    // Fetch logged-in user info
     useEffect(() => {
       const fetchUser = async () => {
@@ -99,37 +101,32 @@ export function VoucherPreview({
   };
 
   const handleVerifyVoucher = async () => {
-  const voucherNumber = confirmAction.voucherNumber; 
+    const voucherNumber = confirmAction.voucherNumber;
+    if (!voucherNumber) return;
 
-  if (!voucherNumber) return;
-
-  try {
-    await updateVoucherStatus(voucherNumber, "verify", loggedInUser);
-
-    setConfirmAction({ show: false, type: "", voucherNumber: null });
-
-    alert("Voucher verified successfully!");
-    onClose(); // Close preview modal
-
-    // Reload the page
-    window.location.reload();
-  } catch (error) {
-    console.error("Error verifying voucher:", error);
-    alert("Failed to verify voucher.");
-  }
-};
+    try {
+      await updateVoucherStatus(voucherNumber, "verify", loggedInUser);
+      setConfirmAction({ show: false, type: "", voucherNumber: null });
+      alert("Voucher verified successfully!");
+      onClose();
+      if (onRefresh) onRefresh(); // Refresh voucher list
+    } catch (error) {
+      console.error("Error verifying voucher:", error);
+      alert("Failed to verify voucher.");
+    }
+  };
 
   
   
   
   const handleCancelVoucher = async () => {
     if (!confirmAction.voucherNumber) return;
-  
+
     try {
       await updateVoucherStatus(confirmAction.voucherNumber, "cancel", loggedInUser);
       alert("Voucher canceled successfully!");
-      onClose(); // Close preview modal
-      window.location.reload();
+      onClose();
+      if (onRefresh) onRefresh(); // Refresh voucher list
     } catch (error) {
       console.error("Error canceling voucher:", error);
       alert("Failed to cancel voucher.");
@@ -140,24 +137,17 @@ export function VoucherPreview({
   
   const handleEditVoucher = async () => {
     if (!confirmAction.voucherNumber) return;
-  
+
     try {
       await updateVoucherStatus(confirmAction.voucherNumber, "edit", loggedInUser);
       alert("Voucher sent for edit successfully!");
-  
-      setConfirmAction({
-        show: false,
-        type: "",
-        voucherNumber: null,
-      });
-  
-      window.location.reload(); // Reload after state update
+      setConfirmAction({ show: false, type: "", voucherNumber: null });
+      if (onRefresh) onRefresh(); // Refresh voucher list
     } catch (error) {
       console.error("Failed to update voucher status:", error);
       alert("Failed to send voucher for edit.");
     }
   };
-  
 
 
 
