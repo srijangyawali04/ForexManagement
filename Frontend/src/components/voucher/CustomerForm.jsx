@@ -19,7 +19,6 @@ export function CustomerForm({ value, onChange, voucherType }) {
     sourceOfForeignCurrency: '',
   });
 
-  // Refresh initialValues whenever voucherType changes
   useEffect(() => {
     const updatedValues = {
       name: '',
@@ -43,7 +42,6 @@ export function CustomerForm({ value, onChange, voucherType }) {
     setInitialValues(updatedValues);
     onChange(updatedValues);
 
-    // Set errors only if the field is required and is empty
     if (fieldValue.trim() !== '') {
       setErrors((prev) => ({ ...prev, [field]: false }));
     } else {

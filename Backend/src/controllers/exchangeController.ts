@@ -20,13 +20,11 @@ export const fetchForexRates = async () => {
         });
 
         if (existingRate) {
-          // Update existing rate
           existingRate.buy_rate = parseFloat(rate.buy);
           existingRate.sell_rate = parseFloat(rate.sell);
           existingRate.fetchedAt = new Date();
           await forexRateRepo.save(existingRate);
         } else {
-          // Insert new rate
           const newRate = forexRateRepo.create({
             currency_iso: rate.currency.iso3,
             currency_name: rate.currency.name,
@@ -38,20 +36,16 @@ export const fetchForexRates = async () => {
           await forexRateRepo.save(newRate);
         }
       }
-
     }
   } catch (error) {
     console.error('Error fetching or processing forex rates:', error.message);
   }
 };
 
-
-// Endpoint to fetch all currencies with their rates
 export const getAllCurrencies = async (req: Request, res: Response) => {
   try {
     const forexRateRepo = AppDataSource.getRepository(ExchangeRate);
 
-    // Fetch all exchange rates
     const currencies = await forexRateRepo.find({
       select: ['currency_iso', 'currency_name','unit' ,'buy_rate', 'sell_rate','fetchedAt'],
     });

@@ -9,7 +9,6 @@ export const VoucherTemplate = ({ voucher }) => {
   const [verifiedByInfo, setVerifiedByInfo] = useState(null);
 
   useEffect(() => {
-    // Fetch the created by user info
     const fetchCreatedByInfo = async () => {
       const createdByStaffCode = voucher.transactions?.[0]?.created_by;
       if (createdByStaffCode) {
@@ -22,7 +21,6 @@ export const VoucherTemplate = ({ voucher }) => {
       }
     };
 
-    // Fetch the verified by user info
     const fetchVerifiedByInfo = async () => {
       const verifiedByStaffCode = voucher.transactions?.[0]?.updated_by;
 
@@ -34,7 +32,6 @@ export const VoucherTemplate = ({ voucher }) => {
           console.error('Error fetching verified by user info:', error);
         }
       } else {
-        // Handle the case where verification is pending or not available
         setVerifiedByInfo({ name: 'Pending', designation: 'N/A' });
       }
     };
@@ -57,23 +54,21 @@ export const VoucherTemplate = ({ voucher }) => {
   const travelOrderRef = voucher.customer?.travelOrderRef || voucher.travel_order_ref_number || 'N/A';
   const voucherType = voucher.type || voucher.transactions?.[0]?.transaction_type || 'N/A';
  
-  // Total Commission
   const totalCommission = (voucher.transactions || []).reduce((sum, t) => {
     const fcAmount = Number(t.fc_amount) || 0;
     const commission = voucherType === 'remit-in' && t.commission === undefined
-      ? fcAmount * 0.005 // Calculate commission if not already defined
-      : Number(t.commission); // Use the commission if already defined
+      ? fcAmount * 0.005 
+      : Number(t.commission); 
     return sum + commission;
   }, 0);
 
-  // Directly use NRP_amount from the payload for total NRP
   const totalNRP = (voucher.transactions || []).reduce((sum, t) => {
-    const nprAmount = parseFloat(t.NPR_amount) || 0;  // Convert NPR_amount to a number
+    const nprAmount = parseFloat(t.NPR_amount) || 0;  
     return sum + nprAmount;
   }, 0) || voucher.totalAmount || 0;
   
   const netNRP = totalNRP - (totalCommission || 0);
-  const amountInWords = numberToWords(netNRP); // Convert net amount to words
+  const amountInWords = numberToWords(netNRP); 
 
   const renderCopy = () => {  
     return (
@@ -151,7 +146,7 @@ export const VoucherTemplate = ({ voucher }) => {
                     </td>
                     <td className="border border-gray-400 p-2 text-right">
                       {console.log('Rendering NRP_amount:', nprAmount)}
-                      {formatAmount(nprAmount)} {/* Display NRP_amount */}
+                      {formatAmount(nprAmount)} 
                     </td>
                     {voucherType === 'remit-in' && (
                       <td className="border border-gray-400 p-2 text-right">

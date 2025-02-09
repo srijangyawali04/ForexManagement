@@ -17,19 +17,19 @@ export default function UserForm({ onUserAdd, onClose }) {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     user_status: "Enabled",
-    role: "", // Ensure role is part of the form data state
+    role: "", 
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState('');
 
   const { authState } = useAuth();
-  const currentUserRole = authState?.role; // Use optional chaining in case authState is undefined initially
+  const currentUserRole = authState?.role; 
   useEffect(() => {
     // If current user role is superadmin, allow them to select 'Admin' role.
     if (currentUserRole === 'SuperAdmin' && !formData.role) {
       setFormData((prev) => ({
         ...prev,
-        role: 'Creator', // Default to 'Creator' initially if no role is set
+        role: 'Creator', 
       }));
     }
   }, [currentUserRole, formData.role]);
@@ -46,10 +46,10 @@ export default function UserForm({ onUserAdd, onClose }) {
     }
 
     try {
-      const result = await addUser(formData); // Call the addUser function from api.js
+      const result = await addUser(formData);
       alert('User added successfully!');
-      onUserAdd(result.data); // Pass the newly added user back to the parent component
-      onClose(); // Close the form
+      onUserAdd(result.data);
+      onClose(); 
     } catch (error) {
       alert(error.message);
       console.error('Error:', error);
@@ -68,7 +68,6 @@ export default function UserForm({ onUserAdd, onClose }) {
     });
 
     if (e.target.name === 'password') {
-      // Validate password strength when it changes
       const password = e.target.value;
       if (!isPasswordStrong(password)) {
         setPasswordError('Password must be at least 8 characters, include an uppercase letter, a number, and a special character.');
@@ -163,7 +162,7 @@ export default function UserForm({ onUserAdd, onClose }) {
               <select
                 name="role"
                 required
-                value={formData.role} // Ensure role value is controlled by formData
+                value={formData.role} 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-2 border-blue-500 focus:border-blue-600 focus:ring focus:ring-blue-300 shadow-sm px-3"
               >

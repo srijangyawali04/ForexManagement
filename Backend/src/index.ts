@@ -12,12 +12,11 @@ import exchangeRoutes from './routes/exchangeRoutes';
 import authRoutes from './routes/authRoutes';
 import dotenv from "dotenv";
 
-// Initialize dotenv to load environment variables
 dotenv.config();
 
 // Configure CORS
 const corsOptions = {
-    origin: "http://remittancesystem.srijangyawali.com" ,  // Allow frontend to connect
+    origin: "http://remittancesystem.srijangyawali.com" ,  
     methods: ["GET", "POST", "PUT", "PATCH"], 
     credentials: true, 
 };

@@ -105,17 +105,15 @@ export function EditPanel({ isOpen, onClose, onSubmit, initialData = {} }) {
         source_of_foreign_currency: customerInfo.sourceOfForeignCurrency,
         travel_order_ref_number: customerInfo.travelOrderRef,
         transactions: transactions,
-        voucher_status: "Pending" // Add status directly in correction data
+        voucher_status: "Pending" 
       };
   
-      // Apply corrections with status update
       await applyVoucherCorrection(initialData.voucher_number, correctionData);
       
       onSubmit(correctionData);
       setShowConfirmation(false);
       onClose();
       
-      // Reload the window after successful update
       window.location.reload();
     } catch (error) {
       alert('Failed to apply corrections. Please try again.');

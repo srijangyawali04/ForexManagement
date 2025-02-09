@@ -41,7 +41,7 @@ export default function UserList({ loading, onUpdateStatus }) {
   useEffect(() => {
     const getUserInfo = async () => {
       try {
-        if (!authState.staffName) {  // Use authState instead of loggedInUser
+        if (!authState.staffName) {  
           const userInfo = await fetchLoggedInUser();
           setLoggedInUser(userInfo);
         }
@@ -78,7 +78,7 @@ export default function UserList({ loading, onUpdateStatus }) {
     // Ensure a remark is provided before proceeding
     if (!remark) {
       alert('Please provide a remark before changing the status.');
-      return; // Exit the function early
+      return; 
     }
   
     // Send the update to the backend and handle the UI update
@@ -110,13 +110,10 @@ export default function UserList({ loading, onUpdateStatus }) {
         try {
             const response = await resetUserPassword(user.staff_code, newPassword);
 
-            // Single alert for success or failure
             if (response.success && response.message === "Password reset successfully.") {
                 alert("Password reset successfully for " + user.staff_name);
-                // Optionally, update the UI here for success
             } else {
                 alert("Failed to reset password for " + user.staff_name + ": " + response.message);
-                // Optionally, update the UI here for failure
             }
         } catch {
             alert("An unexpected error occurred while resetting the password.");
@@ -169,7 +166,7 @@ export default function UserList({ loading, onUpdateStatus }) {
           <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <h1 className="text-xl font-bold">Remittance Voucher Generation System</h1>
-            {authState.staffName && ( // Check if staffName exists in authState
+            {authState.staffName && ( 
               <div className="text-sm">
                 <span className="opacity-75">Welcome,</span>{' '}
                 <span className="font-semibold">{authState.staffName}</span>{' '}
@@ -185,7 +182,7 @@ export default function UserList({ loading, onUpdateStatus }) {
 
 
             {/* Logout Button */}
-            {authState.staffName && ( // Check if staffName exists in authState
+            {authState.staffName && ( 
               <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"

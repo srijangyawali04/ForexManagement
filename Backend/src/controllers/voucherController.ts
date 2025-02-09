@@ -7,17 +7,15 @@ import { AppDataSource } from "../initializers/data-source";
 const voucherRepo = AppDataSource.getRepository(Voucher);
 const transactionRepo = AppDataSource.getRepository(Transactions);
 
-// Utility function to validate required fields, excluding optional ones
 const validateRequiredFields = (fields: Record<string, any>): string | null => {
   for (const [key, value] of Object.entries(fields)) {
-    if (!value && key !== 'itrs_code') { // Exclude 'itrs_code' from required fields
-      return key; // Return the missing field
+    if (!value && key !== 'itrs_code') {
+      return key;
     }
   }
-  return null; // No missing fields
+  return null;
 };
 
-// Add Voucher Information with Transactions
 export const createVoucher = async (req: Request, res: Response) => {
   try {
     const {
@@ -34,12 +32,11 @@ export const createVoucher = async (req: Request, res: Response) => {
       travel_order_ref_number = null,
       voucher_status = "Pending", 
       createdBy, 
-      voucher_number, // Ensure voucher_number is sent
-      transactions, // Array of transactions to be associated with the voucher
+      voucher_number,
+      transactions,
     } = req.body;
     console.log('Request Body:', req.body);
 
-    // Validate required fields, excluding 'itrs_code'
     const missingField = validateRequiredFields({
       customer_name,
       customer_address,
@@ -48,8 +45,8 @@ export const createVoucher = async (req: Request, res: Response) => {
       voucher_status,
       ordered_by,
       createdBy,
-      voucher_number, // Include voucher_number in validation
-      transactions, // Ensure transactions are passed
+      voucher_number,
+      transactions,
     });
 
     if (missingField) {
@@ -65,7 +62,6 @@ export const createVoucher = async (req: Request, res: Response) => {
       });
     }
 
-    // Create a new voucher object
     const voucher = voucherRepo.create({
       voucher_number,
       customer_name,
@@ -77,41 +73,36 @@ export const createVoucher = async (req: Request, res: Response) => {
       visiting_country,
       purpose_of_visit,
       source_of_foreign_currency,
-      itrs_code, // Optional field, can be null
+      itrs_code,
       travel_order_ref_number,
       voucher_status,
-      createdBy, // Store the createdBy value from the request
-      updatedBy: "Pending", // Default value for verifiedBy
+      createdBy,
+      updatedBy: "Pending",
     });
 
-    // Save the voucher first to ensure it exists in the database
     const savedVoucher = await voucherRepo.save(voucher);
 
-    // Now handle the transactions creation
     const transactionPromises = transactions.map(async (transaction: any) => {
-      // Ensure 'transaction_type' is present in each transaction
       if (!transaction.transaction_type) {
         throw new Error("Missing required field: transaction_type in one or more transactions.");
       }
 
       const newTransaction = transactionRepo.create({
-        voucher: savedVoucher, // Associate the transaction with the saved voucher
+        voucher: savedVoucher,
         currency_name: transaction.currency_name,
-        currency_iso_code: transaction.currency_iso_code, // Correct field name
+        currency_iso_code: transaction.currency_iso_code,
         exchange_rate: transaction.exchange_rate,
         fc_amount: transaction.fc_amount,
         commission: transaction.commission,
         NPR_amount: transaction.NPR_amount,
         created_by: transaction.created_by,
         updated_by: transaction.updated_by,
-        transaction_type: transaction.transaction_type, // Include transaction_type
+        transaction_type: transaction.transaction_type,
       });
 
-      // Save the transaction for each item in the transactions array
       return transactionRepo.save(newTransaction);
     });
 
-    // Wait for all transactions to be saved
     await Promise.all(transactionPromises);
 
     return res.status(201).json({
@@ -121,7 +112,6 @@ export const createVoucher = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Error creating voucher and transactions:", err);
 
-    // Ensure the response is sent only once
     if (!res.headersSent) {
       return res.status(500).json({
         message: "Server error.",
@@ -131,7 +121,6 @@ export const createVoucher = async (req: Request, res: Response) => {
   }
 };
 
-// Get all vouchers for the list in the front-end
 export const getVoucherList = async (req: Request, res: Response) => {
   try {
     const { staffCode } = req.query;
@@ -141,7 +130,6 @@ export const getVoucherList = async (req: Request, res: Response) => {
       order: { voucher_date: "DESC" },
     };
 
-    // Add where clause only if staffCode is provided
     if (staffCode) {
       queryOptions.where = {
         createdBy: staffCode
@@ -167,58 +155,45 @@ export const getVoucherList = async (req: Request, res: Response) => {
   }
 };
 
-
-
-/// Update voucher status (Verify, Cancel, or Edit)
 export const updateVoucherStatus = async (req: Request, res: Response) => {
   try {
-    // Convert voucher_number to a number
     const voucher_number = Number(req.params.voucher_number);
 
-    // Check if voucher_number is a valid number
     if (isNaN(voucher_number)) {
       return res.status(400).json({ message: "Invalid voucher number." });
     }
 
-    // Fetch voucher by voucher_number, including transactions
     const voucher = await voucherRepo.findOne({
       where: { voucher_number },
-      relations: ["transactions"], // Ensure transactions are fetched with the voucher
+      relations: ["transactions"],
     });
 
     if (!voucher) {
       return res.status(404).json({ message: "Voucher not found" });
     }
 
-    // Log the request body and voucher state for debugging
     console.log("Request Body:", req.body);
     console.log("Voucher Before Update:", voucher);
 
-    // Determine action based on the request body
-    const { action, updatedBy } = req.body; // 'action' can be 'verify', 'cancel', or 'edit'
+    const { action, updatedBy } = req.body;
 
-    // Ensure the action is valid
     if (!["verify", "cancel", "edit"].includes(action)) {
       return res.status(400).json({ message: "Invalid action." });
     }
 
-    // Perform the action
     if (action === "verify") {
-      // Check if voucher is already verified or canceled
       if (voucher.voucher_status === "Verified" || voucher.voucher_status === "Canceled") {
         return res.status(400).json({ message: "Voucher has already been verified or canceled." });
       }
 
-      // Update voucher status to 'Verified'
       voucher.voucher_status = "Verified";
       voucher.updatedBy = updatedBy || "Admin";
 
-      // Update the verified_by for each transaction within the voucher
       if (voucher.transactions && voucher.transactions.length > 0) {
         try {
           for (const transaction of voucher.transactions) {
-            transaction.updated_by = updatedBy || "Admin"; // Update the transaction's verified_by field
-            await transactionRepo.save(transaction); // Save each transaction
+            transaction.updated_by = updatedBy || "Admin";
+            await transactionRepo.save(transaction);
           }
         } catch (transactionError) {
           console.error("Error updating transaction:", transactionError);
@@ -226,21 +201,18 @@ export const updateVoucherStatus = async (req: Request, res: Response) => {
         }
       }
     } else if (action === "cancel") {
-      // Check if voucher is already canceled
       if (voucher.voucher_status === "Canceled") {
         return res.status(400).json({ message: "Voucher has already been canceled." });
       }
 
-      // Update voucher status to 'Canceled'
       voucher.voucher_status = "Canceled";
-      voucher.updatedBy = updatedBy ; // Add canceledBy information
+      voucher.updatedBy = updatedBy;
 
-      // Optionally, mark all transactions as canceled (if necessary)
       if (voucher.transactions && voucher.transactions.length > 0) {
         try {
           for (const transaction of voucher.transactions) {
-            transaction.updated_by = updatedBy ; // Mark transaction as canceled by the system
-            await transactionRepo.save(transaction); // Save each transaction
+            transaction.updated_by = updatedBy;
+            await transactionRepo.save(transaction);
           }
         } catch (transactionError) {
           console.error("Error updating transaction:", transactionError);
@@ -248,21 +220,18 @@ export const updateVoucherStatus = async (req: Request, res: Response) => {
         }
       }
     } else if (action === "edit") {
-      // Check if voucher is already sent for edit
       if (voucher.voucher_status === "Edit") {
         return res.status(400).json({ message: "Voucher has already been sent for editting." });
       }
 
-      // Update voucher status to 'Canceled'
       voucher.voucher_status = "Edit";
-      voucher.updatedBy = "Pending" ; // Add sentforedit information
+      voucher.updatedBy = "Pending";
 
-      // Optionally, mark all transactions as canceled (if necessary)
       if (voucher.transactions && voucher.transactions.length > 0) {
         try {
           for (const transaction of voucher.transactions) {
-            transaction.updated_by = "Pending" ; // Mark transaction as canceled by the system
-            await transactionRepo.save(transaction); // Save each transaction
+            transaction.updated_by = "Pending";
+            await transactionRepo.save(transaction);
           }
         } catch (transactionError) {
           console.error("Error updating transaction:", transactionError);
@@ -290,23 +259,17 @@ export const updateVoucherStatus = async (req: Request, res: Response) => {
   }
 };
 
-
-
-// Get a voucher by its voucher number
 export const getVoucherByNumber = async (req: Request, res: Response) => {
   try {
-    // Extract the voucher number from the request parameters
     const voucher_number = Number(req.params.voucher_number);
 
-    // Check if voucher_number is a valid number
     if (isNaN(voucher_number)) {
       return res.status(400).json({ message: 'Invalid voucher number.' });
     }
 
-    // Fetch the voucher by voucher_number, including related transactions
     const voucher = await voucherRepo.findOne({
       where: { voucher_number },
-      relations: ['transactions'],  // To fetch related transactions
+      relations: ['transactions'],
     });
 
     if (!voucher) {
@@ -315,7 +278,7 @@ export const getVoucherByNumber = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: 'Voucher fetched successfully',
-      data: voucher,  // Return the voucher and its transactions
+      data: voucher,
     });
   } catch (err) {
     console.error('Error fetching voucher by number:', err);
@@ -326,34 +289,30 @@ export const getVoucherByNumber = async (req: Request, res: Response) => {
   }
 };
 
-//Get total number of vouchers 
 export const getTotalVouchers = async (req: Request, res: Response) => {
   try {
-    // Ensure AppDataSource is properly initialized and connected
     if (!AppDataSource.isInitialized) {
       console.error('AppDataSource is not initialized');
       return res.status(500).json({ message: 'Database connection not initialized' });
     }
 
-    const voucherRepository = AppDataSource.getRepository(Voucher); // Get the repository via AppDataSource
+    const voucherRepository = AppDataSource.getRepository(Voucher);
     const totalVouchers = await voucherRepository
       .createQueryBuilder('voucher')
-      .select('COUNT(voucher_number)', 'count') // Assuming 'voucher_number' is the unique identifier of the Voucher
-      .getRawOne(); // Get the raw result of the query
+      .select('COUNT(voucher_number)', 'count')
+      .getRawOne();
 
     if (!totalVouchers) {
       console.error('No vouchers found');
       return res.status(404).json({ message: 'No vouchers found' });
     }
 
-    // Convert the count to a number and send it in the response
-    return res.json({ totalVouchers: Number(totalVouchers.count) }); // Explicitly convert to a number
+    return res.json({ totalVouchers: Number(totalVouchers.count) });
   } catch (error) {
     console.error('Error fetching total vouchers:', error);
     return res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
-
 
 export const applyCorrection = async (req: Request, res: Response) => {
   try {
@@ -369,7 +328,6 @@ export const applyCorrection = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Voucher not found' });
     }
 
-    // Update voucher fields
     voucher.customer_name = customer_name || voucher.customer_name;
     voucher.passport_number = passport_number || voucher.passport_number;
     voucher.mobile_number = mobile_number || voucher.mobile_number;
@@ -383,16 +341,14 @@ export const applyCorrection = async (req: Request, res: Response) => {
     
     await voucherRepo.save(voucher);
 
-    // Update transactions if provided
     if (transactions && transactions.length > 0) {
       for (const tx of transactions) {
-        if (!tx.transaction_id) continue; // Ensure transaction_id exists
+        if (!tx.transaction_id) continue;
 
         const transaction = await transactionRepo.findOne({ where: { transaction_id: tx.transaction_id } });
         if (transaction) {
           console.log(`🔍 Found Transaction ID: ${tx.transaction_id}`);
 
-          // Update only provided fields
           transaction.currency_name = tx.currency_name ?? transaction.currency_name;
           transaction.currency_iso_code = tx.currency_iso_code ?? transaction.currency_iso_code;
           transaction.exchange_rate = tx.exchange_rate ?? transaction.exchange_rate;
@@ -402,13 +358,12 @@ export const applyCorrection = async (req: Request, res: Response) => {
           transaction.updated_by = tx.updated_by ?? transaction.updated_by;
 
           await transactionRepo.save(transaction);
-          console.log(`✅ Updated Transaction ID: ${tx.transaction_id}`);
+          console.log(`Updated Transaction ID: ${tx.transaction_id}`);
         } else {
-          console.log(`⚠️ Transaction ID ${tx.transaction_id} not found.`);
+          console.log(`Transaction ID ${tx.transaction_id} not found.`);
         }
       }
     }
-
 
     return res.status(200).json({ message: 'Voucher corrections applied successfully', voucher });
   } catch (error) {

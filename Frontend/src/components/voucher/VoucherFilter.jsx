@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getVoucherByNumber } from '../../services/api';  // Import the function from your api.jsx
+import { getVoucherByNumber } from '../../services/api';  
 
 const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -8,17 +8,16 @@ const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
 
   // Handle search functionality
   const handleSearch = async () => {
-    const query = searchQuery ? parseInt(searchQuery, 10) : '';  // Parse to integer
+    const query = searchQuery ? parseInt(searchQuery, 10) : '';  
     
     if (query) {
-      // Perform the search logic with numeric query
-      onSearch(query);  // Pass the number to the parent component (VoucherList)
+      onSearch(query);  
     } else {
-      onSearch('');  // If query is empty, reset to all vouchers
+      onSearch('');  
     }
   };
 
-  // Handle input change (update searchQuery state)
+  // Change handle garne
   const handleInputChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -26,14 +25,14 @@ const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
 
   // Handle filter status change
   const handleFilterChange = (e) => {
-    setFilterStatus(e.target.value); // Update filter status
-    onFilter(e.target.value); // Pass the filter value to the parent component
+    setFilterStatus(e.target.value); 
+    onFilter(e.target.value); 
   };
 
-  // Handle Enter key press for initiating search
+  // search button
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleSearch(); // Trigger search when Enter is pressed
+      handleSearch(); 
     }
   };
 
@@ -44,8 +43,8 @@ const VoucherFilter = ({ onSearch, onFilter, vouchers }) => {
         <input
           type="text"
           value={searchQuery}
-          onChange={handleInputChange}  // Update query state as the user types
-          onKeyPress={handleKeyPress}   // Trigger search on Enter key press
+          onChange={handleInputChange}  
+          onKeyPress={handleKeyPress}   
           placeholder="Search by Voucher Number"
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
         />

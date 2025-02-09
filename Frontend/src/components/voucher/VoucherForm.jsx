@@ -12,11 +12,11 @@ export default function VoucherForm({ onSubmit }) {
   const [transactions, setTransactions] = useState([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewVoucher, setPreviewVoucher] = useState(null);
-  const [commissionApplied, setCommissionApplied] = useState(false); // Flag to track commission application
+  const [commissionApplied, setCommissionApplied] = useState(false); 
 
   // Clear transactions when voucherType changes
   useEffect(() => {
-    setTransactions([]); // Reset transactions when voucherType changes
+    setTransactions([]); 
   }, [voucherType]);
 
   const handleSubmit = async () => {
@@ -24,7 +24,6 @@ export default function VoucherForm({ onSubmit }) {
       return;
     }
 
-    // Generate the voucher number using the async function
     const voucherNo = await generateVoucherNumber();
 
     const totalAmount = transactions.reduce((sum, t) => sum + t.nprAmount, 0);
@@ -35,7 +34,7 @@ export default function VoucherForm({ onSubmit }) {
     const newVoucher = {
       id: Math.random().toString(36).substr(2, 9),
       type: voucherType,
-      voucherNo: voucherNo, // Use the async-generated voucher number here
+      voucherNo: voucherNo, 
       date: new Date(),
       customer,
       transactions,
@@ -59,7 +58,7 @@ export default function VoucherForm({ onSubmit }) {
     if (previewVoucher) {
       onSubmit(previewVoucher);
       setCustomer(null);
-      setTransactions([]); // Clear transactions after submission
+      setTransactions([]); 
       setShowPreview(false);
       setPreviewVoucher(null);
     }
@@ -106,14 +105,14 @@ export default function VoucherForm({ onSubmit }) {
         <CustomerForm
           value={customer}
           onChange={setCustomer}
-          voucherType={voucherType} // Pass voucherType as a prop
-          key={voucherType} // Use voucherType as a key to trigger re-rendering
+          voucherType={voucherType} 
+          key={voucherType} 
         />
 
 
         <TransactionForm
           transactions={transactions}
-          onChange={setTransactions} // Directly set transactions without applying commission
+          onChange={setTransactions} 
           voucherType={voucherType}
         />
 
@@ -121,8 +120,7 @@ export default function VoucherForm({ onSubmit }) {
           type="button"
           disabled={!customer || transactions.length === 0 || commissionApplied}
           onClick={() => {
-            // applyCommission(); // Apply commission when the button is clicked
-            handleSubmit(); // Proceed with the form submission
+            handleSubmit(); 
           }}
           className="w-auto bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
         >

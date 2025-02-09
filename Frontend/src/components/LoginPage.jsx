@@ -1,21 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext"; // Import useAuth hook
+import { useAuth } from "../contexts/AuthContext"; 
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 
 
 const LoginPage = () => {
   const [staffCode, setStaffCodeInput] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [showPassword, setShowPassword] = useState(false); 
   const [errors, setErrors] = useState({});
-  const { login } = useAuth(); // Get login function from context
+  const { login } = useAuth(); 
   const navigate = useNavigate();
 
-  // Access the API URL from environment variables (using Vite-specific approach)
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Handle errors
   const handleErrors = (field, message) => {
     setErrors((prevErrors) => ({
       ...prevErrors,
@@ -23,7 +21,6 @@ const LoginPage = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -58,7 +55,6 @@ const LoginPage = () => {
 
         login(data.token, data.role, data.staffCode, data.staffName, data.designation);
 
-        // Redirect based on role
         if (data.role === "Admin" || data.role === "SuperAdmin") {
           navigate("/user-list");
         } else if (data.role === "Creator") {
@@ -119,7 +115,7 @@ const LoginPage = () => {
                   ${errors.password ? "border-red-400" : "border-gray-300 hover:border-blue-500"}`}
                 >
                   <input
-                    type={showPassword ? "text" : "password"} // Toggle between text and password
+                    type={showPassword ? "text" : "password"} 
                     value={password}
                     onChange={(e) => {
                       setErrors({});

@@ -20,18 +20,17 @@ export function VoucherPreview({
   const [refreshKey, setRefreshKey] = useState(0);
   const [confirmAction, setConfirmAction] = useState({
     show: false,
-    type: '', // 'submit' or 'cancel'
-    voucherNumber: null, // Optional: Pass a voucher number if needed
+    type: '', 
+    voucherNumber: null, 
   });
 
-  // Add click handler for outside clicks
+  
   const handleOutsideClick = (e) => {
     if (e.target.classList.contains('modal-overlay')) {
       onClose();
     }
   };
 
-   // Fetch logged-in user info
     useEffect(() => {
       const fetchUser = async () => {
         try {
@@ -45,7 +44,6 @@ export function VoucherPreview({
       fetchUser();
     }, []);
 
-  // Function to handle voucher generation
   const handleGenerateVoucher = async () => {
     try {
       if (!authState || !authState.staffName) {
@@ -58,7 +56,7 @@ export function VoucherPreview({
 
       const itrsCode = voucher?.customer?.itrsCode ? Number(voucher.customer.itrsCode) : null;
 
-      console.log("Voucher data before sending to API:", voucher); // Debug log
+      console.log("Voucher data before sending to API:", voucher); 
 
       const voucherData = {
         customer_name: voucher?.customer?.name || '',
@@ -81,7 +79,7 @@ export function VoucherPreview({
       };
 
       const response = await axios.post(`${apiUrl}/api/voucher`, voucherData);
-      console.log("API response:", response.data); // Debug log
+      console.log("API response:", response.data); 
 
       if (onGenerate) {
         onGenerate();
@@ -97,12 +95,11 @@ export function VoucherPreview({
 
   
 
-  // Function to trigger the confirmation dialog
   const handleConfirmGenerateVoucher = () => {
     setConfirmAction({
       show: true,
       type: 'submit',
-      voucherNumber: null, // Optional: Pass a voucher number if needed
+      voucherNumber: null, 
     });
   };
 
@@ -114,8 +111,8 @@ export function VoucherPreview({
       await updateVoucherStatus(voucherNumber, "verify", loggedInUser);
       setConfirmAction({ show: false, type: "", voucherNumber: null });
       alert("Voucher verified successfully!");
-      onClose(); // Close preview modal first
-      if (onRefresh) onRefresh(); // Refresh the list
+      onClose(); 
+      if (onRefresh) onRefresh(); 
     } catch (error) {
       console.error("Error verifying voucher:", error);
       alert("Failed to verify voucher.");
@@ -128,8 +125,8 @@ export function VoucherPreview({
     try {
       await updateVoucherStatus(confirmAction.voucherNumber, "cancel", loggedInUser);
       alert("Voucher canceled successfully!");
-      onClose(); // Close preview modal first
-      if (onRefresh) onRefresh(); // Refresh the list
+      onClose(); 
+      if (onRefresh) onRefresh(); 
     } catch (error) {
       console.error("Error canceling voucher:", error);
       alert("Failed to cancel voucher.");
@@ -145,8 +142,8 @@ export function VoucherPreview({
       await updateVoucherStatus(confirmAction.voucherNumber, "edit", loggedInUser);
       alert("Voucher sent for edit successfully!");
       setConfirmAction({ show: false, type: "", voucherNumber: null });
-      onClose(); // Close preview modal first
-      if (onRefresh) onRefresh(); // Refresh the list
+      onClose(); 
+      if (onRefresh) onRefresh(); 
     } catch (error) {
       console.error("Failed to update voucher status:", error);
       alert("Failed to send voucher for edit.");
@@ -154,10 +151,8 @@ export function VoucherPreview({
   };
   
 
-  // Log the voucher data before rendering
   console.log("Voucher data before rendering:", voucher);
 
-  // Check if the voucher is verified
   const isVoucherVerified = isVerified;
 
   return (
@@ -280,7 +275,7 @@ export function VoucherPreview({
               <button
                 onClick={onPrint}
                 className={`bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 ${!isVoucherVerified ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={!isVoucherVerified} // Disable print button if voucher is not verified
+                disabled={!isVoucherVerified} 
               >
                 Print
               </button>

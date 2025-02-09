@@ -14,7 +14,7 @@ export const generateVoucherNumber = async (): Promise<string> => {
     // Increment to generate the next voucher number
     voucherCounter++;
 
-    return voucherCounter.toString(); // Return as a string
+    return voucherCounter.toString(); 
   } catch (error) {
     console.error('Error generating voucher number:', error);
     throw new Error('Error generating voucher number');
@@ -23,7 +23,7 @@ export const generateVoucherNumber = async (): Promise<string> => {
 
 export function formatAmount(amount: number): string {
   if (amount == null || isNaN(amount)) {
-    return '0.00'; // Return a default value if amount is null or NaN
+    return '0.00'; 
   }
   return amount.toLocaleString('en-US', {
     minimumFractionDigits: 2,

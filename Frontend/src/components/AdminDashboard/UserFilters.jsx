@@ -3,11 +3,6 @@ import { UserPlus, Filter } from 'lucide-react';
 import { manualFetchForexRates } from '../../services/api';
 
 export default function UserFilters({ statusFilter, roleFilter, onStatusFilterChange, onRoleFilterChange, onAddUser }) {
-  // const handleFetchData = () => {
-  //   // This function will be responsible for fetching data from the API
-  //   console.log("Fetching data from API...");
-  //   // You can replace this with the actual API call logic later.
-  // };
   return (
     <div className="bg-white p-4 rounded-sm shadow mb-6 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
       <div className="flex items-center space-x-3">
@@ -52,7 +47,7 @@ export default function UserFilters({ statusFilter, roleFilter, onStatusFilterCh
           onClick={() => {
             manualFetchForexRates();
             setTimeout(() => {
-              window.location.reload(); // Reload the window after 3 seconds
+              window.location.reload(); 
             }, 3000); 
           }}
           className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"

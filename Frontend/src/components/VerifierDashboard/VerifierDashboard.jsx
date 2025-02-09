@@ -29,11 +29,9 @@ const VerifierDashboard = () => {
       getUserInfo();
     }
 
-    // Fetch vouchers when the component loads
     fetchVouchersData();
   }, [loggedInUser]);
 
-  // Fetch the vouchers from the backend
   const fetchVouchersData = async () => {
     try {
       const fetchedVouchers = await fetchVouchers();
@@ -43,15 +41,13 @@ const VerifierDashboard = () => {
     }
   };
 
-  // Handle verifying a voucher
   const handleVerifyVoucher = async (voucherNumber) => {
     if (!loggedInUser) {
       console.error('Logged-in user not found');
-      return; // Return early if logged-in user is not available
+      return; 
     }
 
     try {
-      // Ensure loggedInUser has the necessary staff_name field
       if (!loggedInUser.staff_name) {
         throw new Error('Logged-in user does not have staff_name');
       }
@@ -63,16 +59,13 @@ const VerifierDashboard = () => {
   };
 
   const handleFilterChange = (filter) => {
-    // console.log('Filter updated:', filter);
   };
 
-  // Handle previewing a voucher
   const handlePreviewVoucher = (voucher) => {
     setSelectedVoucher(voucher);
     setShowPreview(true);
   };
 
-  // Handle closing the preview modal
   const handleClosePreview = () => {
     setShowPreview(false);
     setSelectedVoucher(null);
@@ -143,8 +136,8 @@ const VerifierDashboard = () => {
         {view === 'list' && (
           <VoucherList
             vouchers={vouchers}
-            onVerify={handleVerifyVoucher} // Pass the verify handler to VoucherList
-            onPreview={handlePreviewVoucher} // Pass the preview handler
+            onVerify={handleVerifyVoucher} 
+            onPreview={handlePreviewVoucher} 
           />
         )}
         {view === 'exchangeRates' && <ExchangeRatesTable />}

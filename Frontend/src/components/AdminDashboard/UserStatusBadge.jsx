@@ -14,10 +14,9 @@ export default function UserStatusBadge({ status, onClick }) {
       return;
     }
 
-    // Call the onClick function passed as prop with the status change and the remark
     onClick(status, remark);
-    setRemark(''); // Reset the remark after status change
-    setIsRemarking(false); // Close the remark input field
+    setRemark(''); 
+    setIsRemarking(false); 
   };
 
   return (

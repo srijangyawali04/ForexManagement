@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Create a Context for Authentication
 const AuthContext = createContext();
 
-// AuthProvider component that provides authentication state
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     token: localStorage.getItem('authToken'),
@@ -13,7 +11,6 @@ export const AuthProvider = ({ children }) => {
     designation: localStorage.getItem('designation'),
   });
 
-  // Check if the token is expired (Example: assuming token is a JWT)
   const isTokenExpired = (token) => {
     if (!token) return true;
     const payload = JSON.parse(atob(token.split('.')[1]));
@@ -22,15 +19,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Automatically logout user if token is expired
     if (authState.token && isTokenExpired(authState.token)) {
       logout();
     }
   }, [authState.token]);
 
-  // Login function to update the auth state
   const login = (token, role, staffCode, staffName , designation) => {
-    setAuthState({ token, role, staffCode, staffName }); // Store staffName along with other details
+    setAuthState({ token, role, staffCode, staffName }); 
     localStorage.setItem('authToken', token);
     localStorage.setItem('role', role);
     localStorage.setItem('staff_code', staffCode);
@@ -38,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('designation', designation);
   };
 
-  // Logout function to clear authentication state
+
   const logout = () => {
     setAuthState({ token: null, role: null, staffCode: null, staffName: null });
     localStorage.removeItem('authToken');
@@ -55,7 +50,6 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

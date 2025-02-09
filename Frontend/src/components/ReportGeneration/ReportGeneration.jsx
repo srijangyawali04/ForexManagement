@@ -24,13 +24,11 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
       try {
         const rates = await fetchExchangeRates();
         
-        // Transform the fetched rates to match the structure of the CURRENCIES array
         const currencyList = rates.map((rate) => ({
           code: rate.currency_iso,
-          name: `${rate.currency_name} (${rate.currency_iso})`, // Use currency_name and currency_iso
+          name: `${rate.currency_name} (${rate.currency_iso})`, 
         }));
 
-        // Prepend the "All Currencies" option
         setCurrencies([{ code: 'all', name: 'All Currencies' }, ...currencyList]);
         setLoading(false);
       } catch (error) {
@@ -98,38 +96,32 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   };
 
   const handleCreateReport = async () => {
-    setLoading(true); // Set loading to true when the report is being fetched
+    setLoading(true); 
     try {
       let filters = {};
   
-      // Check if the "today" filter is selected
       if (filterType === 'today') {
         filters.today = true;
       } else {
-        // Use date range if not 'today'
-        filters.startDate = dateRange.startDate; // Assuming dateRange has a startDate and endDate property
+        filters.startDate = dateRange.startDate; 
         filters.endDate = dateRange.endDate;
       }
   
-      // Include the currency filter if selected
       if (selectedCurrency && selectedCurrency !== 'all') {
         filters.currency = selectedCurrency;
       }
   
-      // Include the transaction type if selected and it's not 'all'
       if (selectedVoucherType && selectedVoucherType !== 'all') {
         filters.transactionType = selectedVoucherType;
       }
   
-      // Fetch the transaction report using the constructed filters
       const data = await fetchTransactionReport(filters);
       
-      // Store the fetched data in state
       setTransactionData(data);
     } catch (error) {
       console.error('Error fetching transaction report:', error);
     } finally {
-      setLoading(false); // Set loading to false after the data is fetched or if an error occurred
+      setLoading(false); 
     }
   };
   
@@ -166,12 +158,10 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
 
   const activeFilters = getActiveFilters();
 
-   // Calculate totals for remit-in and remit-out transactions
    const totals = (transactionData.data || []).reduce((acc, transaction) => {
     const nprAmount = parseFloat(transaction.NPR_amount);
     let commission = parseFloat(transaction.commission);
   
-    // If commission is NaN, set it to 0 so it doesn't affect the total
     if (isNaN(commission)) {
       commission = 0;
     }
@@ -191,14 +181,11 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
   });
 
   const handleDownloadPDF = () => {
-    // Validate and get the selected currency from transactionData
     const transactions = transactionData.data || [];
-    const currency = transactions.length > 0 && transactions[0].currency_name ? transactions[0].currency_name : 'N/A'; // Default if no data
+    const currency = transactions.length > 0 && transactions[0].currency_name ? transactions[0].currency_name : 'N/A'; 
   
-    // Validate transaction_type from transactionData
-    const transactionType = transactionData.transaction_type || 'N/A'; // Default if not found
+    const transactionType = transactionData.transaction_type || 'N/A'; 
   
-    // Ensure the totals are valid numbers
     const remitInTotal = totals.remitIn.nprAmount;
     const remitInCommission = totals.remitIn.commission;
     const remitInNetTotal = totals.remitIn.netTotal;
@@ -206,10 +193,10 @@ export const TransactionDateFilter = ({ onFilterChange }) => {
     
   
     generateTransactionPDF({
-      startDate: dateRange.startDate,  // Start date from dateRange
-      endDate: dateRange.endDate,      // End date from dateRange
+      startDate: dateRange.startDate,  
+      endDate: dateRange.endDate,      
       selectedCurrency,              
-      voucherType: selectedVoucherType,    // Transaction type from transactionData
+      voucherType: selectedVoucherType,    
       transactions,   
       remitInTotal,
       remitInCommission,

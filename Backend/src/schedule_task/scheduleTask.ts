@@ -7,7 +7,7 @@
 //   console.log(`Current Nepal Time: ${nowNepalTime}`);
 
 //   // Schedule to run at 18:30 Nepal Time daily
-//   cron.schedule("16 18 * * *", async () => {
+//   cron.schedule("20 9 * * *", async () => {
 //     console.log(`Fetching forex rates at: ${nowNepalTime}`);
 //     await fetchForexRates();
 //   });
@@ -25,7 +25,7 @@ const scheduleTask = () => {
   console.log(`Server's local time (UTC): ${nowUtcTime}`); // Display the UTC time
 
   // Schedule to run at 18:30 UTC (adjust this time as needed)
-  cron.schedule("41 12 * * *", async () => {
+  cron.schedule("36 3 * * *", async () => {
     console.log(`Fetching forex rates at the server's local time (UTC).`);
     await fetchForexRates();
   });

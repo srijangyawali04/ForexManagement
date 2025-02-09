@@ -19,15 +19,14 @@ const VoucherList = ({ onVerify  }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [voucherStatus, setVoucherStatus] = useState('');
   const [confirmAction, setConfirmAction] = useState({ show: false, type: '', voucherNumber: null });
-  const [previewedVoucher, setPreviewedVoucher] = useState(null); // Added to track previewed voucher
+  const [previewedVoucher, setPreviewedVoucher] = useState(null); 
   const { authState } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // Add refresh state
+  const [refreshKey, setRefreshKey] = useState(0); 
 
-  const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
+  const today = new Date().toISOString().split("T")[0]; 
   const isPastDate = (voucherDate) => new Date(voucherDate) < new Date(today);
 
-  // Fetch logged-in user info
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -41,13 +40,12 @@ const VoucherList = ({ onVerify  }) => {
     fetchUser();
   }, []);
 
-  // Fetch vouchers from the backend
   useEffect(() => {
     const fetchVoucherData = async () => {
       try {
         const data = await fetchVouchers(loggedInUser);
         setVouchers(data.data || []);
-        setFilteredVouchers(data.data || []); // Set filtered vouchers directly
+        setFilteredVouchers(data.data || []); 
       } catch (error) {
         console.error('Error fetching vouchers:', error);
       }
@@ -60,7 +58,6 @@ const VoucherList = ({ onVerify  }) => {
   
   
 
-  // Combine search query and status filter
   useEffect(() => {
     let filtered = vouchers;
 
@@ -77,7 +74,7 @@ const VoucherList = ({ onVerify  }) => {
     }
 
     setFilteredVouchers(filtered);
-    setCurrentPage(1); // Reset to page 1 when filter or search changes
+    setCurrentPage(1); 
   }, [searchQuery, voucherStatus, vouchers]);
   
 
@@ -102,15 +99,13 @@ const VoucherList = ({ onVerify  }) => {
       } else if (confirmAction.type === 'cancel') {
         await updateVoucherStatus(confirmAction.voucherNumber, 'cancel', loggedInUser);
       }
-      // Instead of window.location.reload(), trigger component refresh
-      setRefreshKey(prevKey => prevKey + 1); // Force component re-render
+      setRefreshKey(prevKey => prevKey + 1); 
       setConfirmAction({ show: false, type: '', voucherNumber: null });
     } catch (error) {
       console.error(`Error ${confirmAction.type}ing voucher:`, error);
     }
   };
 
-  // Add key to force re-render when refreshKey changes
   useEffect(() => {
     const fetchVoucherData = async () => {
       try {

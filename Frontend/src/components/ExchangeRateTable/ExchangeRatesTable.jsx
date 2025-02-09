@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchExchangeRates } from '../../services/api'; // Adjust the path
+import { fetchExchangeRates } from '../../services/api'; 
 
 const ExchangeRatesTable = () => {
   const [exchangeRates, setExchangeRates] = useState([]);
@@ -9,7 +9,7 @@ const ExchangeRatesTable = () => {
   useEffect(() => {
     const getExchangeRates = async () => {
       try {
-        const rates = await fetchExchangeRates(); // This should be an API call fetching exchange rate data
+        const rates = await fetchExchangeRates(); 
         setExchangeRates(rates);
         setLoading(false);
       } catch (err) {
@@ -52,7 +52,6 @@ const ExchangeRatesTable = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {exchangeRates.map((rate, index) => {
-                // Parse the buy_rate and sell_rate to ensure they are numbers before calling .toFixed()
                 const buyRate = !isNaN(rate.buy_rate) ? parseFloat(rate.buy_rate).toFixed(4) : 'N/A';
                 const sellRate = !isNaN(rate.sell_rate) ? parseFloat(rate.sell_rate).toFixed(4) : 'N/A';
 

@@ -5,18 +5,15 @@ import { AppDataSource } from "../initializers/data-source";
 
 const userRepo = AppDataSource.getRepository(User);
 
-// Password validation function
 const isPasswordStrong = (password: string): boolean => {
   const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return regex.test(password);
 };
 
-// Add User Information
 export const createUser = async (req: Request, res: Response) => {
   const { staff_code, password, staff_name, designation, role, email, mobile_number, user_status, remarks } = req.body;
 
   try {
-    // Check if a user with the same staff_code already exists
     const existingUser = await userRepo.findOne({ where: { staff_code } });
 
     if (existingUser) {
@@ -25,7 +22,6 @@ export const createUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate the password strength
     if (!isPasswordStrong(password)) {
       return res.status(400).json({
         message:
@@ -33,13 +29,11 @@ export const createUser = async (req: Request, res: Response) => {
       });
     }
 
-    // Hash the password before saving it to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user object with the hashed password
     const user = userRepo.create({
       staff_code,
-      password: hashedPassword, // Use hashed password here
+      password: hashedPassword,
       staff_name,
       designation,
       role,
@@ -49,7 +43,6 @@ export const createUser = async (req: Request, res: Response) => {
       remarks,
     });
 
-    // Save the user to the database
     await userRepo.save(user);
     delete user.password;
     return res.status(200).json({
@@ -58,23 +51,16 @@ export const createUser = async (req: Request, res: Response) => {
     });
   } catch (err) {
     console.error("ERROR: Server error occurred during user creation.", err);
-    return res.status(500).json({ message: "Server Error" }); /// new
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
-
-
-
-
-// Get a user by staff_code
 export const getUserByStaffCode = async (req: Request, res: Response): Promise<Response> => {
-  const { staffCode } = req.params; // Extracting staffCode from the URL parameters
+  const { staffCode } = req.params;
 
   try {
-    // Initialize the user repository
     const userRepo = AppDataSource.getRepository(User);
 
-    // Find the user by staff_code
     const user = await userRepo.findOne({
       where: { staff_code: staffCode },
     });
@@ -83,8 +69,7 @@ export const getUserByStaffCode = async (req: Request, res: Response): Promise<R
       return res.status(404).json({ message: 'User not found.' });
     }
 
-    // If the user is found, send back the user data (excluding the password)
-    const { password, ...userData } = user; // Exclude the password from the response
+    const { password, ...userData } = user;
     return res.status(200).json(userData);
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -92,11 +77,8 @@ export const getUserByStaffCode = async (req: Request, res: Response): Promise<R
   }
 };
 
-
-// Get all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    // Use the repository's find method to get all users
     const users = await userRepo.find();
     res.status(200).json(users);
   } catch (error) {
@@ -105,10 +87,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-
-// Update user status
 export const updateUserStatus = async (req: Request, res: Response) => {
-  const { staff_code, user_status, remark } = req.body; // Include remark in request body
+  const { staff_code, user_status, remark } = req.body;
 
   try {
     const user = await userRepo.findOne({ where: { staff_code } });
@@ -117,9 +97,8 @@ export const updateUserStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update user status and remark (if provided)
     user.user_status = user_status;
-    user.remarks = remark; // Assuming 'remarks' is a field in your User entity
+    user.remarks = remark;
 
     await userRepo.save(user);
 
@@ -133,20 +112,16 @@ export const updateUserStatus = async (req: Request, res: Response) => {
   }
 };
 
-
-// Reset Password 
 export const passwordReset = async (req: Request, res: Response) => {
   const { staff_code, password } = req.body;
 
   try {
-    // Find the user by staff_code
     const user = await userRepo.findOne({ where: { staff_code } });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Validate the new password strength
     if (!isPasswordStrong(password)) {
       return res.status(400).json({
         message:
@@ -154,13 +129,10 @@ export const passwordReset = async (req: Request, res: Response) => {
       });
     }
 
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Update the user's password
     user.password = hashedPassword;
 
-    // Save the updated user record to the database
     await userRepo.save(user);
 
     return res.status(200).json({

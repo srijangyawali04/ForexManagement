@@ -10,7 +10,7 @@ router.get("/", getAllCurrencies);
 // Route to manually trigger forex rates fetch
 router.post("/trigger-fetch", async (req, res) => {
     try {
-      await fetchForexRates();  // Trigger the function to fetch data
+      await fetchForexRates();  
       res.status(200).json({ message: "Forex rates fetched successfully!" });
     } catch (error) {
       console.error("Error fetching forex rates:", error.message);
