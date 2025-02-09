@@ -279,7 +279,8 @@ export const fetchVouchers = async (user) => {
     if (user?.role === 'Creator') {
       url += `?staffCode=${user.staff_code}`;
     }
-    console.log('logged ', user)
+
+    // console.log('logged ', user)
     console.log('url',url)
     const response = await fetch(url, {
       method: 'GET',

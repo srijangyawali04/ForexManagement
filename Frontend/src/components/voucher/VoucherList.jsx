@@ -45,7 +45,7 @@ const VoucherList = ({ onVerify  }) => {
       try {
         const data = await fetchVouchers(loggedInUser);
         setVouchers(data.data || []);
-        setFilteredVouchers(data.data || []); 
+        // setFilteredVouchers(data.data || []); 
       } catch (error) {
         console.error('Error fetching vouchers:', error);
       }
@@ -55,6 +55,8 @@ const VoucherList = ({ onVerify  }) => {
       fetchVoucherData();
     }
   }, [loggedInUser]);
+  console.log("data",vouchers)
+  // console.log('Logged in user',loggedInUser)
   
   
 
@@ -106,18 +108,18 @@ const VoucherList = ({ onVerify  }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchVoucherData = async () => {
-      try {
-        const data = await fetchVouchers(loggedInUser);
-        setVouchers(data.data || []);
-      } catch (error) {
-        console.error('Error fetching vouchers:', error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchVoucherData = async () => {
+  //     try {
+  //       const data = await fetchVouchers(loggedInUser);
+  //       setVouchers(data.data || []);
+  //     } catch (error) {
+  //       console.error('Error fetching vouchers:', error);
+  //     }
+  //   };
 
-    fetchVoucherData();
-  }, [loggedInUser, refreshKey]); 
+  //   fetchVoucherData();
+  // }, [loggedInUser, refreshKey]); 
 
   const isVerifier = loggedInUser?.role === 'Verifier';
 
