@@ -16,7 +16,7 @@ dotenv.config();
 
 // Configure CORS
 const corsOptions = {
-    origin: "http://remittancesystem.srijangyawali.com" ,  
+    origin: "http://localhost:5173/" ,  
     methods: ["GET", "POST", "PUT", "PATCH"], 
     credentials: true, 
 };
