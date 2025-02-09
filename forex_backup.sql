@@ -5,6 +5,16 @@
 -- Dumped from database version 16.6 (Ubuntu 16.6-0ubuntu0.24.04.1)
 -- Dumped by pg_dump version 16.6 (Ubuntu 16.6-0ubuntu0.24.04.1)
 
+DROP TABLE IF EXISTS exchange_rates CASCADE;
+DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS voucher CASCADE;
+DROP TYPE IF EXISTS public.users_designation_enum CASCADE;
+DROP TYPE IF EXISTS public.users_role_enum CASCADE;
+DROP TYPE IF EXISTS public.users_user_status_enum CASCADE;
+DROP TYPE IF EXISTS public.voucher_voucher_cancellation_enum CASCADE;
+DROP TYPE IF EXISTS public.voucher_voucher_status_enum CASCADE;
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
